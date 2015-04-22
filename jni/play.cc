@@ -612,8 +612,9 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_connect(JNIEnv *env, jclass clazz,
 					(isPhone == JNI_TRUE) ? true : false, connectType,
 					is_play_directly, nVip, nTcp);
 		} else {
-			JVC_Connect(index + 1, 1, "10.10.0.1", 9101, "jwifiApuser",
-					"^!^@#￼&1a**U", -1, "A", false, false, true, 5, true, 0, 0);
+			//2015.4.22 jy因播放sdk修改此接口 含义已变，isAp轻易不要为true
+			JVC_Connect(index + 1, 1, "10.10.0.1", 9101, user,
+					pwd, -1, "A", false, false, true, 5, true, 0, 0);
 		}
 		result = window;
 
