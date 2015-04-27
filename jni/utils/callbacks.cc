@@ -1058,14 +1058,14 @@ void ChatData(int index, BYTE type, BYTE* buf, int size) {
 				}
 
 #ifdef DEBUG_AUDIO
-				LOGV(
-						"%s [%p]: window = %d, audio.size = %d\n", LOCATE_PT, window, size);
+				LOGX(
+						"%s [%p]: window = %d, audio.size = %d", LOCATE_PT, window, size);
 #endif
 
 				offer_audio_frame(player, buf, size, true);
 			}
 		} else {
-			LOGW(
+			LOGXX(
 					"%s [%p]: E, window = %d, 0x%X, data.size = %d", LOCATE_PT, window, type, size);
 
 			jboolean needDetach = JNI_FALSE;

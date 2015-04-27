@@ -334,7 +334,7 @@ void* onPlayVideo(void* _index) {
 			if (NULL != g_handle && NULL != g_notifyid) {
 				// [Neo] call back
 				env->CallVoidMethod(g_handle, g_notifyid, CALL_CONNECT_CHANGE,
-						(jint) window, (jint) BAD_NOT_CONNECT, NULL);
+						(jint) window, (jint)BAD_NOT_CONNECT, NULL);
 			}
 
 			if (JNI_TRUE == needDetach) {
@@ -866,8 +866,10 @@ void* onPlayVideo(void* _index) {
 							if (NULL != g_handle && NULL != g_notifyid) {
 								env->CallVoidMethod(g_handle, g_notifyid,
 										CALL_NEW_PICTURE, (jint) window,
-										(jint) (player->try_omx
-												&& NULL != core->hdec_handle) ?
+										(jint)(
+												player->try_omx
+														&& NULL
+																!= core->hdec_handle) ?
 												1 : 0, NULL);
 							}
 							if (JNI_TRUE == needDetach) {
@@ -883,7 +885,7 @@ void* onPlayVideo(void* _index) {
 #ifdef DEBUG_TS_DETAILS
 							LOGX(
 									"let check: %10d, %llu", f->ts, meta->delta_ts);
-#endif /* DEBUG_TS */
+#endif
 						} else {
 							need_delay = meta->video_frame_period
 									- (int) (currentMillisSec() - timeStamp);
@@ -895,7 +897,7 @@ void* onPlayVideo(void* _index) {
 #ifdef DEBUG_TS
 							LOGXX(
 									"overloaded %10d, %llu", f->ts, meta->delta_ts);
-#endif /* DEBUG_TS */
+#endif
 							meta->delta_ts = currentMillisSec() - f->ts;
 						}
 					}
@@ -1017,7 +1019,7 @@ void* onPlayVideo(void* _index) {
 		if (NULL != g_handle && NULL != g_notifyid) {
 			// [Neo] call back
 			env->CallVoidMethod(g_handle, g_notifyid, CALL_CONNECT_CHANGE,
-					(jint) window, (jint) BAD_NOT_CONNECT, NULL);
+					(jint) window, (jint)BAD_NOT_CONNECT, NULL);
 		}
 
 		if (JNI_TRUE == needDetach) {
@@ -1045,6 +1047,7 @@ void* onPlayAudio(void* _index) {
 	int bad_status = BAD_STATUS_NOOP;
 
 	bool can_decode = false;
+	bool append_result = false;
 
 	int need_delay = 0;
 
@@ -1220,9 +1223,14 @@ void* onPlayAudio(void* _index) {
 #ifdef _USE_OPENAL_
 			player->alu->append((unsigned char*) audio_out, result);
 #else
-			if (false
-					== player->track->append((unsigned char*) audio_out,
-							result)) {
+			append_result = player->track->append((unsigned char*) audio_out,
+					result);
+
+#ifdef DEBUG_AUDIO
+			LOGXX("append audio: %d, size = %d", append_result, f->size);
+#endif
+
+			if (false == append_result) {
 				pthread_mutex_lock(&(stat->mutex));
 				stat->audio_jump_count++;
 				pthread_mutex_unlock(&(stat->mutex));
