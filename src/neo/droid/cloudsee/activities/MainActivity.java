@@ -138,7 +138,7 @@ public class MainActivity extends BaseActivity implements
 
 		isTcp = false;
 		tryOmx = false;
-		enableYST = false;
+		enableYST = true;
 
 		deviceList = new ArrayList<Device>();
 
@@ -159,7 +159,12 @@ public class MainActivity extends BaseActivity implements
 		// "q", true, 1));
 		// deviceList.add(new Device("172.16.27.236", 9101, "A", 230283235,
 		// "admin", "1", false, 1));
-		deviceList.add(new Device("172.16.27.236", 9101, "A", 362, "abc",
+		// deviceList.add(new Device("172.16.27.236", 9101, "A", 362, "abc",
+		// "123", false, 1));
+		// deviceList.add(new Device("172.16.27.236", 9101, "A", 30121922,
+		// "abc",
+		// "123", false, 1));
+		deviceList.add(new Device("172.16.27.236", 9101, "S", 239912363, "abc",
 				"123", false, 1));
 
 		for (Device device : deviceList) {
@@ -182,7 +187,7 @@ public class MainActivity extends BaseActivity implements
 		Jni.setLinkHelper(genLinkHelperJson());
 		Jni.setStat(true);
 
-		deviceList.get(0).setNo(-1);
+		// deviceList.get(0).setNo(-1);
 
 		manager = PlayWindowManager.getIntance(this);
 		int size = channelList.size();
@@ -622,11 +627,11 @@ public class MainActivity extends BaseActivity implements
 	}
 
 	public void onF1(View view) {
-//		Jni.enablePlayAudio(targetIndex, true);
-//		Jni.resumeAudio(targetIndex);
+		Jni.enablePlayAudio(targetIndex, true);
+		Jni.resumeAudio(targetIndex);
 
-		Jni.foo(null);
-		
+		// Jni.foo(null);
+
 		// new Thread() {
 		//
 		// @Override
@@ -710,14 +715,14 @@ public class MainActivity extends BaseActivity implements
 		// Jni.startAudioRecord(16, 640);
 		// Jni.setFrameCounts(targetIndex, 25, 25);
 
-		// Jni.enablePlayback(targetIndex, true);
-		// String target =
-		// // "E:\\JdvrFile\\20150115\\01023100.mp4";
-		// // "./rec/13/20141231/M01075155.sv5";
+		Jni.enablePlayback(targetIndex, true);
+		String target =
+		// "E:\\JdvrFile\\20150115\\01023100.mp4";
+		// "./rec/13/20141231/M01075155.sv5";
 		// "./rec/02/20150202/N01155005.mp4";
-		// Jni.sendBytes(targetIndex, JVNetConst.JVN_REQ_PLAY,
-		// target.getBytes(),
-		// target.getBytes().length);
+		"./rec/00/20150420/N01000700.mp4";
+		Jni.sendBytes(targetIndex, JVNetConst.JVN_REQ_PLAY, target.getBytes(),
+				target.getBytes().length);
 
 		// Jni.resume(targetIndex, channelList.get(targetIndex).getSurface());
 		// Jni.setColor(targetIndex, 0, 0, 0, 0);
