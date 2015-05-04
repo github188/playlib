@@ -1125,6 +1125,8 @@ void TextData(int index, BYTE type, BYTE* buf, int size) {
 
 				LOGD(
 						"TextData.pac type = %d, count = %d, id = %d, len = %d", stpacket.nPacketType, stpacket.nPacketCount, stpacket.nPacketID, stpacket.nPacketLen);
+				LOGD(
+						"TextData.pac acData = %s", buf);
 
 				values["packet_type"] = stpacket.nPacketType;
 				values["packet_count"] = stpacket.nPacketCount;
@@ -1140,6 +1142,8 @@ void TextData(int index, BYTE type, BYTE* buf, int size) {
 				case RC_EXTEND: {
 					LOGD(
 							"TextData.ex type = %d, p1 = %d, p2 = %d, p3 = %d", _extends->nType, _extends->nParam1, _extends->nParam2, _extends->nParam3);
+					LOGD(
+							"TextData.ex acData = %s", _extends->acData);
 
 					switch ((unsigned int) stpacket.nPacketCount) {
 					case RC_EX_NETWORK: {
