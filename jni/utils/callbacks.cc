@@ -1207,7 +1207,11 @@ void TextData(int index, BYTE type, BYTE* buf, int size) {
 						} else if (EX_STORAGE_FORMAT == _extends->nType) {
 //							LOGX( "textdata.storage: format");
 						} else if (EX_STORAGE_REFRESH == _extends->nType) {
-//							LOGX( "textdata.storage: refresh");
+						    LOGX( "textdata.storage: refresh, flag=0x07");
+						    flag = 0x07;//获取设备SDK存储容量状态
+							pmsg = byte2char((BYTE*) (_extends->acData),
+									0, _extends->nParam1);
+
 						} else if (EX_STORAGE_SWITCH == _extends->nType) {
 							flag = 100;
 						} else {
