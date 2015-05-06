@@ -580,6 +580,9 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_genVoice
 JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_tcpConnect
   (JNIEnv *, jclass, jint, jint, jstring, jint, jstring, jstring, jint, jstring, jboolean, jint, jint);
 
+
+JNIEXPORT jstring JNICALL Java_com_jovision_Jni_getBatchChannelCount(JNIEnv *env,
+		jclass clazz, jint jtimeouts, jstring jreqjson);
 #endif // CASTRATE
 
 #ifdef __cplusplus

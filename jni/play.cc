@@ -2206,4 +2206,75 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_tcpConnect(JNIEnv *env,
 	return result;
 }
 
+JNIEXPORT jstring JNICALL Java_com_jovision_Jni_getBatchChannelCount(JNIEnv *env,
+		jclass clazz, jint jtimeouts, jstring jreqjson) {
+
+	jboolean isCopyReq;
+	int result = -1;
+
+	char *req_json = (char *) env->GetStringUTFChars(jreqjson, &isCopyReq);
+
+	LOGV( "getBatchChannelCount E: req=%s", req_json);
+
+
+	char* buffer = (char*) malloc(10*1024);
+	memset(buffer, 0, 10*1024);
+
+    Reader reader;
+    Value root, req_array;
+
+
+    Value res_root;
+    Value array_obj;
+    Value item;
+    do{
+
+
+        if (!reader.parse(req_json, root, false))
+        {
+            result = -9;
+            break;
+        }
+
+        std::string group_id;
+        int yst_no;
+        req_array = root["array"];
+        int size = req_array.size();
+        for (int i=0; i<size; ++i)
+        {
+            group_id = root[i]["gid"].asString();
+            yst_no = root[i]["ystno"].asInt();
+
+            memcpy(&buffer[0 + i * 12], group_id.c_str(), 4);
+            memcpy(&buffer[4 + i * 12], &yst_no, 4);
+        }
+
+
+        result = JVC_WANGetBatchChannelCount(buffer, size, (int)jtimeouts);
+
+
+ 	    for(int i = 0; i < size; i++)
+        {
+            unsigned short nChannelNum = 0;
+            memcpy(&nChannelNum, &buffer[8 + i * 12], 2);
+            LOGE("SEARCH RESULT: %d",nChannelNum);
+
+            item["gid"] = root[i]["gid"].asString().c_str();
+            item["ystno"] = root[i]["ystno"].asInt();
+            item["chlnum"] = nChannelNum;
+            array_obj.append(item);
+        }
+
+        res_root["array"] = array_obj;
+
+    }while(0);
+
+    res_root["result"] = result;
+
+    FastWriter writer;
+    string str_jsonres = writer.write(res_root);
+    free(buffer);
+    LOGE("getBatchChannelCount X, json: %s", str_jsonres.c_str());
+	return env->NewStringUTF(str_jsonres.c_str());
+}
 #endif // CASTRATE

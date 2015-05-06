@@ -55,7 +55,7 @@ extern "C" {
 JVCLIENT_API char* JVC_GetVersion();
 JVCLIENT_API void JVC_DeleteErrorLog();
 JVCLIENT_API void JVC_ClearHelpCache();
-
+JVCLIENT_API int JVC_WANGetBatchChannelCount(char *pChannelNum, int nYSTNOCnt, int nTimeOutS);
 /****************************************************************************
  *名称  : JVC_HelpQuery
  *功能  : 查询助手的号码连接状态
