@@ -2209,11 +2209,9 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_tcpConnect(JNIEnv *env,
 JNIEXPORT jstring JNICALL Java_com_jovision_Jni_getBatchChannelCount(JNIEnv *env,
 		jclass clazz, jint jtimeouts, jstring jreqjson) {
 
-	jboolean isCopyReq;
 	int result = -1;
 
-	char *req_json = (char *) env->GetStringUTFChars(jreqjson, &isCopyReq);
-
+	char *req_json = getNativeChar(env, jreqjson);
 	LOGV( "getBatchChannelCount E: req=%s", req_json);
 
 
@@ -2221,32 +2219,31 @@ JNIEXPORT jstring JNICALL Java_com_jovision_Jni_getBatchChannelCount(JNIEnv *env
 	memset(buffer, 0, 10*1024);
 
     Reader reader;
-    Value root, req_array;
-
+    Value req_root;
 
     Value res_root;
     Value array_obj;
     Value item;
     do{
 
-
-        if (!reader.parse(req_json, root, false))
+        if (!reader.parse(req_json, req_root, false))
         {
             result = -9;
             break;
         }
 
-        std::string group_id;
-        int yst_no;
-        req_array = root["array"];
-        int size = req_array.size();
+        int size = req_root.size();
         for (int i=0; i<size; ++i)
         {
-            group_id = root[i]["gid"].asString();
-            yst_no = root[i]["ystno"].asInt();
+            Value item1 = req_root[i];
+            string group_id = item1["gid"].asString();
+            int yst_no = item1["ystno"].asInt();
 
-            memcpy(&buffer[0 + i * 12], group_id.c_str(), 4);
+            LOGE("%d:gid:%s, ystno:%d", i, group_id.c_str(), yst_no);
+
+            memcpy(&buffer[0 + i * 12], group_id.c_str(), group_id.length());
             memcpy(&buffer[4 + i * 12], &yst_no, 4);
+
         }
 
 
@@ -2259,8 +2256,10 @@ JNIEXPORT jstring JNICALL Java_com_jovision_Jni_getBatchChannelCount(JNIEnv *env
             memcpy(&nChannelNum, &buffer[8 + i * 12], 2);
             LOGE("SEARCH RESULT: %d",nChannelNum);
 
-            item["gid"] = root[i]["gid"].asString().c_str();
-            item["ystno"] = root[i]["ystno"].asInt();
+            Value tmp = req_root[i];
+
+            item["gid"] = tmp["gid"].asString().c_str();
+            item["ystno"] = tmp["ystno"].asInt();
             item["chlnum"] = nChannelNum;
             array_obj.append(item);
         }
@@ -2274,6 +2273,7 @@ JNIEXPORT jstring JNICALL Java_com_jovision_Jni_getBatchChannelCount(JNIEnv *env
     FastWriter writer;
     string str_jsonres = writer.write(res_root);
     free(buffer);
+    free(req_json);
     LOGE("getBatchChannelCount X, json: %s", str_jsonres.c_str());
 	return env->NewStringUTF(str_jsonres.c_str());
 }
