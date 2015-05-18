@@ -1167,7 +1167,12 @@ void TextData(int index, BYTE type, BYTE* buf, int size) {
 						} else if (EX_WIFI_AP_CONFIG == _extends->nType) {
 							flag = EX_WIFI_AP_CONFIG;
 							values["result"] = _extends->nParam1;
-						} else {
+						}else if (EX_NW_REFRESH == _extends->nType) {
+						    flag = EX_NW_REFRESH;
+							pmsg = byte2char((BYTE*) (_extends->acData),
+									_extends->nParam1, _extends->nParam2);
+						}
+						else {
 							matched = false;
 						}
 						break;

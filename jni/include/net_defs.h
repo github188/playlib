@@ -164,6 +164,7 @@ typedef struct {
 #define EX_MD_UPDATE			0x03
 #define RC_EX_STORAGE		0x03
 #define RC_EX_MD		    0x06
+#define EX_NW_REFRESH		0x08
 #define EX_WIFI_AP_CONFIG 0x0B	//针对新AP配置方式，获取到手机端配置的AP信息，便立即返回
 #define RC_EX_FIRMUP      0x01  //检查到设备更新，更新设备命令
 #define EX_UPLOAD_START   0x01  //检查到设备更新，更新设备命令
@@ -452,20 +453,20 @@ typedef void (*FUNC_CRTMP_NORMALDATA_CALLBACK)(int nLocalChannel,
 #define JVN_YTCTRL_RECSTART  41//远程录像开始
 #define JVN_YTCTRL_RECSTOP	 42//远程录像开始
 /*远程控制指令(主分控应用层约定)*/
-#define RC_DISCOVER		0x01 
-#define RC_GETPARAM		0x02 
-#define RC_SETPARAM		0x03 
-#define RC_VERITY		0x04 
-#define RC_SNAPSLIST	0x05 
-#define RC_GETFILE		0x06 
-#define RC_USERLIST		0x07 
-#define RC_PRODUCTREG	0X08 
-#define RC_GETSYSTIME	0x09 
-#define RC_SETSYSTIME	0x0a 
-#define RC_DEVRESTORE	0x0b 
-#define RC_SETPARAMOK	0x0c 
-#define RC_DVRBUSY		0X0d 
-#define RC_GETDEVLOG	0x0e 
+#define RC_DISCOVER		0x01
+#define RC_GETPARAM		0x02
+#define RC_SETPARAM		0x03
+#define RC_VERITY		0x04
+#define RC_SNAPSLIST	0x05
+#define RC_GETFILE		0x06
+#define RC_USERLIST		0x07
+#define RC_PRODUCTREG	0X08
+#define RC_GETSYSTIME	0x09
+#define RC_SETSYSTIME	0x0a
+#define RC_DEVRESTORE	0x0b
+#define RC_SETPARAMOK	0x0c
+#define RC_DVRBUSY		0X0d
+#define RC_GETDEVLOG	0x0e
 #define RC_DISCOVER2	0x0f	//zwq20111206,csst云视通号码直接登录，局域网广播搜索
 #define RC_GPIN_ADD     0x10
 #define RC_GPIN_SET     0x11
