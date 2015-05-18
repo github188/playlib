@@ -1764,7 +1764,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_setAudioVolume(JNIEnv *,
 	if (index >= 0) {
 		player_suit* player = g_player[index];
 		if (NULL != player) {
-			pthread_mutex_unlock(&(player->stat->mutex));
+			pthread_mutex_lock(&(player->stat->mutex));//之前这里是unlock，应该不对吧。改成lock
 			if (NULL != player->track) {
 				result = player->track->set_volume(gain) ? JNI_TRUE : JNI_FALSE;
 			}
