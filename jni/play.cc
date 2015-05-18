@@ -1673,7 +1673,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_startRecord(JNIEnv* env,
 						(JNI_TRUE == enableVideo) ? true : false;
 
 				g_recorder->handle = JP_OpenPackage(&param, enableVideo,
-						enableAudio, cpath, index_path, av_type, 0);
+						enableAudio, cpath, NULL, av_type, 0);
 
 				if (NULL != g_recorder->handle) {
 					g_recorder->need_jump = true;
