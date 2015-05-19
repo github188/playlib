@@ -1287,19 +1287,56 @@ void TextData(int index, BYTE type, BYTE* buf, int size) {
 				case RC_LOADDLG: {
 					matched = true;
 					switch (stpacket.nPacketID) {
-					case 5:
-						flag = FLAG_WIFI_CONFIG;
+					case 5:{
+                            flag = FLAG_WIFI_CONFIG;
+                            ENCODING enc = detectEncoding(pdata);
+                            char *res =  pdata;
+                            GBK* gbk = new GBK("");
+                            if (GBK_ENC == enc) {
+                                res = gbk->update(res)->toUTF8();
+                                LOGX("0x01.gbk->utf8: %s", res);
+                                values["msg"] = res;
+                            }
+                            else{
+                                values["msg"] = pdata;
+                            }
+                        }
 						break;
 
-					case 2:
-						flag = FLAG_BPS_CONFIG;
+					case 2:{
+                            flag = FLAG_BPS_CONFIG;
+                            //TODO
+                            ENCODING enc = detectEncoding(pdata);
+                            char *res =  pdata;
+                            GBK* gbk = new GBK("");
+                            if (GBK_ENC == enc) {
+                                res = gbk->update(res)->toUTF8();
+                                LOGX("0x03.gbk->utf8: %s", res);
+                                values["msg"] = res;
+                            }
+                            else{
+                                values["msg"] = pdata;
+                            }
+                        }
 						break;
 
-					default:
+					default:{
+                            ENCODING enc = detectEncoding(pdata);
+                            char *res =  pdata;
+                            GBK* gbk = new GBK("");
+                            if (GBK_ENC == enc) {
+                                res = gbk->update(res)->toUTF8();
+                                LOGX("default.gbk->utf8: %s", res);
+                                values["msg"] = res;
+                            }
+                            else{
+                                values["msg"] = pdata;
+                            }
+                        }
 						break;
 					}
 
-					values["msg"] = pdata;
+					//values["msg"] = pdata;
 					break;
 				}
 
