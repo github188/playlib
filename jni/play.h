@@ -594,6 +594,26 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetMTU(JNIEnv *env,
 		jclass clazz,jint nMtu);//JVC_SetMTU(int nMtu);
 
 
+
+/**
+ * [METHOD] HelperRemove
+ * [IN] pGroup 编组号，编组号+nYSTNO可确定唯一设备
+ * [IN] NYST 搜索具有某云视通号码的设备，>0有效
+ * [RETURN] no
+ */
+JNIEXPORT void JNICALL Java_com_jovision_Jni_HelperRemove(JNIEnv *env,
+		jclass clazz,jstring pGroup,jint nYST);
+
+/**
+ * [METHOD] HelpQuery
+ * [IN] pGroup 编组号，编组号+nYSTNO可确定唯一设备
+ * [IN] NYST 搜索具有某云视通号码的设备，>0有效
+ * [RETURN] 助手的数量
+ */
+
+JNIEXPORT jint  JNICALL Java_com_jovision_Jni_HelpQuery(JNIEnv *env,
+		jclass clazz,jstring pGroup,jint nYST,jint nCount);
+
 #endif // CASTRATE
 
 #ifdef __cplusplus

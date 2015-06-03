@@ -65,7 +65,7 @@ JVCLIENT_API int JVC_WANGetBatchChannelCount(char *pChannelNum, int nYSTNOCnt, i
 
  *返回值: -1 未初始化 0 未连接 1 连接 内网 2 转发连接 3 连接 外网
  *****************************************************************************/
-JVCLIENT_API int JVC_HelpQuery(char* pGroup, int nYST, int &nCount);
+JVCLIENT_API int JVC_HelpQuery(char* pGroup, int nYST, int *nCount);
 
 /****************************************************************************
  *名称  : JVC_HelperRemove
@@ -710,6 +710,7 @@ JVCLIENT_API int JVC_SetMTU(int nMtu);
 #else
 JVCLIENT_API int __stdcall  JVC_SetMTU(int nMtu);
 #endif
+
 
 #ifdef  __cplusplus
 }
