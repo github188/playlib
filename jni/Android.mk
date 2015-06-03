@@ -77,7 +77,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := play
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 LOCAL_SRC_FILES := utils/commons.cc utils/voiceenc.c utils/char_conv.cc \
-	utils/threads.cc utils/callbacks.cc play.cc
+	utils/threads.cc utils/callbacks.cc utils/playmp4.cc play.cc 
 LOCAL_CFLAGS := -Wall -Wno-write-strings
 LOCAL_LDLIBS := -llog -lGLESv2 -lEGL -landroid
 LOCAL_SHARED_LIBRARIES := alu
