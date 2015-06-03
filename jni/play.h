@@ -8,6 +8,7 @@
 extern "C" {
 #endif
 
+
 #include "revision.h"
 
 /*
@@ -583,6 +584,16 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_tcpConnect
 
 JNIEXPORT jstring JNICALL Java_com_jovision_Jni_getBatchChannelCount(JNIEnv *env,
 		jclass clazz, jint jtimeouts, jstring jreqjson);
+
+/**
+ * success:1
+ * failed:0
+ */
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetMTU(JNIEnv *env,
+		jclass clazz,jint nMtu);//JVC_SetMTU(int nMtu);
+
+
 #endif // CASTRATE
 
 #ifdef __cplusplus

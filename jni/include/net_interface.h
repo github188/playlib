@@ -701,6 +701,16 @@ JVCLIENT_API void JVC_ShutdownRTMP(int nLocalChannel);
 JVCLIENT_API void __stdcall JVC_ShutdownRTMP(int nLocalChannel);
 #endif
 
+/**
+ * success:1
+ * failed:0
+ */
+#ifndef WIN32
+JVCLIENT_API int JVC_SetMTU(int nMtu);
+#else
+JVCLIENT_API int __stdcall  JVC_SetMTU(int nMtu);
+#endif
+
 #ifdef  __cplusplus
 }
 #endif

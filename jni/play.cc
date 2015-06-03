@@ -2277,4 +2277,17 @@ JNIEXPORT jstring JNICALL Java_com_jovision_Jni_getBatchChannelCount(JNIEnv *env
     LOGE("getBatchChannelCount X, json: %s", str_jsonres.c_str());
 	return env->NewStringUTF(str_jsonres.c_str());
 }
+
+
+
+/**
+ * success:1
+ * failed:0
+ */
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetMTU(JNIEnv *env,
+		jclass clazz,jint nMtu)
+{
+	return JVC_SetMTU((int)nMtu);
+}
 #endif // CASTRATE
