@@ -41,7 +41,8 @@ typedef struct _GUID {
 typedef unsigned long DWORD;
 typedef unsigned long ULONG;
 typedef unsigned char BYTE;
-typedef bool BOOL;
+
+//typedef bool BOOL;
 
 typedef struct {
 	char chGroup[4];
@@ -192,7 +193,7 @@ typedef void (*FUNC_CBUFRATE_CALLBACK)(int nLocalChannel, unsigned char uchType,
 		unsigned char *pBuffer, int nSize, int nRate);
 typedef void (*FUNC_CLANSDATA_CALLBACK)(STLANSRESULT stLSResult);
 typedef void (*FUNC_CBCDATA_CALLBACK)(int nBCID, unsigned char *pBuffer,
-		int nSize, char chIP[16], BOOL bTimeOut);
+		int nSize, char chIP[16], bool bTimeOut);
 typedef int (*FUNC_CLANTDATA_CALLBACK)(STLANTOOLINFO *pLANTData);
 
 //手机端从内存卡中获取数据回调
