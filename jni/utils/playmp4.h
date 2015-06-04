@@ -9,9 +9,9 @@
 using namespace std;
 class PlayMP4{
 public:
-    PlayMP4(JNIEnv* env, jobject surface);
-    int setURI(string uri);
-    int prepare();
+    PlayMP4();
+    void setURI(string uri);
+    int prepare(JNIEnv* env, jobject surface);
     int start();
     int pause();
     int resume();
@@ -22,7 +22,10 @@ public:
     {
         return opengl_status;
     };
-
+    int get_audio_dectype()
+    {
+        return dec_type;
+    };
     bool GetQuitFlag() {
         return is_produce_quit_;
     };
@@ -41,8 +44,10 @@ public:
     };
 
     JDEC05_HANDLE decoder_handle;
+    JADEC_HANDLE audio_handle;
     MP4_INFO mp4Info;
     MP4_UPK_HANDLE	upkHandle;
+    AudioTrack* track;
 
     int opengl_attach();
     int opengl_detach();
@@ -52,10 +57,10 @@ public:
     int decode(int type, void* handler, H264_PACKET* in, PVO_IN_YUV out, int* arg1, int* arg2);
 
 private:
-    JNIEnv *_env;
-    jobject _surface;
+
     string _uri;
 	int opengl_status;
+	int dec_type;
 	ANativeWindow* opengl_window;
 	JVO_HANDLE opengl_handle;
 

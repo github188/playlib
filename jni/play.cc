@@ -24,7 +24,7 @@
 
 #include <json.h>
 #include <net_interface.h>
-
+#include "utils/playmp4.h"
 const unsigned int kMaxMP4VideoWidth = 1280;
 const unsigned int kMaxMP4VideoHeight = 720;
 
@@ -2290,4 +2290,57 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetMTU(JNIEnv *env,
 {
 	return JVC_SetMTU((int)nMtu);
 }
+
+PlayMP4 *gPlayerMp4 = NULL;
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Init(JNIEnv *env,
+		jclass clazz)
+{
+    gPlayerMp4 = new PlayMP4();
+	return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetMP4Uri(JNIEnv *env,
+		jclass clazz,jstring juri)
+{
+    if(NULL == gPlayerMp4)
+    {
+        return -100;
+    }
+    char *uri = getNativeChar(env, juri);
+    gPlayerMp4->setURI(uri);
+    free(uri);
+	return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Prepare(JNIEnv *env,
+		jclass clazz, jobject jsurface)
+{
+    if(NULL == gPlayerMp4)
+    {
+        return -100;
+    }
+    return gPlayerMp4->prepare(env, jsurface);
+}
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Start(JNIEnv *env,
+		jclass clazz)
+{
+    if(NULL == gPlayerMp4)
+    {
+        return -100;
+    }
+    return gPlayerMp4->start();
+}
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Stop(JNIEnv *env,
+		jclass clazz)
+{
+    if(NULL == gPlayerMp4)
+    {
+        return -100;
+    }
+    return gPlayerMp4->stop();
+}
+
 #endif // CASTRATE

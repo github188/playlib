@@ -594,6 +594,20 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetMTU(JNIEnv *env,
 		jclass clazz,jint nMtu);//JVC_SetMTU(int nMtu);
 
 
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Init(JNIEnv *env,
+		jclass clazz);
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetMP4Uri(JNIEnv *env,
+		jclass clazz,jstring juri);
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Prepare(JNIEnv *env,
+		jclass clazz, jobject jsurface);
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Start(JNIEnv *env,
+		jclass clazz);
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Stop(JNIEnv *env,
+		jclass clazz);
 #endif // CASTRATE
 
 #ifdef __cplusplus
