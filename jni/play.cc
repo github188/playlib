@@ -2288,6 +2288,7 @@ JNIEXPORT jstring JNICALL Java_com_jovision_Jni_getBatchChannelCount(JNIEnv *env
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetMTU(JNIEnv *env,
 		jclass clazz,jint nMtu)
 {
+	LOGE("Java_com_jovision_Jni_SetMTU");
 	return JVC_SetMTU((int)nMtu);
 }
 
@@ -2299,6 +2300,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetMTU(JNIEnv *env,
 JNIEXPORT void JNICALL Java_com_jovision_Jni_HelperRemove(JNIEnv *env,
 		jclass clazz,jstring pGroup,jint nYST)
 {
+	LOGE("JNICALL Java_com_jovision_Jni_HelperRemove");
 	char *pGroupChar = getNativeChar(env, pGroup);
 	JVC_HelperRemove(pGroupChar,nYST);
 }
