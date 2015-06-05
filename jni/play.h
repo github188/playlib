@@ -608,6 +608,15 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Start(JNIEnv *env,
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Stop(JNIEnv *env,
 		jclass clazz);
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Release(JNIEnv *env,
+		jclass clazz);
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Pause(JNIEnv *env,
+		jclass clazz);
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Resume(JNIEnv *env,
+		jclass clazz);
 #endif // CASTRATE
 
 #ifdef __cplusplus

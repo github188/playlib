@@ -2343,4 +2343,40 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Stop(JNIEnv *env,
     return gPlayerMp4->stop();
 }
 
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Release(JNIEnv *env,
+		jclass clazz)
+{
+    if(NULL == gPlayerMp4)
+    {
+        return 0;
+    }
+    gPlayerMp4->stop();
+    msleep(300);
+    delete gPlayerMp4;
+    gPlayerMp4 = NULL;
+
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Pause(JNIEnv *env,
+		jclass clazz)
+{
+    if(NULL == gPlayerMp4)
+    {
+        return 0;
+    }
+
+    return gPlayerMp4->pause();
+}
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Resume(JNIEnv *env,
+		jclass clazz)
+{
+    if(NULL == gPlayerMp4)
+    {
+        return 0;
+    }
+
+    return gPlayerMp4->resume();
+}
 #endif // CASTRATE
