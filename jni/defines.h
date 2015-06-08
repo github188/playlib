@@ -89,7 +89,8 @@ extern "C" {
 #define CALL_LIB_UNLOAD		0xB0
 #define CALL_GEN_VOICE		0xB1
 #define CALL_PLAY_BUFFER	0xB2
-#define CALL_MP4_TIME_INFO  0xB3
+#define CALL_MP4_PRE_INFO   0xB3
+#define CALL_MP4_TIME_INFO  0xB4
 
 #define BUFFER_START		-1
 #define BUFFER_FINISH		-2

@@ -11,8 +11,8 @@ class PlayMP4{
 public:
     PlayMP4();
     void setURI(string uri);
-    int prepare(JNIEnv* env, jobject surface);
-    int start();
+    int prepare(JNIEnv* env);
+    int start(JNIEnv *env, jobject surface);
     int pause();
     int resume();
     int stop();
@@ -43,13 +43,20 @@ public:
         is_produce_run_ = flag;
     };
 
+    int GetPlayTotalTime() {
+        return total_seconds;
+    };
+    void SetPlayTotalTime(int time) {
+        total_seconds = time;
+    };
+
     JDEC05_HANDLE decoder_handle;
     JADEC_HANDLE audio_handle;
     MP4_INFO mp4Info;
     MP4_UPK_HANDLE	upkHandle;
     AudioTrack* track;
 
-    int opengl_attach();
+    int opengl_attach(JNIEnv *env, jobject surface);
     int opengl_detach();
     int opengl_open();
     int opengl_close();
@@ -61,6 +68,9 @@ private:
     string _uri;
 	int opengl_status;
 	int dec_type;
+	int total_seconds;
+	int video_width;
+	int video_height;
 	ANativeWindow* opengl_window;
 	JVO_HANDLE opengl_handle;
 

@@ -601,10 +601,10 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetMP4Uri(JNIEnv *env,
 		jclass clazz,jstring juri);
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Prepare(JNIEnv *env,
-		jclass clazz, jobject jsurface);
+		jclass clazz);
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Start(JNIEnv *env,
-		jclass clazz);
+		jclass clazz, jobject jsurface);
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Stop(JNIEnv *env,
 		jclass clazz);

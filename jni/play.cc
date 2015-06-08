@@ -2314,23 +2314,23 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetMP4Uri(JNIEnv *env,
 }
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Prepare(JNIEnv *env,
-		jclass clazz, jobject jsurface)
-{
-    if(NULL == gPlayerMp4)
-    {
-        return -100;
-    }
-    return gPlayerMp4->prepare(env, jsurface);
-}
-
-JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Start(JNIEnv *env,
 		jclass clazz)
 {
     if(NULL == gPlayerMp4)
     {
         return -100;
     }
-    return gPlayerMp4->start();
+    return gPlayerMp4->prepare(env);
+}
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Start(JNIEnv *env,
+		jclass clazz, jobject jsurface)
+{
+    if(NULL == gPlayerMp4)
+    {
+        return -100;
+    }
+    return gPlayerMp4->start(env, jsurface);
 }
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Stop(JNIEnv *env,
