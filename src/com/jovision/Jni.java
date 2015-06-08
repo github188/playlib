@@ -898,5 +898,20 @@ public class Jni {
 	public static native boolean tcpConnect(int window, int channel, String ip,
 			int port, String username, String password, int cloudSeeId,
 			String groupId, boolean isLocalDetect, int connectType, int turnType);
+	
+	public static native int Mp4Init();
+	
+	public static native int SetMP4Uri(String uri);
 
+	public static native int Mp4Prepare();
+	
+	public static native int Mp4Start(Object surface);
+	
+	public static native int Mp4Stop();
+	
+	public static native int Mp4Release();
+	
+	public static native int Mp4Pause();
+	
+	public static native int Mp4Resume();
 }
