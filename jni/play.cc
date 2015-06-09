@@ -612,7 +612,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_connect(JNIEnv *env, jclass clazz,
 					(isPhone == JNI_TRUE) ? true : false, connectType,
 					is_play_directly, nVip, nTcp);
 		} else {
-			//2015.4.22 jy因播放sdk修改此接口 含义已变，isAp轻易不要为true
+			//2015.4.22 jy���������sdk淇���规�ゆ�ュ�� ���涔�宸插��锛�isAp杞绘��涓�瑕�涓�true
 			JVC_Connect(index + 1, 1, "10.10.0.1", 9101, user,
 					pwd, -1, "A", false, false, true, 5, true, 0, 0);
 		}
@@ -1764,7 +1764,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_setAudioVolume(JNIEnv *,
 	if (index >= 0) {
 		player_suit* player = g_player[index];
 		if (NULL != player) {
-			pthread_mutex_lock(&(player->stat->mutex));//之前这里是unlock，应该不对吧。改成lock
+			pthread_mutex_lock(&(player->stat->mutex));//涔����杩�������unlock锛�搴�璇ヤ��瀵瑰�с����规��lock
 			if (NULL != player->track) {
 				result = player->track->set_volume(gain) ? JNI_TRUE : JNI_FALSE;
 			}
@@ -2288,6 +2288,37 @@ JNIEXPORT jstring JNICALL Java_com_jovision_Jni_getBatchChannelCount(JNIEnv *env
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetMTU(JNIEnv *env,
 		jclass clazz,jint nMtu)
 {
+	LOGE("Java_com_jovision_Jni_SetMTU");
 	return JVC_SetMTU((int)nMtu);
+}
+
+/**
+ * [IN] pGroup 编组号，编组号+nYSTNO可确定唯一设备
+ * [IN] NYST 搜索具有某云视通号码的设备，>0有效
+ * [RETURN] no
+ */
+JNIEXPORT void JNICALL Java_com_jovision_Jni_HelperRemove(JNIEnv *env,
+		jclass clazz,jstring pGroup,jint nYST)
+{
+	LOGE("JNICALL Java_com_jovision_Jni_HelperRemove");
+	char *pGroupChar = getNativeChar(env, pGroup);
+	JVC_HelperRemove(pGroupChar,nYST);
+}
+
+/**
+ * [IN] pGroup 编组号，编组号+nYSTNO可确定唯一设备
+ * [IN] NYST 搜索具有某云视通号码的设备，>0有效
+ * [RETURN] 助手的数量
+ */
+
+JNIEXPORT jint  JNICALL Java_com_jovision_Jni_HelpQuery(JNIEnv *env,
+		jclass clazz,jstring pGroup,jint nYST,jint nCount)
+{
+	int count = 0;
+	char *pGroupChar = getNativeChar(env, pGroup);
+	 JVC_HelpQuery(pGroupChar,nYST,&count);
+	 nCount = count;
+
+	return 0;
 }
 #endif // CASTRATE
