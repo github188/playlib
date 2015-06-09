@@ -1396,15 +1396,18 @@ void TextData(int index, BYTE type, BYTE* buf, int size) {
 
 						delete gbk;
 						values["wifi"] = list;
-						break;
 					}
+					break;
                     case 0x01://发送测试邮件
-                        flag = 0x07;
-						char msg[_extends->nParam1 + 1];
-						sprintf(msg, _extends->acData, _extends->nParam1);
-						msg[_extends->nParam1] = '\0';
-						LOGV("transparent: %s", msg);
-						values["msg"] = msg;
+                        {
+                            flag = 0x07;
+                            char msg[_extends->nParam1 + 1];
+                            sprintf(msg, _extends->acData, _extends->nParam1);
+                            msg[_extends->nParam1] = '\0';
+                            LOGV("transparent: %s", msg);
+                            values["msg"] = msg;
+                        }
+
                         break;
 					default:
 						LOGE(
