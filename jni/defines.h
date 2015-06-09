@@ -91,6 +91,8 @@ extern "C" {
 #define CALL_PLAY_BUFFER	0xB2
 #define CALL_MP4_PRE_INFO   0xB3
 #define CALL_MP4_TIME_INFO  0xB4
+#define CALL_MP4_PLAY_FIN   0xB5
+#define CALL_MP4_PLAY_ERROR 0xB6
 
 #define BUFFER_START		-1
 #define BUFFER_FINISH		-2

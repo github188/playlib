@@ -15,7 +15,7 @@ public:
     int start(JNIEnv *env, jobject surface);
     int pause();
     int resume();
-    int stop();
+    int stop(int stop_seconds);
     int destroy();
 
     int get_opengl_status()
@@ -50,6 +50,13 @@ public:
         total_seconds = time;
     };
 
+    int GetStopSeconds() {
+        return stop_seconds_;
+    };
+    void SetStopSeconds(int seconds) {
+        stop_seconds_ = seconds;
+    };
+
     JDEC05_HANDLE decoder_handle;
     JADEC_HANDLE audio_handle;
     MP4_INFO mp4Info;
@@ -69,6 +76,7 @@ private:
 	int opengl_status;
 	int dec_type;
 	int total_seconds;
+	int stop_seconds_;
 	int video_width;
 	int video_height;
 	ANativeWindow* opengl_window;

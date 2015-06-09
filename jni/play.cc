@@ -2296,7 +2296,9 @@ PlayMP4 *gPlayerMp4 = NULL;
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Init(JNIEnv *env,
 		jclass clazz)
 {
+
     gPlayerMp4 = new PlayMP4();
+
 	return 0;
 }
 
@@ -2334,13 +2336,13 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Start(JNIEnv *env,
 }
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Stop(JNIEnv *env,
-		jclass clazz)
+		jclass clazz, int stop_seconds)
 {
     if(NULL == gPlayerMp4)
     {
         return -100;
     }
-    return gPlayerMp4->stop();
+    return gPlayerMp4->stop(stop_seconds);
 }
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Release(JNIEnv *env,
@@ -2350,7 +2352,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Release(JNIEnv *env,
     {
         return 0;
     }
-    gPlayerMp4->stop();
+    gPlayerMp4->stop(0);
     msleep(300);
     delete gPlayerMp4;
     gPlayerMp4 = NULL;
