@@ -1,5 +1,6 @@
 package neo.droid.cloudsee.activities;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jovision.Jni;
+
 
 
 
@@ -67,8 +69,10 @@ public class OnPlayMP4Activity extends BaseActivity implements SurfaceHolder.Cal
     Handler athandler = new Handler();
     private long last_show_seconds = 0;
     private OnPlayMP4Activity mActivity;
-    private int surface_status = 0;//默认没创建
+    private static int surface_status = 0;//默认没创建
     private boolean bStartPlay = false;
+    String mp4_uri = "";
+    boolean isLocal = true;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +81,16 @@ public class OnPlayMP4Activity extends BaseActivity implements SurfaceHolder.Cal
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);       
         this.getWindow().setFlags(FLAG_HOMEKEY_DISPATCHED, FLAG_HOMEKEY_DISPATCHED);//关键代码
         setContentView(R.layout.onplay_mp4_layout);
-
+        
+        Intent intent = getIntent();
+        if (null != intent) {
+            mp4_uri = intent.getStringExtra("URL");
+            isLocal = intent.getBooleanExtra("IS_LOCAL", false);
+        }
+        if(mp4_uri == null || "".equals(mp4_uri)){
+            finish();
+            return;
+        }
         //Jni.init(getApplication(), 9200, Consts.LOG_PATH);
         // [Neo] TODO
         //Jni.enableLog(true);   
@@ -86,8 +99,11 @@ public class OnPlayMP4Activity extends BaseActivity implements SurfaceHolder.Cal
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         mSurfaceViewWidth = dm.widthPixels;
         mSurfaceViewHeight = dm.heightPixels;
-        Jni.Mp4Init();
-        Jni.SetMP4Uri(SD_CARD_PATH+"CSAlarmVOD/848x480_fps25_h264_alaw.mp4");       
+        
+        Jni.Mp4Init();      
+        //SD_CARD_PATH+"CSAlarmVOD/848x480_fps25_h264_alaw.mp4"
+        Jni.SetMP4Uri(mp4_uri);       
+        
         pause=(Button)findViewById(R.id.btn_pause);
         play_control_layout = (RelativeLayout)findViewById(R.id.play_control_bar);
         play_bar = (SeekBar) findViewById(R.id.seekbar_def);
@@ -271,7 +287,7 @@ public class OnPlayMP4Activity extends BaseActivity implements SurfaceHolder.Cal
 
         Log.e(TAG, "video width(" + width + ") or height(" + height
                 + ")"+"screen width:"+mSurfaceViewWidth+", screen height:"+mSurfaceViewHeight);        
-        if(mSurfaceView == null){
+        //if(mSurfaceView == null){
             
             mSurfaceView=(SurfaceView)findViewById(R.id.surface_onplay);
             
@@ -281,14 +297,21 @@ public class OnPlayMP4Activity extends BaseActivity implements SurfaceHolder.Cal
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                     RelativeLayout.LayoutParams.MATCH_PARENT,
                     RelativeLayout.LayoutParams.MATCH_PARENT);
-            lp.setMargins(margin, 0, margin, 0);
+            if(margin > 50){
+                lp.setMargins(margin, 0, margin, 0);
+            }
+            else{
+                margin = 2;//这里margin不能为0，如果为0,surfaceview创建不成功，不知道为啥
+                lp.setMargins(margin, 0, margin, 0);
+            }
             
             mSurfaceView.setLayoutParams(lp);
             surfaceHolder=mSurfaceView.getHolder();//SurfaceHolder是SurfaceView的控制接口
             surfaceHolder.addCallback(this); //
             
             Log.e(TAG, "mSurfaceView is invoke~~~");
-        }
+       
+        //}
     }
     private class MyGestureListener extends SimpleOnGestureListener {
         /** 双击 */

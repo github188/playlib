@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.view.View.OnClickListener;
 
 import com.jovision.Jni;
+
+
 import java.io.File;
 
 import neo.droid.cloudsee.Consts;
@@ -124,10 +126,14 @@ public class PlayMP4Activity extends BaseActivity implements SurfaceHolder.Callb
 //                    Jni.Mp4Start(surfaceHolder.getSurface());
 //                }
                 // 启动播放界面
+                //848x480_fps25_h264_alaw.mp4 M01055211.mp4
+                String localVodPath = SD_CARD_PATH+"CSAlarmVOD/M01055211.mp4";
                 Intent intent = new Intent();
                 intent.setClass(PlayMP4Activity.this,
                         OnPlayMP4Activity.class);
-                startActivity(intent);                
+                intent.putExtra("URL", localVodPath);
+                intent.putExtra("IS_LOCAL", true);
+                startActivity(intent);        
                 break;
             case R.id.btn_pause:
 //                if(!bpause){
