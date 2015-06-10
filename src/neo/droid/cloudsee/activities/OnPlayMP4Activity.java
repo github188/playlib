@@ -217,6 +217,10 @@ public class OnPlayMP4Activity extends BaseActivity implements SurfaceHolder.Cal
                             break;
                         }
                     }
+                    else{
+                        ret = -99;
+                        break;
+                    }
                 }
                 else if(ret == 1){
                     //正在播放，需要先停止
