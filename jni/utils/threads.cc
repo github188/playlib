@@ -928,7 +928,9 @@ void* onPlayVideo(void* _index) {
 						} else if (core->yuv->i_width != Vo.i_width
 								|| core->yuv->i_height != Vo.i_height) {
 							deleteYUV(core->yuv);
-							core->yuv = genYUV(Vo.p[0].i_pitch, Vo.p[1].i_pitch,
+							free(core->yuv);
+							core->yuv = NULL;
+    						core->yuv = genYUV(Vo.p[0].i_pitch, Vo.p[1].i_pitch,
 									Vo.i_width, Vo.i_height);
 						}
 
@@ -1223,8 +1225,11 @@ void* onPlayAudio(void* _index) {
 #ifdef _USE_OPENAL_
 			player->alu->append((unsigned char*) audio_out, result);
 #else
-			append_result = player->track->append((unsigned char*) audio_out,
+			{
+//				LOGE("audio_out 0X%x  result %d",audio_out,result);
+				append_result = player->track->append((unsigned char*) audio_out,
 					result);
+			}
 
 #ifdef DEBUG_AUDIO
 			LOGXX("append audio: %d, size = %d", append_result, f->size);
