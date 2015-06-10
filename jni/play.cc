@@ -13,7 +13,7 @@
 #include "utils/callbacks.h"
 #include "utils/voiceenc.h"
 #include "utils/char_conv.h"
-
+#include "utils/playmp4.h"
 #include <alu/audio_record.h>
 
 #ifdef _USE_OPENAL_
