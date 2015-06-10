@@ -336,7 +336,7 @@ void deleteYUV(VO_IN_YUV* yuv) {
 			free(yuv->p[2].p_pixels);
 		}
 
-//		free(yuv);
+//		free(yuv); 应在外部释放；
 	}
 }
 
