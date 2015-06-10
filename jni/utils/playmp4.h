@@ -15,7 +15,7 @@ public:
     int start(JNIEnv *env, jobject surface);
     int pause();
     int resume();
-    int stop();
+    int stop(int stop_seconds);
     int destroy();
 
     int get_opengl_status()
@@ -28,6 +28,10 @@ public:
     };
     bool GetQuitFlag() {
         return is_produce_quit_;
+    };
+
+    void SetQuitFlag(int flag) {
+        is_produce_quit_ = flag;
     };
 
     pthread_mutex_t *GetMutex() {
@@ -43,11 +47,22 @@ public:
         is_produce_run_ = flag;
     };
 
+    int GetRunFlag() {
+        return is_produce_run_;
+    };
+
     int GetPlayTotalTime() {
         return total_seconds;
     };
     void SetPlayTotalTime(int time) {
         total_seconds = time;
+    };
+
+    int GetStopSeconds() {
+        return stop_seconds_;
+    };
+    void SetStopSeconds(int seconds) {
+        stop_seconds_ = seconds;
     };
 
     JDEC05_HANDLE decoder_handle;
@@ -69,6 +84,7 @@ private:
 	int opengl_status;
 	int dec_type;
 	int total_seconds;
+	int stop_seconds_;
 	int video_width;
 	int video_height;
 	ANativeWindow* opengl_window;
@@ -86,6 +102,7 @@ private:
     /*produce thread run interval*/
     volatile sig_atomic_t is_produce_quit_;
     volatile sig_atomic_t is_produce_run_;
+    volatile sig_atomic_t is_produce_stopping_;
     /*volatile isuspend;*/
     volatile bool isuspend;
 };

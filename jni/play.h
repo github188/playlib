@@ -607,7 +607,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Start(JNIEnv *env,
 		jclass clazz, jobject jsurface);
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Stop(JNIEnv *env,
-		jclass clazz);
+		jclass clazz, int stop_seconds);
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Release(JNIEnv *env,
 		jclass clazz);
@@ -616,6 +616,9 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Pause(JNIEnv *env,
 		jclass clazz);
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Resume(JNIEnv *env,
+		jclass clazz);
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4State(JNIEnv *env,
 		jclass clazz);
 #endif // CASTRATE
 

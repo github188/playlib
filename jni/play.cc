@@ -2296,7 +2296,9 @@ PlayMP4 *gPlayerMp4 = NULL;
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Init(JNIEnv *env,
 		jclass clazz)
 {
+
     gPlayerMp4 = new PlayMP4();
+
 	return 0;
 }
 
@@ -2334,13 +2336,13 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Start(JNIEnv *env,
 }
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Stop(JNIEnv *env,
-		jclass clazz)
+		jclass clazz, int stop_seconds)
 {
     if(NULL == gPlayerMp4)
     {
         return -100;
     }
-    return gPlayerMp4->stop();
+    return gPlayerMp4->stop(stop_seconds);
 }
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Release(JNIEnv *env,
@@ -2350,7 +2352,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Release(JNIEnv *env,
     {
         return 0;
     }
-    gPlayerMp4->stop();
+    gPlayerMp4->stop(0);
     msleep(300);
     delete gPlayerMp4;
     gPlayerMp4 = NULL;
@@ -2378,5 +2380,42 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Resume(JNIEnv *env,
     }
 
     return gPlayerMp4->resume();
+}
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4State(JNIEnv *env,
+		jclass clazz)
+{
+    if(NULL == gPlayerMp4)
+    {
+        return 0;
+    }
+    bool quit_status = gPlayerMp4->GetQuitFlag();
+    int run_flag = gPlayerMp4->GetRunFlag();
+    int play_status = 0;
+    if(quit_status)
+    {
+        if(run_flag)
+        {
+            //播放线程正在退出，还没完全结束，应用曾需要等待结束后再开始播放
+            play_status = 2;
+        }
+        else
+        {
+            play_status = 0;//播放线程已经推出，可以播放
+        }
+    }
+    else{
+        if(run_flag)
+        {
+            //播放线程正在运行,应用如果需要播放，需要先停止视频播放
+            play_status = 1;
+        }
+        else
+        {
+            //播放线程没有运行或者已经完全推出
+            play_status = 0;
+        }
+    }
+    return play_status;
 }
 #endif // CASTRATE
