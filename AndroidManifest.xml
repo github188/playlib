@@ -41,7 +41,7 @@
             android:name="neo.droid.cloudsee.activities.OnPlayMP4Activity"
             android:configChanges="orientation|keyboardHidden"
             android:launchMode="standard"
-            android:screenOrientation="sensor" >
+            android:screenOrientation="landscape" >
         </activity>        
     </application>
 

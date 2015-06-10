@@ -95,10 +95,6 @@ public class OnPlayMP4Activity extends BaseActivity implements SurfaceHolder.Cal
         // [Neo] TODO
         //Jni.enableLog(true);   
         mActivity = this;
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mSurfaceViewWidth = dm.widthPixels;
-        mSurfaceViewHeight = dm.heightPixels;
         
         Jni.Mp4Init();      
         //SD_CARD_PATH+"CSAlarmVOD/848x480_fps25_h264_alaw.mp4"
@@ -112,32 +108,39 @@ public class OnPlayMP4Activity extends BaseActivity implements SurfaceHolder.Cal
         
         tv_step = (TextView)findViewById(R.id.tv_step);
         tv_total = (TextView)findViewById(R.id.tv_total);
+        tv_step.setText("00:00");
+        tv_total.setText("00:00");
         LoadingLayout = (View)findViewById(R.id.loading);
         pause.setOnClickListener(this);
         pause.setText("暂停");               
         mGestureDetector = new GestureDetector(this, new MyGestureListener());
         
     }
-    @Override
-    public boolean onKeyDown( int keyCode,KeyEvent event) {
-           // TODO Auto-generated method stub
-           if (keyCode == event.KEYCODE_HOME) {
-               if(LoadingLayout.getVisibility() == View.VISIBLE){
-                   Log.e(TAG, "---------------此时屏蔽home键---------------");
-                   return false;
-               }
-          }
-          return super.onKeyDown(keyCode, event);
-    }    
+//    @Override
+//    public boolean onKeyDown( int keyCode,KeyEvent event) {
+//           // TODO Auto-generated method stub
+//           if (keyCode == event.KEYCODE_HOME) {
+//               if(LoadingLayout.getVisibility() == View.VISIBLE){
+//                   Log.e(TAG, "---------------此时屏蔽home键---------------");
+//                   return false;
+//               }
+//          }
+//          return super.onKeyDown(keyCode, event);
+//    }    
     @Override
     protected void onResume(){
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        //从xml里设置横屏，这里动态设置的话， 有时候surfaceview会有问题
+        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         getWindow().getDecorView().setKeepScreenOn(true);
         play_control_layout.setVisibility(View.VISIBLE);
         last_show_seconds = System.currentTimeMillis();
         bar_visibility = true;
         bStartPlay = false;
         DismissBar();
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        mSurfaceViewWidth = dm.widthPixels;
+        mSurfaceViewHeight = dm.heightPixels;
         //准备播放
         PreparePlayTask task = new PreparePlayTask();
         String[] params = new String[3];
