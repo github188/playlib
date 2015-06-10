@@ -907,7 +907,7 @@ public class Jni {
 	
 	public static native int Mp4Start(Object surface);
 	
-	public static native int Mp4Stop();
+	public static native int Mp4Stop(int StopSeconds);
 	
 	public static native int Mp4Release();
 	

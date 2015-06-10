@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@color/black" >
     
 
     <SurfaceView 
@@ -11,12 +12,13 @@
         >        
     </SurfaceView>
     <RelativeLayout
-        android:layout_height="50dp" 
+        android:layout_height="45dp" 
         android:layout_width="match_parent"        
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginBottom="6dp"
+        android:layout_marginBottom="2dp"
+        android:id="@+id/play_control_bar"
         >
 	    <Button 
 	         android:id="@+id/btn_pause" 
@@ -69,5 +71,11 @@
 	        />  
         
         </RelativeLayout>
-    </RelativeLayout>                
+    </RelativeLayout>   
+    <include 
+        android:id="@+id/loading" 
+        android:visibility="gone" 
+        android:layout_width="fill_parent" 
+        android:layout_height="fill_parent" 
+        layout="@layout/loading" />                   
 </RelativeLayout>

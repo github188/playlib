@@ -3,11 +3,13 @@ package neo.droid.cloudsee.activities;
 import neo.droid.cloudsee.IHandlerLikeNotify;
 import neo.droid.cloudsee.IHandlerNotify;
 import neo.droid.cloudsee.MainApplication;
+import neo.droid.cloudsee.R;
+
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-
 /**
  * 抽象的活动基类，所有活动都应该继承这个类，并实现其抽象方法和接口
  * 
@@ -31,7 +33,7 @@ public abstract class BaseActivity extends Activity implements IHandlerNotify,
 
 	private IHandlerNotify notify = this;
 	protected MyHandler handler = new MyHandler(this);
-
+	protected ProgressDialog proDialog;
 	protected static class MyHandler extends Handler {
 
 		private BaseActivity activity;
@@ -74,5 +76,71 @@ public abstract class BaseActivity extends Activity implements IHandlerNotify,
 	protected void onResume() {
 		super.onResume();
 	}
+    /**
+     * 弹dialog
+     * 
+     * @param id
+     */
+    protected void createDialog(int id, boolean cancel) {
+        try {
+            if (null != BaseActivity.this && !BaseActivity.this.isFinishing()) {
+                if (null == proDialog) {
+                    proDialog = new ProgressDialog(BaseActivity.this);
+                }
+                proDialog.setMessage(BaseActivity.this.getString(id));
+                if (null != proDialog) {
+                    if (null != BaseActivity.this
+                            && !BaseActivity.this.isFinishing()) {
+                        proDialog.show();
+                        proDialog.setCancelable(cancel);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+    }
+
+    /**
+     * 弹dialog
+     * 
+     * @param msg
+     */
+    public void createDialog(String msg, boolean cancel) {
+
+        if (null == msg || "".equalsIgnoreCase(msg)) {
+            msg = getResources().getString(R.string.waiting);
+        }
+        try {
+            if (null != BaseActivity.this && !BaseActivity.this.isFinishing()) {
+                if (null == proDialog) {
+                    proDialog = new ProgressDialog(BaseActivity.this);
+                }
+                proDialog.setMessage(msg);
+                if (null != proDialog) {
+                    if (null != BaseActivity.this
+                            && !BaseActivity.this.isFinishing()) {
+                        proDialog.show();
+                        proDialog.setCancelable(cancel);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * 关闭dialog
+     * 
+     * @param dialog
+     */
+    public void dismissDialog() {
+        if (null != proDialog && !this.isFinishing() && proDialog.isShowing()) {
+            proDialog.dismiss();
+            proDialog = null;
+        }
+    }
 }
