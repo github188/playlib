@@ -30,6 +30,10 @@ public:
         return is_produce_quit_;
     };
 
+    void SetQuitFlag(int flag) {
+        is_produce_quit_ = flag;
+    };
+
     pthread_mutex_t *GetMutex() {
         return &mutex;
     };
@@ -41,6 +45,10 @@ public:
     };
     void SetRunFlag(int flag) {
         is_produce_run_ = flag;
+    };
+
+    int GetRunFlag() {
+        return is_produce_run_;
     };
 
     int GetPlayTotalTime() {
@@ -94,6 +102,7 @@ private:
     /*produce thread run interval*/
     volatile sig_atomic_t is_produce_quit_;
     volatile sig_atomic_t is_produce_run_;
+    volatile sig_atomic_t is_produce_stopping_;
     /*volatile isuspend;*/
     volatile bool isuspend;
 };

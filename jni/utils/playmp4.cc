@@ -271,6 +271,8 @@ static void * Play(void *args)
 
     player->destroy();
     player->SetRunFlag(false);
+    player->SetQuitFlag(false);
+
     LOGD("the play thread[%lu] is finished...\n", pthread_self());
     return NULL;
 }
@@ -291,6 +293,7 @@ PlayMP4::PlayMP4()
     isuspend = false;
     is_produce_quit_ = false;
     is_produce_run_ = false;
+    is_produce_stopping_ = false;
 }
 
 void PlayMP4::setURI(string uri)
@@ -420,128 +423,159 @@ int PlayMP4::decode(int type, void *handler, H264_PACKET* in, PVO_IN_YUV out, in
 	return result;
 }
 
-
+//0：OK
 int PlayMP4::prepare(JNIEnv *env)
 {
     int ret = -1;
     int iDecVCodec = 0;
     int total_s = 0;
-
-    video_width = 0;
-    video_height = 0;
-    do{
-        if(strlen(_uri.c_str()) > 0){
-
-            upkHandle = JP_OpenUnpkg((char *)_uri.c_str(), &mp4Info, 0);
-            if(NULL == upkHandle){
-                LOGE("JP_OpenUnpkg failed, the return handle is NULL");
-                return -4;
-            }
-            LOGE("Video:\nWidth:\t%d\nHeight:\t%d\nEncode:\t%s\nfps:\t%.2f\nFrame:\t%d\n",
-                        mp4Info.iFrameWidth, mp4Info.iFrameHeight, mp4Info.szVideoMediaDataName,
-                        mp4Info.dFrameRate, mp4Info.iNumVideoSamples);
-
-            LOGE("Audio:\nEncode:\t%s\nFrame:\t%d\n", mp4Info.szAudioMediaDataName, mp4Info.iNumAudioSamples);
-
-            total_s = (int)(mp4Info.iNumVideoSamples/mp4Info.dFrameRate);
-
-            if (strcmp(mp4Info.szVideoMediaDataName, "avc1") == 0)
-            {
-                iDecVCodec = JVDEC_TYPE_H264;
-            }
-            else if ( (strcmp(mp4Info.szVideoMediaDataName, "hev1") == 0)
-                 || (strcmp(mp4Info.szVideoMediaDataName, "hvc1") == 0))
-            {
-                iDecVCodec = JVDEC_TYPE_HEVC;
-            }
-            else{
-                ret = -5;
-                break;
-            }
-            decoder_handle = JVD05_DecodeOpenEx(iDecVCodec);
-            if(NULL == decoder_handle){
-                 ret = -6;
-                 break;
-            }
-            else{
-                ret = 0;
-            }
-            if(strcmp("samr", mp4Info.szAudioMediaDataName) == 0)
-            {
-                dec_type = JAD_CODEC_SAMR;
-
-            }else if(strcmp("alaw", mp4Info.szAudioMediaDataName) == 0)
-            {
-                dec_type = JAD_CODEC_ALAW;
-
-            }else if(strcmp("ulaw", mp4Info.szAudioMediaDataName) == 0)
-            {
-                dec_type = JAD_CODEC_ULAW;
-
-            }else{
-                LOGE("unknown audio dec type:%s", mp4Info.szAudioMediaDataName);
-            }
-            if(mp4Info.iNumAudioSamples > 0 && dec_type!=-1)
-            {
-                audio_handle = JAD_DecodeOpenEx(dec_type);
-                if (NULL == audio_handle) {
-                    //bad_status = BAD_STATUS_AUDIO;
-                    LOGE( "%s [%p]: JAD open Failed!!", LOCATE_PT);
-                }
-            }
-
-        }
-        else{
-            ret = -3;//uri is null
-            return ret;
-        }
-
-    }while(0);
-
-    if(ret != 0){
-        if (NULL != decoder_handle) {
-            JVD05_DecodeCloseEx(decoder_handle);
-            decoder_handle = NULL;
-        }
-        if(NULL != audio_handle)
-        {
-            JAD_DecodeCloseEx(audio_handle);
-            audio_handle = NULL;
-        }
-        if(NULL != upkHandle){
-            JP_CloseUnpkg(upkHandle);//则个函数貌似崩溃，需要联系网修养
-            upkHandle = NULL;
-        }
-
-    }
-    else
+    int play_status = 0;
+    //播放前先判断当前状态
+    if(is_produce_quit_)
     {
-        Value res_root;
-        FastWriter writer;
-        SetPlayTotalTime(total_s);
-        res_root["width"] = mp4Info.iFrameWidth;
-        res_root["height"] = mp4Info.iFrameHeight;
-        res_root["length"] = total_s;//总时间长度S
-        res_root["video_type"] = mp4Info.szVideoMediaDataName;
-        res_root["audio_type"] = mp4Info.szAudioMediaDataName;
-
-        string str_jsonres = writer.write(res_root);
-        jboolean needDetach = JNI_FALSE;
-        JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6,
-                &needDetach);
-
-        if (NULL != env && NULL != g_handle && NULL != g_notifyid) {
-            jstring jmsg = env->NewStringUTF(
-                    str_jsonres.c_str());
-
-            env->CallVoidMethod(g_handle, g_notifyid, CALL_MP4_PRE_INFO,
-                    (jint) 0, (jint) total_s, jmsg);
-
-            env->DeleteLocalRef(jmsg);
+        if(is_produce_run_)
+        {
+            //播放线程正在退出，还没完全结束，应用曾需要等待结束后再开始播放
+            play_status = 2;
         }
-        if (JNI_TRUE == needDetach) {
-            g_jvm->DetachCurrentThread();
+        else
+        {
+            play_status = 0;//播放线程已经推出，可以播放
         }
+    }
+    else{
+        if(is_produce_run_)
+        {
+            //播放线程正在运行,应用如果需要播放，需要先停止视频播放
+            play_status = 1;
+        }
+        else
+        {
+            //播放线程没有运行或者已经完全推出
+            play_status = 0;
+        }
+    }
+    if(play_status == 0)
+    {
+        video_width = 0;
+        video_height = 0;
+        do{
+            if(strlen(_uri.c_str()) > 0){
+
+                upkHandle = JP_OpenUnpkg((char *)_uri.c_str(), &mp4Info, 0);
+                if(NULL == upkHandle){
+                    LOGE("JP_OpenUnpkg failed, the return handle is NULL");
+                    return -4;
+                }
+                LOGE("Video:\nWidth:\t%d\nHeight:\t%d\nEncode:\t%s\nfps:\t%.2f\nFrame:\t%d\n",
+                            mp4Info.iFrameWidth, mp4Info.iFrameHeight, mp4Info.szVideoMediaDataName,
+                            mp4Info.dFrameRate, mp4Info.iNumVideoSamples);
+
+                LOGE("Audio:\nEncode:\t%s\nFrame:\t%d\n", mp4Info.szAudioMediaDataName, mp4Info.iNumAudioSamples);
+
+                total_s = (int)(mp4Info.iNumVideoSamples/mp4Info.dFrameRate);
+
+                if (strcmp(mp4Info.szVideoMediaDataName, "avc1") == 0)
+                {
+                    iDecVCodec = JVDEC_TYPE_H264;
+                }
+                else if ( (strcmp(mp4Info.szVideoMediaDataName, "hev1") == 0)
+                     || (strcmp(mp4Info.szVideoMediaDataName, "hvc1") == 0))
+                {
+                    iDecVCodec = JVDEC_TYPE_HEVC;
+                }
+                else{
+                    ret = -5;
+                    break;
+                }
+                decoder_handle = JVD05_DecodeOpenEx(iDecVCodec);
+                if(NULL == decoder_handle){
+                     ret = -6;
+                     break;
+                }
+                else{
+                    ret = 0;
+                }
+                if(strcmp("samr", mp4Info.szAudioMediaDataName) == 0)
+                {
+                    dec_type = JAD_CODEC_SAMR;
+
+                }else if(strcmp("alaw", mp4Info.szAudioMediaDataName) == 0)
+                {
+                    dec_type = JAD_CODEC_ALAW;
+
+                }else if(strcmp("ulaw", mp4Info.szAudioMediaDataName) == 0)
+                {
+                    dec_type = JAD_CODEC_ULAW;
+
+                }else{
+                    LOGE("unknown audio dec type:%s", mp4Info.szAudioMediaDataName);
+                }
+                if(mp4Info.iNumAudioSamples > 0 && dec_type!=-1)
+                {
+                    audio_handle = JAD_DecodeOpenEx(dec_type);
+                    if (NULL == audio_handle) {
+                        //bad_status = BAD_STATUS_AUDIO;
+                        LOGE( "%s [%p]: JAD open Failed!!", LOCATE_PT);
+                    }
+                }
+
+            }
+            else{
+                ret = -3;//uri is null
+                return ret;
+            }
+
+        }while(0);
+
+        if(ret != 0){
+            if (NULL != decoder_handle) {
+                JVD05_DecodeCloseEx(decoder_handle);
+                decoder_handle = NULL;
+            }
+            if(NULL != audio_handle)
+            {
+                JAD_DecodeCloseEx(audio_handle);
+                audio_handle = NULL;
+            }
+            if(NULL != upkHandle){
+                JP_CloseUnpkg(upkHandle);//则个函数貌似崩溃，需要联系网修养
+                upkHandle = NULL;
+            }
+
+        }
+        else
+        {
+            Value res_root;
+            FastWriter writer;
+            SetPlayTotalTime(total_s);
+            res_root["width"] = mp4Info.iFrameWidth;
+            res_root["height"] = mp4Info.iFrameHeight;
+            res_root["length"] = total_s;//总时间长度S
+            res_root["video_type"] = mp4Info.szVideoMediaDataName;
+            res_root["audio_type"] = mp4Info.szAudioMediaDataName;
+
+            string str_jsonres = writer.write(res_root);
+            jboolean needDetach = JNI_FALSE;
+            JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6,
+                    &needDetach);
+
+            if (NULL != env && NULL != g_handle && NULL != g_notifyid) {
+                jstring jmsg = env->NewStringUTF(
+                        str_jsonres.c_str());
+
+                env->CallVoidMethod(g_handle, g_notifyid, CALL_MP4_PRE_INFO,
+                        (jint) 0, (jint) total_s, jmsg);
+
+                env->DeleteLocalRef(jmsg);
+            }
+            if (JNI_TRUE == needDetach) {
+                g_jvm->DetachCurrentThread();
+            }
+        }
+    }
+    else{
+        ret = play_status;
     }
     return ret;
 }
@@ -577,23 +611,56 @@ int PlayMP4::opengl_attach(JNIEnv *env, jobject surface)
 int PlayMP4::start(JNIEnv *env, jobject surface)
 {
     int ret = 0;
-    is_produce_quit_ = false;
-    ret = opengl_attach(env, surface);
 
-    if(ret == 0)
+    int play_status = 0;
+    if(is_produce_quit_)
     {
-        ret = pthread_create(&play_id_, NULL, Play, this);
-
-        if (ret != 0) {
-            LOGE("PlayMP4 pthread_create error : %d\n", ret);
+        if(is_produce_run_)
+        {
+            //播放线程正在退出，还没完全结束，应用曾需要等待结束后再开始播放
+            play_status = 2;
         }
-        else{
-             LOGE("PlayMP4 pthread_create success(%lu)\n", play_id_);
+        else
+        {
+            play_status = 0;//播放线程已经推出，可以播放
         }
     }
-    if(ret != 0)
+    else{
+        if(is_produce_run_)
+        {
+            //播放线程正在运行,应用如果需要播放，需要先停止视频播放
+            play_status = 1;
+        }
+        else
+        {
+            //播放线程没有运行或者已经完全推出
+            play_status = 0;
+        }
+    }
+    if(play_status == 0)
     {
-        opengl_detach();
+        is_produce_quit_ = false;
+        ret = opengl_attach(env, surface);
+
+        if(ret == 0)
+        {
+            ret = pthread_create(&play_id_, NULL, Play, this);
+
+            if (ret != 0) {
+                LOGE("PlayMP4 pthread_create error : %d\n", ret);
+            }
+            else{
+                 LOGE("PlayMP4 pthread_create success(%lu)\n", play_id_);
+            }
+        }
+        if(ret != 0)
+        {
+            opengl_detach();
+        }
+    }
+    else
+    {
+        ret = play_status;
     }
     return ret;
 }
@@ -624,6 +691,8 @@ int PlayMP4::resume() {
 }
 int PlayMP4::destroy()
 {
+    is_produce_stopping_ = false;
+
 	if (NULL != track)
     {
 		track->stop();
@@ -667,6 +736,7 @@ int PlayMP4::stop(int stop_seconds)
     /*if the thread is suspended, then need resume first*/
     if (isuspend) resume();
     LOGD("the play thread is stopping...\n");
+    is_produce_stopping_ = true;
     is_produce_quit_ = true;
     if(!is_produce_run_){
         return 0;
