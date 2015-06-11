@@ -29,6 +29,7 @@ char* CharConvert::foo(const char* src, const char* from, const char* to) {
 	size_t outbytesleft = inbytesleft * 4 + 2;
 	retlen = outbytesleft;
 
+
 	char* tmp = resize(outbytesleft);
 
 	char* inbuf = (char*) src;

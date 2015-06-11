@@ -326,11 +326,17 @@ void deleteYUV(VO_IN_YUV* yuv) {
 	if (NULL != yuv) {
 		if (NULL != yuv->p[0].p_pixels) {
 			free(yuv->p[0].p_pixels);
+		}
+
+		if (NULL != yuv->p[1].p_pixels) {
 			free(yuv->p[1].p_pixels);
+		}
+
+		if (NULL != yuv->p[2].p_pixels){
 			free(yuv->p[2].p_pixels);
 		}
 
-		free(yuv);
+//		free(yuv); 应在外部释放；
 	}
 }
 
@@ -463,6 +469,9 @@ void deletePlayer(int index) {
 		deleteYUV(player->core->yuv);
 		deleteYUV(player->core->yuv_thumb);
 
+		free(player->core->yuv);
+		free(player->core->yuv_thumb);
+
 		free(player->core);
 		free(player->stat);
 		free(player->vm_normal);
@@ -581,6 +590,7 @@ bool glResume(JNIEnv* env, player_suit* player, jobject surface) {
 bool glPause(player_suit* player) {
 	bool result = false;
 
+//	LOGW("***********commons glPause！***********");
 	if (NULL != player && NULL != player->core) {
 		pthread_mutex_lock(&(player->core->opengl_mt));
 		if (NULL != player->core->opengl_window) {
@@ -602,11 +612,12 @@ bool glPause(player_suit* player) {
 bool glDetach(player_suit* player) {
 //	LOGW("%s [%p] E", LOCATE_PT);
 	bool result = false;
-
+//	LOGW("***********commons glDetach！***********");
 	if (NULL != player && NULL != player->core) {
 		pthread_mutex_lock(&(player->core->opengl_mt));
 		if (NULL != player->core->opengl_window) {
 			ANativeWindow_release(player->core->opengl_window);
+//			LOGW("gldetach player->core->opengl_window is null");
 			player->core->opengl_window = NULL;
 			player->core->opengl_status = OPENGL_UNATTACHED;
 			result = true;
@@ -668,6 +679,7 @@ bool glOpen(player_suit* player) {
 				&& NULL == player->core->opengl_handle) {
 			if (OPENGL_ATTACHED == player->core->opengl_status
 					|| OPENGL_TRY_OPEN == player->core->opengl_status) {
+//				LOGW("glopen player->core->opengl_window is not null ");
 				player->core->opengl_handle = JVO_Open(
 						player->core->opengl_window);
 				if (NULL != player->core->opengl_handle) {
@@ -675,8 +687,7 @@ bool glOpen(player_suit* player) {
 					player->core->opengl_status = OPENGL_OPENGED;
 				}
 			} else {
-				LOGE(
-						"open failed, with bad status = %d!!", player->core->opengl_status);
+				LOGE("open failed, with bad status = %d!!", player->core->opengl_status);
 			}
 		}
 		pthread_mutex_unlock(&(player->core->opengl_mt));
@@ -1008,6 +1019,9 @@ bool clean_all_queue(player_suit* player) {
 
 		deleteYUV(player->core->yuv);
 		deleteYUV(player->core->yuv_thumb);
+
+		free(player->core->yuv);
+		free(player->core->yuv_thumb);
 
 		player->core->yuv = NULL;
 		player->core->yuv_thumb = NULL;
