@@ -2321,4 +2321,14 @@ JNIEXPORT jint  JNICALL Java_com_jovision_Jni_HelpQuery(JNIEnv *env,
 
 	return 0;
 }
+
+/**
+ * STOP lansearch
+ */
+JNIEXPORT jint  JNICALL Java_com_jovision_Jni_StopMobLansearch(JNIEnv *env,
+		jclass clazz)
+{
+	return JVC_MOStopLANSerchDevice();
+}
+
 #endif // CASTRATE

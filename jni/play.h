@@ -614,6 +614,13 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_HelperRemove(JNIEnv *env,
 JNIEXPORT jint  JNICALL Java_com_jovision_Jni_HelpQuery(JNIEnv *env,
 		jclass clazz,jstring pGroup,jint nYST,jint nCount);
 
+
+/**
+ * STOP lansearch
+ */
+JNIEXPORT jint  JNICALL Java_com_jovision_Jni_StopMobLansearch(JNIEnv *env,
+		jclass clazz);
+
 #endif // CASTRATE
 
 #ifdef __cplusplus

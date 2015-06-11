@@ -103,7 +103,7 @@ public class Jni {
 	public static native int searchLanDevice(String group, int cloudSeeId,
 			int cardType, int variety, String deviceName, int timeout,
 			int frequence);
-
+	 public static native int StopMobLansearch();
 	/**
 	 * 开启快速链接服务，参考 {@link JVSUDT#JVC_EnableHelp(boolean, int)}
 	 * 
@@ -898,5 +898,7 @@ public class Jni {
 	public static native boolean tcpConnect(int window, int channel, String ip,
 			int port, String username, String password, int cloudSeeId,
 			String groupId, boolean isLocalDetect, int connectType, int turnType);
+	
+	
 
 }

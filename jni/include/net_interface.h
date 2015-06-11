@@ -711,7 +711,11 @@ JVCLIENT_API int JVC_SetMTU(int nMtu);
 JVCLIENT_API int __stdcall  JVC_SetMTU(int nMtu);
 #endif
 
-
+#ifndef WIN32
+JVCLIENT_API int JVC_MOStopLANSerchDevice();
+#else
+JVCLIENT_API int __stdcall  JVC_MOStopLANSerchDevice();
+#endif
 #ifdef  __cplusplus
 }
 #endif

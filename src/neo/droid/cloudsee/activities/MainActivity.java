@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -1919,4 +1920,10 @@ public class MainActivity extends BaseActivity implements
 		}
 	}
 
+	
+	
+	public void gotonext(View view){
+		Intent intent = new Intent(MainActivity.this,TestAct.class);
+		startActivity(intent);
+	}
 }
