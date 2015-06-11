@@ -85,7 +85,7 @@ public class OnPlayMP4Activity extends BaseActivity implements SurfaceHolder.Cal
         Intent intent = getIntent();
         if (null != intent) {
             mp4_uri = intent.getStringExtra("URL");
-            isLocal = intent.getBooleanExtra("IS_LOCAL", false);
+            isLocal = intent.getBooleanExtra("IS_LOCAL", true);
         }
         if(mp4_uri == null || "".equals(mp4_uri)){
             finish();
