@@ -716,6 +716,18 @@ JVCLIENT_API int JVC_MOStopLANSerchDevice();
 #else
 JVCLIENT_API int __stdcall  JVC_MOStopLANSerchDevice();
 #endif
+
+
+/**
+ * success:1
+ * failed:0
+ */
+#ifndef WIN32
+JVCLIENT_API int JVC_StopHelp();
+#else
+JVCLIENT_API int __stdcall  JVC_StopHelp();
+#endif
+
 #ifdef  __cplusplus
 }
 #endif

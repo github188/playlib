@@ -621,7 +621,12 @@ JNIEXPORT jint  JNICALL Java_com_jovision_Jni_HelpQuery(JNIEnv *env,
  */
 JNIEXPORT jint  JNICALL Java_com_jovision_Jni_StopMobLansearch(JNIEnv *env,
 		jclass clazz);
+/**
+ * stop littlehelp
+ */
 
+JNIEXPORT jint  JNICALL Java_com_jovision_Jni_StopHelp(JNIEnv *env,
+		jclass clazz);
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Init(JNIEnv *env,
 		jclass clazz);

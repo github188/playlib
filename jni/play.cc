@@ -2331,7 +2331,11 @@ JNIEXPORT jint  JNICALL Java_com_jovision_Jni_StopMobLansearch(JNIEnv *env,
 	return JVC_MOStopLANSerchDevice();
 }
 
-
+JNIEXPORT jint  JNICALL Java_com_jovision_Jni_StopHelp(JNIEnv *env,
+		jclass clazz)
+{
+	return JVC_StopHelp();
+}
 
 PlayMP4 *gPlayerMp4 = NULL;
 
