@@ -64,7 +64,7 @@ include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := cloudstore
-LOCAL_SRC_FILES := libs/$(APP_ABI)/libcloudstore.a
+LOCAL_SRC_FILES := libs/$(APP_ABI)/libcloudstores.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
