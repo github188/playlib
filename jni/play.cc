@@ -2503,4 +2503,18 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
 
 	return result;
 }
+
+JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_NotifytoJni(JNIEnv *env,
+		jclass clazz, jint window, jint uchType,jobject obj) {
+	jboolean result = JNI_FALSE;
+	int index = getValidArrayIndex(window);
+
+	if (index >= 0) {
+		//do what you want to do!
+	}
+
+
+	return result;
+}
+
 #endif // CASTRATE
