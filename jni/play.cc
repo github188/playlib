@@ -2465,4 +2465,42 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4State(JNIEnv *env,
     return play_status;
 }
 
+
+JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
+		jclass clazz, jint window, jstring url, jobject surface,
+		jboolean isTryOmx, jstring thumbName) {
+	jboolean result = JNI_FALSE;
+	char* curl = getNativeChar(env, url);
+	int index = getValidArrayIndex(window);
+
+	if (index >= 0) {
+		player_suit* player = genPlayer(index);
+		player->thumb_name = getNativeChar(env, thumbName);
+
+		if (NULL != surface && glAttach(env, player, surface)) {
+			player->try_omx = false;
+			player->is_play_audio = true;
+
+			if (JNI_TRUE == isTryOmx) {
+				player->try_omx = g_has_omx_inited;
+			}
+
+			// [Neo] start the play video thread
+			pthread_t pt;
+			pthread_create(&pt, NULL, onPlayVideo, (void*) index);
+
+			result =
+					(JVC_ConnectRTMP(index + 1, curl, ConnectChangeRTMP,
+							NormalDataRTMP)) ? JNI_TRUE : JNI_FALSE;
+
+		} else {
+			LOGW( "connectRTMP[%d], attach failed", window);
+			deletePlayer(index);
+		}
+	}
+
+	free(curl);
+
+	return result;
+}
 #endif // CASTRATE
