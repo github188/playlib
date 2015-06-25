@@ -63,6 +63,11 @@ LOCAL_SRC_FILES := libs/$(APP_ABI)/libmp4.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := cloudstore
+LOCAL_SRC_FILES := libs/$(APP_ABI)/libcloudstore.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
 LOCAL_MODULE := iconv
 LOCAL_SRC_FILES := libs/$(APP_ABI)/libiconv.a
 include $(PREBUILT_STATIC_LIBRARY)
@@ -71,6 +76,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := alu
 LOCAL_SRC_FILES := libs/$(APP_ABI)/libalu.so
 include $(PREBUILT_SHARED_LIBRARY)
+
 
 include $(CLEAR_VARS)
 
@@ -81,6 +87,6 @@ LOCAL_SRC_FILES := utils/commons.cc utils/voiceenc.c utils/char_conv.cc \
 LOCAL_CFLAGS := -Wall -Wno-write-strings
 LOCAL_LDLIBS := -llog -lGLESv2 -lEGL -landroid
 LOCAL_SHARED_LIBRARIES := alu
-LOCAL_STATIC_LIBRARIES := jsoncpp iconv network screenshot opengl mp4 aenc adec legacy hdec dec avcodec avutil
+LOCAL_STATIC_LIBRARIES := cloudstore jsoncpp iconv network screenshot opengl mp4 aenc adec legacy hdec dec avcodec avutil
 
 include $(BUILD_SHARED_LIBRARY)
