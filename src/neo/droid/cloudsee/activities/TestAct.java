@@ -5,6 +5,7 @@ import com.jovision.Jni;
 import neo.droid.cloudsee.R;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,8 +38,10 @@ public class TestAct extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-			    Jni.searchLanServer(9400, 6666);
-				int res = Jni.searchLanDevice("", 0, 0, 0, "", 1 * 60 * 1000, 2);
+//			    Jni.searchLanServer(9400, 6666);
+//				int res = Jni.searchLanDevice("", 0, 0, 0, "", 1 * 60 * 1000, 2);
+				String url = Environment.getExternalStorageDirectory().getPath()+"/ttt.jpg";
+				Jni.NotifytoJni(url);
 			}
 		});
 		
@@ -48,8 +51,8 @@ public class TestAct extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-			int returnResult=	Jni.StopMobLansearch();
-			Log.e("jack", "result: "+returnResult);
+//			int returnResult=	Jni.StopMobLansearch();
+//			Log.e("jack", "result: "+returnResult);
 			}
 		});
 	}

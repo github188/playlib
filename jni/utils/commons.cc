@@ -5,7 +5,7 @@
 #include <sys/select.h>
 
 #include "utils/commons.h"
-
+#include "curl/curl.h"
 hJPG g_jpg;
 
 int g_thumb_width;
@@ -1465,5 +1465,65 @@ jobjectArray genJObjectArray(JNIEnv* env, jsize size) {
 	}
 
 	return jarray;
+
+}
+
+
+#define CURL_BREAK_IF_NOT_OK(code)     if (code != CURLE_OK) return code
+size_t save_file(void *ptr, size_t size, size_t nmemb, void *stream)
+{
+    size_t sizes = size * nmemb;
+    FILE *fp = (FILE *)(stream);
+    size_t ret = 0;
+    ret = fwrite(ptr,1,sizes,fp);
+//    assert(sizes == ret);
+    return sizes;
+}
+
+/**
+ * download file method
+ * in:file
+ */
+int downloadFile(FILE *fp)
+{
+	int responseCode = -1;
+	CURL *curl;
+	CURLcode returnCode;
+	curl_global_init(CURL_GLOBAL_ALL);
+
+	curl = curl_easy_init();
+	if (curl) {
+		returnCode = curl_easy_setopt(curl, CURLOPT_URL, "http://imgsrc.baidu.com/forum/pic/item/493c5cfbb2fb431620b5224821a4462309f7d32f.jpg");
+		CURL_BREAK_IF_NOT_OK(returnCode);
+		returnCode = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, save_file);
+		CURL_BREAK_IF_NOT_OK(returnCode);
+		returnCode = curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+		CURL_BREAK_IF_NOT_OK(returnCode);
+		returnCode = curl_easy_perform(curl);
+		CURL_BREAK_IF_NOT_OK(returnCode);
+//		if (0!=res) {
+////	            printf("curl error: %d\n", res);
+//			LOGE("curl 1 error: %d\n", res);
+//			responseCode = -1;
+//		}
+//		LOGE("curl 2 error: %d\n", res);
+
+
+		returnCode = curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode); //获取返回信息
+		CURL_BREAK_IF_NOT_OK(returnCode);
+		LOGE("responseCode: %d",responseCode);
+		if(curl)
+			curl_easy_cleanup(curl);
+
+		if(fp !=NULL)
+		{
+			fclose(fp);
+
+		}
+	}
+
+	curl_global_cleanup();
+
+	return responseCode;
 
 }

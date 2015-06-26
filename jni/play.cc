@@ -5,7 +5,7 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
-
+#include "string.h"
 #include "play.h"
 #include "defines.h"
 #include "utils/commons.h"
@@ -2504,17 +2504,43 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
 	return result;
 }
 
-JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_NotifytoJni(JNIEnv *env,
-		jclass clazz, jint window, jint uchType,jobject obj) {
-	jboolean result = JNI_FALSE;
-	int index = getValidArrayIndex(window);
-
-	if (index >= 0) {
-		//do what you want to do!
-	}
 
 
-	return result;
+static long Post_Response(void *data, int size, int nmemb, std::string &content)
+{
+	long sizes = size * nmemb;
+	std::string temp((char*)data,sizes);
+	content += temp;
+	LOGE("SIZE: %d",sizes);
+	return sizes;
+}
+
+
+
+FILE *fout = NULL;
+JNIEXPORT void JNICALL Java_com_jovision_Jni_NotifytoJni(JNIEnv *env,
+		jclass clazz,jstring filename) {
+//	FILE *fp = NULL;
+
+		jboolean isCopy;
+		char *pServerURLChar=0;
+		pServerURLChar = (char *)env->GetStringUTFChars(filename,&isCopy);
+		fout = fopen(pServerURLChar, "wb");
+		if (fout == NULL) {
+			LOGE("could not open %s\n", filename);
+			if (isCopy==JNI_TRUE) {
+						env->ReleaseStringUTFChars(filename,pServerURLChar);
+			}
+			return;
+		}
+
+
+		downloadFile(fout);
+
+		if (isCopy==JNI_TRUE) {
+						env->ReleaseStringUTFChars(filename,pServerURLChar);
+		}
+
 }
 
 #endif // CASTRATE

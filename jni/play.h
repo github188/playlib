@@ -654,13 +654,13 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Resume(JNIEnv *env,
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4State(JNIEnv *env,
 		jclass clazz);
-
+//cloudstore
 JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
 		jclass clazz, jint window, jstring url, jobject surface,
 		jboolean isTryOmx, jstring thumbName);
 
-JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_NotifytoJni(JNIEnv *env,
-		jclass clazz, jint window, jint uchType,jobject obj);
+JNIEXPORT void JNICALL Java_com_jovision_Jni_NotifytoJni(JNIEnv *env,
+		jclass clazz,jstring filename);
 
 #endif // CASTRATE
 

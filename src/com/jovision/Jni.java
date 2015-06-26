@@ -899,6 +899,6 @@ public class Jni {
 			int port, String username, String password, int cloudSeeId,
 			String groupId, boolean isLocalDetect, int connectType, int turnType);
 	
-	
+	public static native void NotifytoJni(String url);
 
 }
