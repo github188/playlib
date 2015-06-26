@@ -999,7 +999,6 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_sendAudioData(JNIEnv *env,
 		jclass clazz, jint window, jbyte uchType, jbyteArray data, jint size) {
 	jboolean result = JNI_FALSE;
 	jbyte* cdata = getNativeByteByLength(env, data, 0, size);
-
 	int index = window2Array(window);
 	if (index >= 0) {
 		BYTE* converted = convertAudioData(cdata);
