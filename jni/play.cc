@@ -2534,7 +2534,7 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_NotifytoJni(JNIEnv *env,
 		}
 
 
-		downloadFile(fout);
+		downloadFile(fout,"http://jovetech.oss-cn-hangzhou.aliyuncs.com/B129109013/2015/6/25/M01235851.m3u8?Expires=1435661015&OSSAccessKeyId=4fZazqCFmQTbbmcw&Signature=nILTXUMQ%2FBVUzkjp1RnE069QL68%3D");
 
 		if (isCopy==JNI_TRUE) {
 						env->ReleaseStringUTFChars(filename,pServerURLChar);

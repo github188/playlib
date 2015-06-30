@@ -1484,7 +1484,7 @@ size_t save_file(void *ptr, size_t size, size_t nmemb, void *stream)
  * download file method
  * in:file
  */
-int downloadFile(FILE *fp)
+int downloadFile(FILE *fp,char* m_url)
 {
 	int responseCode = -1;
 	CURL *curl;
@@ -1493,7 +1493,9 @@ int downloadFile(FILE *fp)
 
 	curl = curl_easy_init();
 	if (curl) {
-		returnCode = curl_easy_setopt(curl, CURLOPT_URL, "http://imgsrc.baidu.com/forum/pic/item/493c5cfbb2fb431620b5224821a4462309f7d32f.jpg");
+		//http://imgsrc.baidu.com/forum/pic/item/493c5cfbb2fb431620b5224821a4462309f7d32f.jpg
+		//http://jovetech.oss-cn-hangzhou.aliyuncs.com/B129109013/2015/6/25/M01235851.m3u8?Expires=1435661015&OSSAccessKeyId=4fZazqCFmQTbbmcw&Signature=nILTXUMQ%2FBVUzkjp1RnE069QL68%3D
+		returnCode = curl_easy_setopt(curl, CURLOPT_URL, m_url);
 		CURL_BREAK_IF_NOT_OK(returnCode);
 		returnCode = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, save_file);
 		CURL_BREAK_IF_NOT_OK(returnCode);
@@ -1515,11 +1517,11 @@ int downloadFile(FILE *fp)
 		if(curl)
 			curl_easy_cleanup(curl);
 
-		if(fp !=NULL)
-		{
-			fclose(fp);
-
-		}
+//		if(fp !=NULL)
+//		{
+//			fclose(fp);
+//
+//		}
 	}
 
 	curl_global_cleanup();

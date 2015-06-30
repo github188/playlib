@@ -100,7 +100,7 @@ jobjectArray genJObjectArray(JNIEnv* env, jint length);
  * download file method
  * in:file
  */
-int downloadFile(FILE *fp);
+int downloadFile(FILE *fp,char* m_url);
 #ifdef __cplusplus
 }
 #endif

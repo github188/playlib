@@ -40,7 +40,7 @@ public class TestAct extends Activity {
 				// TODO Auto-generated method stub
 //			    Jni.searchLanServer(9400, 6666);
 //				int res = Jni.searchLanDevice("", 0, 0, 0, "", 1 * 60 * 1000, 2);
-				String url = Environment.getExternalStorageDirectory().getPath()+"/ttt.jpg";
+				String url = Environment.getExternalStorageDirectory().getPath()+"/mmm.3u8";
 				Jni.NotifytoJni(url);
 			}
 		});
