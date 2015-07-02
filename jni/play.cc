@@ -643,6 +643,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_connect(JNIEnv *env, jclass clazz,
 	free(gid);
 
 	LOGV("connect X, result: %d", result);
+
 	return result;
 }
 
