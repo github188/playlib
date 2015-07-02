@@ -89,7 +89,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_connect
  * Signature: (ILjava/lang/String;Ljava/lang/Object;ZLjava/lang/String;)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_connectRTMP
-  (JNIEnv *, jclass, jint, jstring, jobject, jboolean, jstring);
+  (JNIEnv *, jclass, jint, jstring, jobject, jboolean, jstring,jint nTimeout);
 
 /*
  * Class:     com_jovision_Jni

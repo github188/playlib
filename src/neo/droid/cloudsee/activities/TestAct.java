@@ -38,10 +38,10 @@ public class TestAct extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-//			    Jni.searchLanServer(9400, 6666);
-//				int res = Jni.searchLanDevice("", 0, 0, 0, "", 1 * 60 * 1000, 2);
-				String url = Environment.getExternalStorageDirectory().getPath()+"/mmm.3u8";
-				Jni.NotifytoJni(url);
+			    Jni.searchLanServer(9400, 6666);
+				int res = Jni.searchLanDevice("", 0, 0, 0, "", 1 * 40 * 1000, 2);
+//				String url = Environment.getExternalStorageDirectory().getPath()+"/mmm.3u8";
+//				Jni.NotifytoJni(url);
 			}
 		});
 		
@@ -51,8 +51,10 @@ public class TestAct extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-//			int returnResult=	Jni.StopMobLansearch();
+			int returnResult=	Jni.StopMobLansearch();
 //			Log.e("jack", "result: "+returnResult);
+//				Jni.stopSearchLanServer();
+				
 			}
 		});
 	}

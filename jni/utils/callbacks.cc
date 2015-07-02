@@ -29,7 +29,7 @@ void ConnectChangeRTMP(int index, BYTE type, char* msg, int data) {
 	int window = array2Window(index);
 	type |= 0xA0;
 
-	LOGW( "%s [%p]: E, window = %d, type = 0x%02X", LOCATE_PT, window, type);
+	LOGE( "%s [%p]: E, window = %d, type = 0x%02X, msg: %s", LOCATE_PT, window, type,msg);
 
 	if (window >= 0) {
 

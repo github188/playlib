@@ -119,12 +119,7 @@ public class MainActivity extends BaseActivity implements
 	private boolean enableYST;
 
 	private int pointer = 0;
-	private static String urls[] = { "rtmp://119.188.172.3/live/a367_1",
-			"rtmp://119.188.172.3/live/a368_1",
-			"rtmp://119.188.172.3/live/a361_1",
-			"rtmp://119.188.172.3:1935/live/a579223323_1",
-			"rtmp://119.188.172.3/live/a366_1",
-			"rtmp://119.188.172.3:1935/live/ipcstory_1", };
+	private static String urls[] = { "rtmp://119.188.172.4:1935/live/a1234567890"};
 
 	@Override
 	protected void initSettings() {
@@ -139,7 +134,7 @@ public class MainActivity extends BaseActivity implements
 
 		isTcp = false;
 		tryOmx = false;
-		enableYST = true;
+		enableYST = false;
 
 		deviceList = new ArrayList<Device>();
 

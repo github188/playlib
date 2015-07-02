@@ -648,7 +648,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_connect(JNIEnv *env, jclass clazz,
 
 JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_connectRTMP(JNIEnv *env,
 		jclass clazz, jint window, jstring url, jobject surface,
-		jboolean isTryOmx, jstring thumbName) {
+		jboolean isTryOmx, jstring thumbName,jint nTimeout) {
 	jboolean result = JNI_FALSE;
 	char* curl = getNativeChar(env, url);
 	int index = getValidArrayIndex(window);
@@ -671,7 +671,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_connectRTMP(JNIEnv *env,
 
 			result =
 					(JVC_ConnectRTMP(index + 1, curl, ConnectChangeRTMP,
-							NormalDataRTMP)) ? JNI_TRUE : JNI_FALSE;
+							NormalDataRTMP,nTimeout)) ? JNI_TRUE : JNI_FALSE;
 
 		} else {
 			LOGW( "connectRTMP[%d], attach failed", window);
@@ -1444,9 +1444,9 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_searchLanServer(JNIEnv *env,
 
 JNIEXPORT void JNICALL Java_com_jovision_Jni_stopSearchLanServer(JNIEnv *env,
 		jclass clazz) {
-	LOGV( "stopSearchLanServer E");
+	LOGE( "stopSearchLanServer E");
 	JVC_StopLANSerchServer();
-	LOGV( "stopSearchLanServer X");
+	LOGE( "stopSearchLanServer X");
 }
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_searchLanDevice(JNIEnv *env,
@@ -1455,7 +1455,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_searchLanDevice(JNIEnv *env,
 	jint result = -1;
 	char* gid = getNativeChar(env, group);
 	char* name = getNativeChar(env, deviceName);
-	LOGV(
+	LOGE(
 			"searchLanDevice E: no: %s%d, cardType: %X, variety: %X, Name: %s, timeout: %dms, frequence: %d", gid, cloudSeeId, cardType, variety, name, timeout, frequence);
 
 	result = JVC_MOLANSerchDevice(gid, cloudSeeId, cardType, variety, name,
@@ -1463,7 +1463,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_searchLanDevice(JNIEnv *env,
 
 	free(gid);
 	free(name);
-	LOGV( "searchLanDevice X: %d", result);
+	LOGE( "searchLanDevice X: %d", result);
 	return result;
 }
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_getChannelCount(JNIEnv *env,
@@ -2490,7 +2490,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
 
 			result =
 					(JVC_ConnectRTMP(index + 1, curl, ConnectChangeRTMP,
-							NormalDataRTMP)) ? JNI_TRUE : JNI_FALSE;
+							NormalDataRTMP,5*1000)) ? JNI_TRUE : JNI_FALSE;
 
 		} else {
 			LOGW( "connectRTMP[%d], attach failed", window);
