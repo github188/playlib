@@ -2468,7 +2468,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4State(JNIEnv *env,
 
 JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
 		jclass clazz, jint window, jstring url, jobject surface,
-		jboolean isTryOmx, jstring thumbName) {
+		jboolean isTryOmx, jstring thumbName,jint nTimeOut) {
 	jboolean result = JNI_FALSE;
 	char* curl = getNativeChar(env, url);
 	int index = getValidArrayIndex(window);
@@ -2491,7 +2491,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
 
 			result =
 					(JVC_ConnectRTMP(index + 1, curl, ConnectChangeRTMP,
-							NormalDataRTMP,5*1000)) ? JNI_TRUE : JNI_FALSE;
+							NormalDataRTMP,nTimeOut)) ? JNI_TRUE : JNI_FALSE;
 
 		} else {
 			LOGW( "connectRTMP[%d], attach failed", window);

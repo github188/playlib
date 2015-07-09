@@ -1498,6 +1498,8 @@ int downloadFile(FILE *fp,char* m_url)
 		returnCode = curl_easy_setopt(curl, CURLOPT_URL, m_url);
 		CURL_BREAK_IF_NOT_OK(returnCode);
 		returnCode = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, save_file);
+		returnCode = curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
+//		returnCode = curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, save_file);
 		CURL_BREAK_IF_NOT_OK(returnCode);
 		returnCode = curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
 		CURL_BREAK_IF_NOT_OK(returnCode);

@@ -119,7 +119,7 @@ public class MainActivity extends BaseActivity implements
 	private boolean enableYST;
 
 	private int pointer = 0;
-	private static String urls[] = { "rtmp://119.188.172.4:1935/live/a1234567890"};
+	private static String urls[] = { "rtmp://119.188.172.3:1935/live/s224344648_2"};
 
 	@Override
 	protected void initSettings() {

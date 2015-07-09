@@ -155,10 +155,11 @@ extern "C" {
 #define BAD_ARRAY_OVERFLOW	-4
 #define BAD_CONN_UNKOWN		-5
 
-#define RTMP_CONN_SCCUESS	(0x01 | 0xA0)
-#define RTMP_CONN_FAILED	(0x02 | 0xA0)
-#define RTMP_DISCONNECTED	(0x03 | 0xA0)
-#define RTMP_EDISCONNECT	(0x04 | 0xA0)
+#define RTMP_CONN_SCCUESS	(0x01 | 0xA0) //链接成功
+#define RTMP_CONN_FAILED	(0x02 | 0xA0)//链接失败
+#define RTMP_DISCONNECTED	(0x03 | 0xA0)//断开链接成功
+#define RTMP_EDISCONNECT	(0x04 | 0xA0)//异常断开
+#define RTMP_LOGNNODATA		(0x05 | 0xA0)//长时间没有数据主控断开
 
 #define RTMP_TYPE_META		0x00
 #define RTMP_TYPE_H264_I	0x01
