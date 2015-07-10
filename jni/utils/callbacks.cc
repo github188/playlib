@@ -1620,5 +1620,6 @@ int onOmxInfo(OMX_INFO * info) {
 
 	LOGV( "%s [%p]: X", LOCATE_PT);
 
+
 	return result;
 }
