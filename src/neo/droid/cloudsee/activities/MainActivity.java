@@ -1,5 +1,10 @@
 package neo.droid.cloudsee.activities;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Timer;
@@ -73,6 +78,7 @@ public class MainActivity extends BaseActivity implements
 
 	static {
 		System.loadLibrary("alu");
+	    System.loadLibrary("nplayer");
 		System.loadLibrary("play");
 	}
 
@@ -165,7 +171,7 @@ public class MainActivity extends BaseActivity implements
 		// deviceList.add(new Device("172.16.27.236", 9101, "A", 30121922,
 		// "abc",
 		// "123", false, 1));
-		deviceList.add(new Device("172.16.27.236", 9101, "S", 239912363, "abc",
+		deviceList.add(new Device("172.16.27.236", 9101, "A", 230283235, "abc",
 				"123", false, 1));
 
 		for (Device device : deviceList) {
@@ -631,6 +637,7 @@ public class MainActivity extends BaseActivity implements
 		Jni.enablePlayAudio(targetIndex, true);
 		Jni.resumeAudio(targetIndex);
 
+	    
 		// Jni.foo(null);
 
 		// new Thread() {
@@ -711,6 +718,7 @@ public class MainActivity extends BaseActivity implements
 		Jni.enablePlayAudio(targetIndex, false);
 		Jni.pauseAudio(targetIndex);
 
+	    
 		// Jni.setRecordVolume(5.0f);
 
 		// Jni.startAudioRecord(16, 640);
@@ -803,7 +811,10 @@ public class MainActivity extends BaseActivity implements
 		// byte[0],
 		// 8);
 
-		Jni.startRecord(targetIndex, "/sdcard/out.mp4", true, true);
+       Jni.initDenoisePlayer();
+       Jni.recordAndsendAudioData(1);       
+	    
+//		Jni.startRecord(targetIndex, "/sdcard/out.mp4", true, true);
 
 		// new Thread() {
 		//
@@ -876,7 +887,41 @@ public class MainActivity extends BaseActivity implements
 		// Jni.sendBytes(targetIndex, (byte) JVNetConst.JVN_CMD_CHATSTOP,
 		// new byte[0], 8);
 
-		Jni.stopRecord();
+//        Jni.recordOff();
+	    Jni.playOn();
+	    
+//	    Jni.startAudioPlayer(6, 640);
+//	    Jni.playAudioData(null);
+
+//	    String path = "/sdcard/org.pcm";
+//	    File f  = new File(path);
+//	    File f1 = new File("/sdcard/org2.pcm");
+//	    
+//	    FileInputStream fis = null;
+//	    FileOutputStream fos = null;
+//	    byte[] b = new byte[640] ;
+//	    	    
+//        try {
+//            fis = new FileInputStream(f);
+//            fos = new FileOutputStream(f1);
+//            while (fis.read(b)!=-1){
+//                fos.write(b);
+//                Jni.playAudioData(b);
+//            }
+//            
+//            fis.close();
+//            fos.close();
+//        } catch (FileNotFoundException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+        
+
+        
+//		Jni.stopRecord();
 
 		// new Thread() {
 		//

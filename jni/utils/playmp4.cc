@@ -173,7 +173,7 @@ static void * Play(void *args)
                         jboolean needDetach = JNI_FALSE;
                         JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6,
                             &needDetach);
-                         if (NULL != env && NULL != g_handle && NULL != g_notifyid) {
+                        if (NULL != env && NULL != g_handle && NULL != g_notifyid) {
                             env->CallVoidMethod(g_handle, g_notifyid, CALL_MP4_TIME_INFO,
                                     (jint)current_sec , (jint) player->GetPlayTotalTime(), NULL);
                         }
@@ -301,7 +301,6 @@ void PlayMP4::setURI(string uri)
     _uri = uri;
 }
 
-
 int PlayMP4::opengl_detach()
 {
     if (NULL != opengl_window) {
@@ -389,7 +388,7 @@ int PlayMP4::decode(int type, void *handler, H264_PACKET* in, PVO_IN_YUV out, in
 	int result = -1;
 
 	PYUV_PACKET packet = NULL;
-	PHDEC_ANDROID_YUV_PKT packet_hd = NULL;
+//	PHDEC_ANDROID_YUV_PKT packet_hd = NULL;
 
 	out->i_width = 0;
 	out->i_height = 0;
@@ -689,6 +688,7 @@ int PlayMP4::resume() {
 
     return 0;
 }
+
 int PlayMP4::destroy()
 {
     is_produce_stopping_ = false;

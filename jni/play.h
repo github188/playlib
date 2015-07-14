@@ -654,6 +654,48 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Resume(JNIEnv *env,
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4State(JNIEnv *env,
 		jclass clazz);
+
+
+JNIEXPORT void JNICALL Java_com_jovision_Jni_setAdjustVolume(JNIEnv* env,
+		jclass clz,jfloat f);
+
+// denoise function
+/*
+ * 初始化播放器
+ */
+JNIEXPORT void JNICALL Java_com_jovision_Jni_initDenoisePlayer(JNIEnv* env,
+		jclass clz);
+
+/*
+ *
+ */
+JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
+		jclass clz,jint index);
+
+/*
+ *
+ */
+JNIEXPORT void JNICALL Java_com_jovision_Jni_resumeRecordAudio(JNIEnv* env,
+		jclass clz);
+
+/*
+ *
+ */
+JNIEXPORT void JNICALL Java_com_jovision_Jni_pauseRecordAudio(JNIEnv* env,
+		jclass clz);
+
+/*
+ *
+ */
+JNIEXPORT void JNICALL Java_com_jovision_Jni_stopDenoisePlayer(JNIEnv* env,
+		jclass clz);
+
+/*
+ *
+ */
+JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_playOn(JNIEnv* env,
+		jclass clz);
+
 //cloudstore
 JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
 		jclass clazz, jint window, jstring filepath, jstring url, jstring filename, jobject surface,
