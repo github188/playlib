@@ -179,7 +179,6 @@ int get_file_size(const char *filename)
 void* downloadThread(void *param)
 {
 	struct downObj *down_obj=(struct downObj*)param;
-	LOGI("down_obj ->psign :%s", down_obj->psign);
 	LOGI("启动线程");
 	downloadRet = downloadFile(down_obj->fp, down_obj->psign);
 	LOGI("下载结束");

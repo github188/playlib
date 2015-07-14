@@ -1284,11 +1284,14 @@ void* onPlayAudio(void* _index) {
 			LOGXX("append audio: %d, size = %d", append_result, f->size);
 #endif
 
-			if (false == append_result) {
-				pthread_mutex_lock(&(stat->mutex));
-				stat->audio_jump_count++;
-				pthread_mutex_unlock(&(stat->mutex));
+			if(NULL != append_result){
+				if (false == append_result) {
+					pthread_mutex_lock(&(stat->mutex));
+					stat->audio_jump_count++;
+					pthread_mutex_unlock(&(stat->mutex));
+				}
 			}
+
 #endif
 		}
 
