@@ -14,6 +14,7 @@
 #include "utils/voiceenc.h"
 #include "utils/char_conv.h"
 #include "utils/playmp4.h"
+#include "utils/playhls.h"
 #include <alu/audio_record.h>
 
 #ifdef _USE_OPENAL_
@@ -2466,42 +2467,54 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4State(JNIEnv *env,
 }
 
 
+//PlayHLS *gPlayHLS = NULL;
 JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
-		jclass clazz, jint window, jstring url, jobject surface,
-		jboolean isTryOmx, jstring thumbName,jint nTimeOut) {
-	jboolean result = JNI_FALSE;
-	char* curl = getNativeChar(env, url);
-	int index = getValidArrayIndex(window);
+		jclass clazz, jint window, jstring filepath, jstring url, jstring filename, jobject surface,
+		jboolean isTryOmx, jstring thumbName, jstring authJson) {
 
+	jboolean result = JNI_FALSE;
+	char* file = getNativeChar(env, filepath);
+	char* curl = getNativeChar(env, url);
+	char* cfilename = getNativeChar(env, filename);
+	char* cauthJson = getNativeChar(env, authJson);
+#ifdef DEBUG
+	LOGI("filePath: %s, url: %s, filename: %s, cauthJson: %s", file, curl, cfilename, cauthJson);
+#endif
+	//获取窗口号
+	int index = getValidArrayIndex(window);
+	LOGI("jni cloud play window:%d", window);
+	LOGI("jni cloud play index:%d", index);
 	if (index >= 0) {
 		player_suit* player = genPlayer(index);
-		player->thumb_name = getNativeChar(env, thumbName);
 
 		if (NULL != surface && glAttach(env, player, surface)) {
 			player->try_omx = false;
 			player->is_play_audio = true;
 
-			if (JNI_TRUE == isTryOmx) {
-				player->try_omx = g_has_omx_inited;
-			}
-
-			// [Neo] start the play video thread
+			//启动播放视频线程
 			pthread_t pt;
-			pthread_create(&pt, NULL, onPlayVideo, (void*) index);
-
-			result =
-					(JVC_ConnectRTMP(index + 1, curl, ConnectChangeRTMP,
-							NormalDataRTMP,nTimeOut)) ? JNI_TRUE : JNI_FALSE;
+			pthread_create(&pt, NULL, onPlayVideo, (void*) 0);
+			//初始化hls播放器
+//			gPlayHLS = new PlayHLS();
+//			gPlayHLS->
+			playerInit(file, curl, cfilename,cauthJson);
 
 		} else {
-			LOGW( "connectRTMP[%d], attach failed", window);
+			LOGW( "glAttach[%d], attach failed", window);
 			deletePlayer(index);
 		}
 	}
+	LOGI("jni play hls over!!");
+	return JNI_TRUE;
+}
 
-	free(curl);
-
-	return result;
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_CloudStoreClose(JNIEnv *env,
+		jclass clazz)
+{
+	LOGE("CloudStoreClose ----start");
+	playerClose();
+	LOGE("CloudStoreClose ---end");
+	return 0;
 }
 
 
@@ -2522,25 +2535,25 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_NotifytoJni(JNIEnv *env,
 		jclass clazz,jstring filename) {
 //	FILE *fp = NULL;
 
-		jboolean isCopy;
-		char *pServerURLChar=0;
-		pServerURLChar = (char *)env->GetStringUTFChars(filename,&isCopy);
-		fout = fopen(pServerURLChar, "wb");
-		if (fout == NULL) {
-			LOGE("could not open %s\n", filename);
-			if (isCopy==JNI_TRUE) {
-						env->ReleaseStringUTFChars(filename,pServerURLChar);
-			}
-			return;
-		}
-
-
-
-		downloadFile(fout,"http://jovetech.oss-cn-hangzhou.aliyuncs.com/B129109013/2015/6/25/M01235851.m3u8?Expires=1435661015&OSSAccessKeyId=4fZazqCFmQTbbmcw&Signature=nILTXUMQ%2FBVUzkjp1RnE069QL68%3D");
-
-		if (isCopy==JNI_TRUE) {
-						env->ReleaseStringUTFChars(filename,pServerURLChar);
-		}
+//		jboolean isCopy;
+//		char *pServerURLChar=0;
+//		pServerURLChar = (char *)env->GetStringUTFChars(filename,&isCopy);
+//		fout = fopen(pServerURLChar, "wb");
+//		if (fout == NULL) {
+//			LOGE("could not open %s\n", filename);
+//			if (isCopy==JNI_TRUE) {
+//						env->ReleaseStringUTFChars(filename,pServerURLChar);
+//			}
+//			return;
+//		}
+//
+//
+//
+//		downloadFile(fout,"http://jovetech.oss-cn-hangzhou.aliyuncs.com/B129109013/2015/6/25/M01235851.m3u8?Expires=1435661015&OSSAccessKeyId=4fZazqCFmQTbbmcw&Signature=nILTXUMQ%2FBVUzkjp1RnE069QL68%3D");
+//
+//		if (isCopy==JNI_TRUE) {
+//						env->ReleaseStringUTFChars(filename,pServerURLChar);
+//		}
 
 }
 

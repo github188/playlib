@@ -25,6 +25,7 @@
 using namespace Json;
 
 bool g_is_stat_mode;
+bool hls_over_callback;
 
 void rcb(ReportWhat what, ReportArg1 arg1, ReportArg2 arg2, const void* data) {
 	LOGV("report: %d, %d, %d, %p", what, arg1, arg2, data);
@@ -298,6 +299,8 @@ void* onStat(void* _stat) {
  */
 void* onPlayVideo(void* _index) {
 	int index = (int) _index;
+	LOGI("on play vide start ----> index: %d", index);
+
 	int window = array2Window(index);
 	LOGX("%s [%p]: E, window = %d", LOCATE_PT, window);
 
@@ -312,6 +315,7 @@ void* onPlayVideo(void* _index) {
 	bool is_last_try_omx = false;
 	bool is_last_play_back = false;
 	bool is_no_picture_from_i = false;
+	hls_over_callback = false;
 
 	bool is_buffer_for_rtmp = false;
 	float buffer_percent = 0.f;
@@ -386,6 +390,8 @@ void* onPlayVideo(void* _index) {
 
 	while ((player->is_connecting || player->is_connected)
 			&& BAD_STATUS_NOOP == bad_status) {
+
+//		LOGI("while video------>bad_status:%d BAD_STATUS_NOOP:%d", bad_status, BAD_STATUS_NOOP);
 		// [Neo] fetch current play meta
 		if (player->is_playback_mode) {
 			meta = player->vm_playback;
@@ -420,7 +426,7 @@ void* onPlayVideo(void* _index) {
 
 		frame* f = poll_video_frame(player);
 		queue_left = get_video_left(player);
-
+//		LOGI("video queue left %d:",queue_left);
 		if (OPENGL_TRY_CLOSE == core->opengl_status) {
 			glClose(player);
 		}
@@ -553,6 +559,29 @@ void* onPlayVideo(void* _index) {
 						color->alpha);
 				break;
 			}
+			case DUMMY_FRAME_HLS_END: {
+				LOGI("DUMMY_FRAME_HLS_END--->");
+				player->is_connecting = false;
+				player->is_connected = false;
+				if(hls_over_callback ==false){
+					hls_over_callback = true;
+					jboolean needDetach = JNI_FALSE;
+					JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6,
+							&needDetach);
+					if (NULL != env) {
+						if (NULL != g_handle && NULL != g_notifyid) {
+							env->CallVoidMethod(g_handle, g_notifyid,
+									CALL_HLS_PLAY_OVER, (jint) window,
+									(jint) 0, NULL);
+						}
+						if (JNI_TRUE == needDetach) {
+							g_jvm->DetachCurrentThread();
+						}
+					}
+				}
+
+				break;
+			}
 
 			default:
 				break;
@@ -569,7 +598,7 @@ void* onPlayVideo(void* _index) {
 #endif /* DEBUG_TS */
 		}
 
-		if (is_buffer_for_rtmp
+		if (!meta->is_hls_player_over && is_buffer_for_rtmp
 				&& queue_left >= meta->video_frame_buffer_count) {
 			jboolean needDetach = JNI_FALSE;
 			JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6, &needDetach);
@@ -590,7 +619,7 @@ void* onPlayVideo(void* _index) {
 			is_buffer_for_rtmp = false;
 		}
 
-		if (meta->is_wait_by_ts && queue_left < meta->video_frame_min_count) {
+		if (!meta->is_hls_player_over && meta->is_wait_by_ts && queue_left < meta->video_frame_min_count) {
 			jboolean needDetach = JNI_FALSE;
 			JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6, &needDetach);
 			if (NULL != env) {
@@ -955,6 +984,8 @@ void* onPlayVideo(void* _index) {
 			destroy(f);
 		}
 
+//		LOGI("while video----end -->bad_status:%d BAD_STATUS_NOOP:%d", bad_status, BAD_STATUS_NOOP);
+
 	} // [Neo] end while
 
 	offer_audio_frame(player, NULL, 0);
@@ -1028,13 +1059,15 @@ void* onPlayVideo(void* _index) {
 			g_jvm->DetachCurrentThread();
 		}
 	}
-
+	LOGI("on play vide end ----> index: %d", index);
 	LOGX("%s [%p]: X, window = %d", LOCATE_PT, window);
+	is_video_end = true;
 	return NULL;
 }
 
 void* onPlayAudio(void* _index) {
 	int index = (int) _index;
+	LOGI("onPlayAudio start---> index: %d", index);
 	int window = array2Window(index);
 	LOGX("%s [%p]: E, window = %d", LOCATE_PT, window);
 
@@ -1078,6 +1111,8 @@ void* onPlayAudio(void* _index) {
 	}
 
 	while (player->is_connected && BAD_STATUS_NOOP == bad_status) {
+
+//		LOGI("while audio------> bad_status:%d, BAD_STATUS_NOOP:%d",bad_status, BAD_STATUS_NOOP);
 		// [Neo] fresh body
 		frame* f = poll_audio_frame(player);
 
@@ -1141,7 +1176,7 @@ void* onPlayAudio(void* _index) {
 				}
 			}
 		}
-
+//		LOGI("while audio run here--->1");
 		// [Neo] precheck
 		switch (last_dec_type) {
 		case AUDIO_PCM_RAW:
@@ -1169,8 +1204,9 @@ void* onPlayAudio(void* _index) {
 			break;
 
 		}
-
+//		LOGI("while audio run here--->2");
 		delayed = currentMillisSec();
+//		LOGI("while audio run here--->3 delayed:%d", delayed);
 		if (NULL != player->core->audio_handle) {
 			if (can_decode) {
 				result = JAD_DecodeOneFrameEx(player->core->audio_handle,
@@ -1186,11 +1222,12 @@ void* onPlayAudio(void* _index) {
 			continue;
 		}
 		delayed = currentMillisSec() - delayed;
+//		LOGI("while audio run here--->4 delayed:%d", delayed);
 		if (delayed > 500) {
 			LOGE(
 					"%s [%p]: window = %d, dec delayed %llu", LOCATE_PT, window, delayed);
 		}
-
+//		LOGI("while audio run here--->5 result:%d", result);
 		if (result > 0) {
 
 			if (meta->is_wait_by_ts && meta->delta_ts > 0) {
@@ -1200,6 +1237,7 @@ void* onPlayAudio(void* _index) {
 				LOGV(
 						"audio: delta = %llu, ts = %u, delay = %d, size = %d, is_chat = %d", meta->delta_ts, f->ts, need_delay, f->size, f->is_chat_data);
 #endif
+//				LOGI("while audio run here--->6 need_delay:%d", need_delay);
 				msleep(need_delay);
 			}
 
@@ -1227,8 +1265,19 @@ void* onPlayAudio(void* _index) {
 #else
 			{
 //				LOGE("audio_out 0X%x  result %d",audio_out,result);
-				append_result = player->track->append((unsigned char*) audio_out,
-					result);
+//				append_result = player->track->append((unsigned char*) audio_out,
+//					result);
+				if(NULL == audio_out)
+					LOGE("audio_out == NULL");
+				else{
+					if(NULL == player->track){
+						LOGE("player->track == null");
+					}else{
+						if(player->is_connecting || player->is_connected)
+							append_result = player->track->append((unsigned char*) audio_out,
+											result);
+					}
+				}
 			}
 
 #ifdef DEBUG_AUDIO
@@ -1250,18 +1299,21 @@ void* onPlayAudio(void* _index) {
 		pthread_mutex_unlock(&(stat->mutex));
 
 		destroy(f);
+//		LOGI("while audio end------> bad_status:%d, BAD_STATUS_NOOP:%d",bad_status, BAD_STATUS_NOOP);
 	}
-
+//	LOGI("跳出while audio---->");
 	if (NULL != core->audio_handle) {
 		JAD_DecodeCloseEx(core->audio_handle);
 		core->audio_handle = NULL;
 	}
 
+//	LOGI("跳出while audio---->222");
 	pthread_mutex_lock(&(stat->mutex));
 #ifdef _USE_OPENAL_
 //	delete player->alu;
 //	player->alu = NULL;
 #else
+//	LOGI("跳出while audio---->3333");
 	if (NULL != player->track) {
 		player->track->stop();
 		delete player->track;
@@ -1285,10 +1337,11 @@ void* onPlayAudio(void* _index) {
 			}
 		}
 	}
-
+//	LOGI("跳出while audio---->444");
 	LOGX("%s [%p]: X, window = %d", LOCATE_PT, window);
 	player->is_audio_working = false;
 
+	is_audio_end = true;
 	return NULL;
 }
 

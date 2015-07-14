@@ -17,6 +17,9 @@ JavaVM* g_jvm;
 jobject g_handle;
 jmethodID g_notifyid;
 
+bool is_audio_end;
+bool is_video_end;
+
 bool g_is_record_mode;
 
 FILE* g_download_file;

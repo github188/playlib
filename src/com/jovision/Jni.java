@@ -900,5 +900,10 @@ public class Jni {
 			String groupId, boolean isLocalDetect, int connectType, int turnType);
 	
 	public static native void NotifytoJni(String url);
+	
+	public static native boolean CloudStorePlay(int window, String filepath, String url, String filename,
+			Object surface, boolean isTryOmx, String thumbName, String authJson);
+	
+	public static native boolean CloudStoreClose();
 
 }

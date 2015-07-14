@@ -94,6 +94,13 @@ extern "C" {
 #define CALL_MP4_PLAY_FIN   0xB5
 #define CALL_MP4_PLAY_ERROR 0xB6
 
+
+//HLS
+#define CALL_HLS_PLAY_QUIT  0xC2    //主动退出
+#define CALL_HLS_PLAY_OVER  0xC3
+#define CALL_HLS_DOWNLOAD_CALLBACK  0xC4
+
+
 #define BUFFER_START		-1
 #define BUFFER_FINISH		-2
 
@@ -190,6 +197,8 @@ extern "C" {
 #define DUMMY_FRAME_COLOR	0x10
 #define DUMMY_FRAME_SIZE	0x11
 
+#define DUMMY_FRAME_HLS_END	0xFF
+
 // [Neo] decode type
 #define TYPE_FFMPEG			0x00
 #define TYPE_OMX			0x01
@@ -236,6 +245,7 @@ struct video_meta {
 
 	bool is_wait_by_ts;
 	uint64_t delta_ts;
+	bool is_hls_player_over;
 
 	int audio_type;
 	int audio_enc_type;
@@ -368,6 +378,9 @@ typedef enum _OPENGL_STATUS {
 extern JavaVM* g_jvm;
 extern jobject g_handle;
 extern jmethodID g_notifyid;
+
+extern bool is_audio_end;
+extern bool is_video_end;
 
 extern bool g_enable_log;
 

@@ -1,7 +1,7 @@
 /*
  * JHLSClient.h
  *
- *  Created on: 2015年6月12日
+ *  Created on: 2015锟斤拷6锟斤拷12锟斤拷
  *      Author: LiuFengxiang
  *		 Email: lfx@jovision.com
  */
@@ -9,6 +9,9 @@
 #ifndef JHLSCLIENT_H_
 #define JHLSCLIENT_H_
 
+#include "M3U8Parser.h"
+#include "TSParser.h"
+#include "jhlstype.h"
 
 namespace jhls
 {
@@ -23,8 +26,8 @@ public:
 	virtual int read(unsigned char *data, int len)=0;
 	virtual int close()=0;
 
-	virtual int seek(int percent)=0;//percent 取值(0,100)，请保证偏移大小以188字节为单位
-	virtual int getPos()=0; // 返回已读文件占总文件大小的百分比。取值 [0,100]
+	virtual int seek(int percent)=0;//percent 取值(0,100)锟斤拷锟诫保证偏锟狡达拷小锟斤拷188锟街斤拷为锟斤拷位
+	virtual int getPos()=0; // 锟斤拷锟斤拷锟窖讹拷锟侥硷拷占锟斤拷锟侥硷拷锟斤拷小锟侥百分比★拷取值 [0,100]
 
 	virtual void OnFrameReceived(JHLSFrameType_e type, long long timeStamp, const unsigned char *frame, int len)=0;
 	virtual void OnStreamType(JHLSVideoStreamType_e vtype, JHLSAudioStreamType_e atype)=0;

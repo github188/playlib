@@ -20,10 +20,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.os.Environment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -119,7 +119,12 @@ public class MainActivity extends BaseActivity implements
 	private boolean enableYST;
 
 	private int pointer = 0;
-	private static String urls[] = { "rtmp://119.188.172.3:1935/live/s224344648_2"};
+	private static String urls[] = { "rtmp://119.188.172.3/live/a367_1",
+			"rtmp://119.188.172.3/live/a368_1",
+			"rtmp://119.188.172.3/live/a361_1",
+			"rtmp://119.188.172.3:1935/live/a579223323_1",
+			"rtmp://119.188.172.3/live/a366_1",
+			"rtmp://119.188.172.3:1935/live/ipcstory_1", };
 
 	@Override
 	protected void initSettings() {
@@ -134,7 +139,7 @@ public class MainActivity extends BaseActivity implements
 
 		isTcp = false;
 		tryOmx = false;
-		enableYST = false;
+		enableYST = true;
 
 		deviceList = new ArrayList<Device>();
 
@@ -922,30 +927,30 @@ public class MainActivity extends BaseActivity implements
 	}
 
 	public void onFoo(View view) {
-		// new Thread() {
-		//
-		// @Override
-		// public void run() {
-		// Jni.init(getApplication(), 9200, Consts.LOG_PATH);
-		// Jni.enableLinkHelper(true, 3, 10);
-		// Jni.setLinkHelper(genLinkHelperJson());
-		// Jni.setStat(true);
-		// try {
-		// sleep(1000);
-		// } catch (InterruptedException e) {
-		// }
-		// onConnect(null);
-		// }
-		//
-		// }.start();
+		 new Thread() {
+		
+		 @Override
+		 public void run() {
+		 Jni.init(getApplication(), 9200, Consts.LOG_PATH);
+		 Jni.enableLinkHelper(true, 3, 10);
+		 Jni.setLinkHelper(genLinkHelperJson());
+		 Jni.setStat(true);
+		 try {
+		 sleep(1000);
+		 } catch (InterruptedException e) {
+		 }
+		 onConnect(null);
+		 }
+		
+		 }.start();
 
-		gain *= 1.2f;
-		Boolean result = Jni.setAudioVolume(targetIndex, gain);
-		if (result) {
-			Toast.makeText(MainActivity.this,
-					String.format("gain = %.1f", gain), Toast.LENGTH_SHORT)
-					.show();
-		}
+//		gain *= 1.2f;
+//		Boolean result = Jni.setAudioVolume(targetIndex, gain);
+//		if (result) {
+//			Toast.makeText(MainActivity.this,
+//					String.format("gain = %.1f", gain), Toast.LENGTH_SHORT)
+//					.show();
+//		}
 
 		// Jni.startAudioRecord(16, 640);
 
@@ -985,6 +990,53 @@ public class MainActivity extends BaseActivity implements
 		// Jni.stopAudioRecord();
 
 	}
+	
+	private boolean connect2(Channel channel, boolean isPlayDirectly) {
+		boolean result = false;
+		System.out.println("connnect 2");
+		if (null != channel) {
+
+			//Jni.NotifytoJni("/storage/sdcard1/hls.h264");
+			
+			int connect = 0;
+			Device device = channel.getParent();
+
+			String path = Environment.getExternalStorageDirectory().getPath();
+			String url = "/jovetech/B129109013/2015/7/10";
+			JSONObject obj = new JSONObject();
+			try {
+				obj.put("cshost", "oss-cn-hangzhou.aliyuncs.com");
+				obj.put("csid", "4fZazqCFmQTbbmcw");
+				obj.put("cskey", "sBT6DgBMdCHnnaYdvK0o6O3zaN06sW");
+				obj.put("csspace", "jovetech");
+				System.out.println("get index = "+channel.getIndex());
+				System.out.println("Jni.CloudStorePlay");
+				Jni.CloudStorePlay(channel.getIndex(), path,url, "M12345678",channel.getSurface(), false, "xxxxx", obj.toString());
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			
+			// [Neo] TODO important
+			channel.setLastPortWidth(channel.getSurfaceView().getWidth());
+			channel.setLastPortHeight(channel.getSurfaceView().getHeight());
+
+			if (Consts.BAD_CONN_OVERFLOW == connect) {
+				handler.sendMessage(handler.obtainMessage(WHAT_CHANGE_INFO,
+						channel.getIndex(), ARG2_INFO_OTHER, "overflow"));
+			} else if (Consts.BAD_HAS_CONNECTED == connect) {
+				handler.sendMessage(handler.obtainMessage(WHAT_CHANGE_INFO,
+						channel.getIndex(), ARG2_INFO_OTHER, "has connected"));
+			} else {
+				channel.setConnecting(true);
+				handler.sendMessage(handler.obtainMessage(WHAT_CHANGE_INFO,
+						channel.getIndex(), ARG2_INFO_CONNECTING));
+				result = true;
+			}
+
+		}
+
+		return result;
+	}
 
 	public void onConnect(View view) {
 		new Thread() {
@@ -995,7 +1047,7 @@ public class MainActivity extends BaseActivity implements
 
 				int size = channelList.size();
 				for (int i = 0; i < size; i++) {
-					connect(channelList.get(i), true);
+					connect2(channelList.get(i), true);
 				}
 			}
 
@@ -1016,6 +1068,8 @@ public class MainActivity extends BaseActivity implements
 							Jni.disconnect(channel.getIndex());
 						} else {
 							Jni.shutdownRTMP(channel.getIndex());
+							
+							//Jni.NotifytoJniClose();
 						}
 					}
 				}
@@ -1026,9 +1080,6 @@ public class MainActivity extends BaseActivity implements
 
 	@Override
 	public void onNotify(int what, int arg1, int arg2, Object obj) {
-		if (isQuit) {
-			return;
-		}
 
 		Channel channel = null;
 
@@ -1192,6 +1243,10 @@ public class MainActivity extends BaseActivity implements
 
 	@Override
 	public void onHandler(int what, int arg1, int arg2, Object obj) {
+		if(what == 161)
+			System.out.println("连接成功");
+		if(what == 162)
+			System.out.println("O帧过来");
 		if (isQuit) {
 			return;
 		}
@@ -1594,6 +1649,7 @@ public class MainActivity extends BaseActivity implements
 
 		return array.toString();
 	}
+	
 
 	private boolean connect(Channel channel, boolean isPlayDirectly) {
 		boolean result = false;
@@ -1918,7 +1974,9 @@ public class MainActivity extends BaseActivity implements
 	
 	
 	public void gotonext(View view){
-		Intent intent = new Intent(MainActivity.this,TestAct.class);
-		startActivity(intent);
+//		Intent intent = new Intent(MainActivity.this,hlsActivity.class);
+//		startActivity(intent);
+		//Jni.NotifytoJni("xx");
+		Jni.CloudStoreClose();
 	}
 }
