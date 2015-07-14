@@ -36,6 +36,8 @@ public class Jni {
 
 	public static native void cancelDownload();
 
+	public static native boolean playOn();
+	
 	/**
 	 * 初始化，参考 {@link JVSUDT#JVC_InitSDK(int, Object)}
 	 * 
@@ -874,6 +876,32 @@ public class Jni {
 	 */
 	public static native void genVoice(String data, int times);
 
+    /**
+     * 
+     */
+    public static native void initDenoisePlayer();
+    
+    /**
+     * 
+     */
+    public static native void stopDenoisePlayer();
+    
+    /**
+     * 录音降噪后发送数据给主控
+     * 
+     */
+    public static native boolean recordAndsendAudioData(int channel_index);
+        
+    /**
+     * 
+     */
+    public static native void resumeRecordAudio();
+    
+    /**
+     * 暂停录音
+     */
+    public static native void pauseRecordAudio(); 
+	
 	/**
 	 * TCP 连接，参考
 	 * {@link JVSUDT#JVC_TCPConnect(int, int, String, int, String, String, int, String, boolean, int, int)}

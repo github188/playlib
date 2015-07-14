@@ -433,6 +433,7 @@ player_suit* genPlayer(int index) {
 	core->hdec_handle = NULL;
 
 	player->core = core;
+	player->nplayer = NULL;
 
 #ifdef _USE_OPENAL_
 	player->alu = NULL;

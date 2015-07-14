@@ -11,6 +11,9 @@
 #include "utils/threads.h"
 #include "utils/commons.h"
 
+#include <nplayer/nplayer.h>
+#include <nplayer/handler.h>
+
 #ifdef _USE_OPENAL_
 #include <alu/openal_utils.h>
 #else
@@ -1033,6 +1036,49 @@ void* onPlayVideo(void* _index) {
 	return NULL;
 }
 
+class EchoHandler: public utils::Handler {
+public:
+	EchoHandler() {
+	}
+	~EchoHandler() {
+	}
+
+	bool handle(int what, int arg1, int arg2, void *obj) {
+		LOGI("echo: %d, %d, %d, %p", what, arg1, arg2, obj);
+		return false;
+	}
+
+private:
+	ONLY_EMPTY_CONSTRUCTION(EchoHandler);
+};
+#define FRAMESIZE 640
+
+struct STU_AUDIO{
+	nplayer::NPlayer* nPlayer;
+	unsigned char* audio_data;
+	size_t size;
+};
+
+void *append_by_data(void* stu_audio){
+	struct STU_AUDIO *audio_data;
+	audio_data = (struct STU_AUDIO *)stu_audio;
+	LOGI("append by data");
+	nplayer::NPlayer* nPlayer;
+	unsigned char* data;
+	size_t size;
+
+	nPlayer = (*audio_data).nPlayer;
+	data = (*audio_data).audio_data;
+	size = (*audio_data).size;
+	while (NULL != nPlayer
+			&& false == nPlayer->append_audio_data(data,size)) {
+		LOGI(" audio left %d",nPlayer->audio_left());
+		msleep(100);
+	}
+
+	return NULL;
+}
+extern FILE *dummyFile ;
 void* onPlayAudio(void* _index) {
 	int index = (int) _index;
 	int window = array2Window(index);
@@ -1077,6 +1123,8 @@ void* onPlayAudio(void* _index) {
 		}
 	}
 
+//	dummyFile = fopen(DUMMY_FILE, "wb");
+
 	while (player->is_connected && BAD_STATUS_NOOP == bad_status) {
 		// [Neo] fresh body
 		frame* f = poll_audio_frame(player);
@@ -1108,16 +1156,58 @@ void* onPlayAudio(void* _index) {
 		}
 #else
 		if (NULL == player->track) {
-			player->track = new AudioTrack();
-			if (8 == meta->audio_bit) {
-				player->track->start(kRateDefault, kChannelMono, kPCM8bit, rcb,
-						true);
-			} else {
-				player->track->start(kRateDefault, kChannelMono, kPCM16bit, rcb,
-						true);
-			}
+//			player->track = new AudioTrack();
+//			if (8 == meta->audio_bit) {
+//				player->track->start(kRateDefault, kChannelMono, kPCM8bit, rcb,
+//						true);
+//			} else {
+//				player->track->start(kRateDefault, kChannelMono, kPCM16bit, rcb,
+//						true);
+//			}
 		}
 #endif
+
+		if(NULL == player->nplayer){
+			nplayer::NPlayer *new_nplayer = NULL;
+			nplayer::PlaySuit suit;
+			JAE_HANDLE audio_encoder = NULL;
+
+			EchoHandler* handler = new EchoHandler();
+
+			memset(&suit, 0, sizeof(nplayer::PlaySuit));
+			suit.window = 1;
+			suit.audio_sample_rate = 8000;
+			suit.audio_frame_block = FRAMESIZE;
+			suit.audio_channel_per_frame = 1;
+			suit.audio_bit_per_channel = 16;
+			suit.audio_type = nplayer::kATypeRawPCM;
+
+			suit.enable_denoise = true;
+			suit.enable_vad = false;
+			suit.noise_suppress = -24;
+
+			suit.enable_denoise = true;
+			new_nplayer = new nplayer::NPlayer(&suit, handler);
+			new_nplayer->resume();
+			new_nplayer->enable_audio(true);
+			new_nplayer->adjust_track_volume(adjust_volume);
+			LOGI("adjust_track_volume %f",adjust_volume);
+
+			if (NULL == audio_encoder) {
+				JAE_PARAM param = { 0 };
+				param.iCodecID = 2;
+				param.sample_rate = 8000;
+				param.channels = 1;
+				param.bits_per_sample = 16;
+				param.bytes_per_block = 640;
+
+				audio_encoder = JAE_EncodeOpenEx(&param);
+		//		adec = JAD_DecodeOpenEx(2);
+
+			}
+
+			player->nplayer = new_nplayer;
+		}
 
 		if (f->is_chat_data) {
 			dec_type = meta->audio_enc_type;
@@ -1227,9 +1317,28 @@ void* onPlayAudio(void* _index) {
 #else
 			{
 //				LOGE("audio_out 0X%x  result %d",audio_out,result);
-				append_result = player->track->append((unsigned char*) audio_out,
-					result);
+//				append_result = player->track->append((unsigned char*) audio_out,
+//					result);
 			}
+
+//			player->nplayer->append_audio_data((unsigned char*) audio_out,result);
+
+
+//		    if(NULL != dummyFile)
+//		    	fwrite((unsigned char*) audio_out,result,1,dummyFile);
+
+			while(player->is_connected && BAD_STATUS_NOOP == bad_status
+					&& false == player->nplayer->append_audio_data((unsigned char*) audio_out,result)) {
+//				LOGI("nplayer %p audio left %d data %p size %d ",player->nplayer,player->nplayer->audio_left() ,audio_out,result);
+				msleep(40);
+			}
+
+			//			struct STU_AUDIO stu_audio;
+			//			stu_audio.audio_data = (unsigned char*) audio_out ;
+			//			stu_audio.size = result;
+			//			stu_audio.nPlayer = player->nplayer;
+			//			pthread_t pid;
+			//			pthread_create(&pid, NULL, append_by_data, &stu_audio);
 
 #ifdef DEBUG_AUDIO
 			LOGXX("append audio: %d, size = %d", append_result, f->size);
@@ -1268,6 +1377,18 @@ void* onPlayAudio(void* _index) {
 		player->track = NULL;
 	}
 #endif
+
+	if (NULL != player->nplayer){
+		player->nplayer->stop_record_audio();
+		player->nplayer->enable_audio(false);
+
+		msleep(150);
+
+		delete player->nplayer;
+		player->nplayer = NULL;
+//		LOGI("nplayer[%d] is null",index);
+	}
+
 	pthread_mutex_unlock(&(stat->mutex));
 
 	if (BAD_STATUS_NOOP != bad_status) {

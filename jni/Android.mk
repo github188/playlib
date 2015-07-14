@@ -73,6 +73,11 @@ LOCAL_SRC_FILES := libs/$(APP_ABI)/libalu.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := nplayer
+LOCAL_SRC_FILES := libs/$(APP_ABI)/libnplayer.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
 
 LOCAL_MODULE := play
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
@@ -80,7 +85,7 @@ LOCAL_SRC_FILES := utils/commons.cc utils/voiceenc.c utils/char_conv.cc \
 	utils/threads.cc utils/callbacks.cc utils/playmp4.cc play.cc 
 LOCAL_CFLAGS := -Wall -Wno-write-strings
 LOCAL_LDLIBS := -llog -lGLESv2 -lEGL -landroid
-LOCAL_SHARED_LIBRARIES := alu
+LOCAL_SHARED_LIBRARIES := alu nplayer
 LOCAL_STATIC_LIBRARIES := jsoncpp iconv network screenshot opengl mp4 aenc adec legacy hdec dec avcodec avutil
 
 include $(BUILD_SHARED_LIBRARY)

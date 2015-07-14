@@ -29,6 +29,9 @@
 #include <alu/audio_track.h>
 #endif
 
+#include <nplayer/nplayer.h>
+#include <nplayer/handler.h>
+
 #include "revision.h"
 
 #ifdef __cplusplus
@@ -194,6 +197,8 @@ extern "C" {
 #define TYPE_OMX			0x01
 #define TYPE_LEGACY			0x02
 
+#define DUMMY_FILE "/sdcard/org.pcm"
+
 using namespace std;
 
 typedef enum _ENCODEING {
@@ -323,6 +328,8 @@ struct player_suit {
 	stat_suit* stat;
 	player_core* core;
 
+	nplayer::NPlayer *nplayer;
+
 #ifdef _USE_OPENAL_
 	OpenALUtils* alu;
 #else
@@ -392,6 +399,7 @@ extern pthread_mutex_t g_mutex;
 extern int g_connect_indexes[MAX_WINDOW_COUNT];
 
 extern struct player_suit* g_player[MAX_WINDOW_COUNT];
+extern float adjust_volume;
 
 #ifdef __cplusplus
 }

@@ -14,6 +14,11 @@
 #include "utils/voiceenc.h"
 #include "utils/char_conv.h"
 #include "utils/playmp4.h"
+
+#include <nplayer/nplayer.h>
+#include <nplayer/handler.h>
+
+
 #include <alu/audio_record.h>
 
 #ifdef _USE_OPENAL_
@@ -28,19 +33,92 @@
 const unsigned int kMaxMP4VideoWidth = 1280;
 const unsigned int kMaxMP4VideoHeight = 720;
 
+
+#define FRAMESIZE 640
+
 bool has_inited;
 bool has_link_enabled;
 
 JAE_HANDLE audio_encoder;
 
+class EchoHandler: public utils::Handler {
+public:
+	EchoHandler() {
+	}
+	~EchoHandler() {
+	}
+
+	bool handle(int what, int arg1, int arg2, void *obj) {
+		LOGI("echo: %d, %d, %d, %p", what, arg1, arg2, obj);
+		return false;
+	}
+
+private:
+	ONLY_EMPTY_CONSTRUCTION(EchoHandler);
+};
+
+EchoHandler* handler = NULL;
+
+FILE *dummyFile = NULL;
+nplayer::NPlayer *new_nplayer = NULL;
+nplayer::PlaySuit suit;
+int channel_index = 1; //记录设备的通道号，发送音频数据时使用
+float adjust_volume = 1.0;//
 using namespace Json;
 
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
+
+	LOGV("player version = %s", nplayer::NPlayer::version());
+
 	g_jvm = vm;
 	has_inited = false;
 	g_enable_log = false;
 	has_link_enabled = false;
+
+	nplayer::NPlayer::init();
+
+	memset(&suit, 0, sizeof(nplayer::PlaySuit));
+	suit.window = 1;
+	suit.audio_sample_rate = 8000;
+	suit.audio_frame_block = FRAMESIZE;
+	suit.audio_channel_per_frame = 1;
+	suit.audio_bit_per_channel = 16;
+	suit.audio_type = nplayer::kATypeRawPCM;
+
+	suit.enable_denoise = true;
+	suit.enable_vad = false;
+	suit.noise_suppress = -24;
+
+	handler = new EchoHandler();
+
+	dummyFile = fopen(DUMMY_FILE, "wb");
+
 	return JNI_VERSION_1_6;
+}
+
+// audio dec
+//JAD_HANDLE	    adec			= NULL;
+int				iDecodedBytes	= 0;
+unsigned char *	pszPcm			= {0};
+
+unsigned char		szPcmBuf[640]	= {0};
+void fetchd(const nplayer::byte *data, size_t size, uint64_t ts) {
+//	LOGV("fetched: %p, %d, %llu", data, size, ts);
+	unsigned char* enc_data ;
+
+	if(NULL != audio_encoder){
+	    int result = JAE_EncodeOneFrameEx(audio_encoder,(unsigned char*)data,
+	    		&enc_data);
+
+	    if(NULL != dummyFile){
+//	    	LOGV("fetched: %p, %d, %llu", data, size, ts);
+	    	fwrite(data,size,1,dummyFile);
+	    }
+
+//	    LOGI("encode size %d index %d",result,channel_index);
+//	    if(320 == result)
+	        JVC_SendData(channel_index, JVN_RSP_CHATDATA, enc_data, result);
+	}
 }
 
 void JNI_OnUnload(JavaVM* vm, void* reserved) {
@@ -57,6 +135,9 @@ void JNI_OnUnload(JavaVM* vm, void* reserved) {
 			g_jvm->DetachCurrentThread();
 		}
 	}
+
+	delete handler;
+	nplayer::NPlayer::deinit();
 }
 
 JNIEXPORT jstring JNICALL Java_com_jovision_Jni_getVersion(JNIEnv *env,
@@ -75,7 +156,6 @@ JNIEXPORT jstring JNICALL Java_com_jovision_Jni_getVersion(JNIEnv *env,
 void* send_wav(void* msg) {
 	FILE* file = fopen("/sdcard/rec.pcm", "rb");
 //	FILE* file = fopen("/sdcard/baby.wav", "rb");
-
 	if (NULL == audio_encoder) {
 		JAE_PARAM param = { 0 };
 		param.iCodecID = 2;
@@ -239,6 +319,175 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_setStat(JNIEnv *env, jclass clazz,
 	LOGV("setStat X");
 }
 
+void shutdown_audio() {
+	if (NULL != audio_encoder) {
+		JAE_EncodeCloseEx(audio_encoder);
+		audio_encoder = NULL;
+	}
+
+	if (NULL != new_nplayer) {
+		new_nplayer->stop_record_audio();
+		new_nplayer->enable_audio(false);
+
+		msleep(150);
+
+		if (NULL != new_nplayer) {
+			delete new_nplayer;
+			new_nplayer = NULL;
+		}
+	}
+}
+
+void *append_by_file(void *handle) {
+	dummyFile = fopen(DUMMY_FILE, "rb");
+//	LOGW("append E");
+	if (NULL != dummyFile) {
+		nplayer::byte *buffer = static_cast<nplayer::byte *>(malloc(FRAMESIZE));
+		if (NULL != new_nplayer) {
+			while (fread(buffer, FRAMESIZE, 1, dummyFile) > 0) {
+				while (new_nplayer->audio_working()
+						&& false
+								== new_nplayer->append_audio_data(buffer, FRAMESIZE)) {
+					msleep(100);
+				}
+
+				if (false == new_nplayer->audio_working()) {
+					break;
+				}
+			}
+		}
+		free(buffer);
+
+//	LOGW("append X");
+
+		if (NULL != dummyFile) {
+//			fclose(dummyFile);
+			dummyFile = NULL;
+		}
+	}
+
+	return NULL;
+}
+
+void initNPlayer() {
+	shutdown_audio();
+	dummyFile = fopen(DUMMY_FILE, "wb");
+
+	suit.enable_denoise = true;
+	new_nplayer = new nplayer::NPlayer(&suit, handler);
+	new_nplayer->resume();
+	new_nplayer->enable_audio(true);
+	new_nplayer->adjust_track_volume(adjust_volume);
+}
+
+JNIEXPORT void JNICALL Java_com_jovision_Jni_initDenoisePlayer(JNIEnv* env,
+		jclass clz){
+	initNPlayer();
+}
+
+JNIEXPORT void JNICALL Java_com_jovision_Jni_setAdjustVolume(JNIEnv* env,
+		jclass clz,jfloat f){
+	if(fabsf(f)>0.00001)
+		adjust_volume = f;
+}
+
+JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
+		jclass clz,jint channelindex) {
+
+//	initNPlayer();
+
+	if (NULL == audio_encoder) {
+		JAE_PARAM param = { 0 };
+		param.iCodecID = 2;
+		param.sample_rate = 8000;
+		param.channels = 1;
+		param.bits_per_sample = 16;
+		param.bytes_per_block = 640;
+
+		audio_encoder = JAE_EncodeOpenEx(&param);
+//		adec = JAD_DecodeOpenEx(2);
+	}
+
+	int index = channelindex+1;
+	if(index > 1)
+		channel_index = index;
+
+	new_nplayer->start_record_audio(fetchd);
+
+	LOGI("rec on");
+}
+
+JNIEXPORT void JNICALL Java_com_jovision_Jni_stopDenoisePlayer(JNIEnv* env,
+		jclass clz){
+	shutdown_audio();
+	if (NULL != dummyFile) {
+		fclose(dummyFile);
+		dummyFile = NULL;
+	}
+	LOGI("rec stop");
+}
+
+JNIEXPORT void JNICALL Java_com_jovision_Jni_resumeRecordAudio(JNIEnv* env,
+		jclass clz){
+	if(NULL == new_nplayer){
+		new_nplayer->resume();
+	}
+
+	LOGI("rec resume");
+}
+
+JNIEXPORT void JNICALL Java_com_jovision_Jni_pauseRecordAudio(JNIEnv* env,
+		jclass clz) {
+	if(NULL == new_nplayer){
+		new_nplayer->pause();
+	}
+
+	LOGI("rec pause");
+}
+
+void printHex(byte *data)
+{
+	int size;
+	size = sizeof(data);
+	for (int var = 0; var < size; ++var) {
+		LOGI("0x%x",*(data+var));
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_jovision_Jni_playAudioData(JNIEnv* env,
+		jclass clz ,jbyteArray data) {
+
+	if(data == NULL)
+		return;
+
+	jsize size = env->GetArrayLength(data);
+	jbyte* in = getNativeByteByLength(env, data, 0, size);
+	if (NULL != new_nplayer) {
+		printHex((byte *)in);
+		new_nplayer->append_audio_data((byte *)in, size);
+//		LOGI("rec play %d",size);
+	}
+
+//	append_by_file(NULL);
+}
+
+JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_playOn(JNIEnv* env,
+		jclass clz) {
+	shutdown_audio();
+
+	suit.enable_denoise = true;
+	new_nplayer = new nplayer::NPlayer(&suit, handler);
+	new_nplayer->resume();
+	new_nplayer->enable_audio(true);
+//	new_nplayer->adjust_track_volume(10.0f);
+
+	pthread_t pid;
+	pthread_create(&pid, NULL, append_by_file, NULL);
+
+	LOGI("play on");
+	return JNI_FALSE;
+}
+
 JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_startAudioRecord(JNIEnv* env,
 		jclass clz, jint bit, jint block) {
 	jboolean result = JNI_FALSE;
@@ -279,7 +528,6 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_stopAudioRecord(JNIEnv* env,
 
 		result =
 				(AudioRecord::getInstance(g_jvm)->stop()) ? JNI_TRUE : JNI_FALSE;
-
 	}
 
 	LOGE("stop record: %d", result);
@@ -449,9 +697,15 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_resumeAudio(JNIEnv *, jclass,
 		player_suit* player = g_player[index];
 		if (NULL != player) {
 			pthread_mutex_lock(&(player->stat->mutex));
-			if (NULL != player->track) {
-				result = player->track->resume() ? JNI_TRUE : JNI_FALSE;
+
+//			if (NULL != player->track) {
+//				result = player->track->resume() ? JNI_TRUE : JNI_FALSE;
+//			}
+
+			if(NULL != player->nplayer){
+				result = player->nplayer->resume()? JNI_TRUE : JNI_FALSE ;
 			}
+
 			pthread_mutex_unlock(&(player->stat->mutex));
 		}
 	}
@@ -470,9 +724,14 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_pauseAudio(JNIEnv *, jclass,
 		player_suit* player = g_player[index];
 		if (NULL != player) {
 			pthread_mutex_lock(&(player->stat->mutex));
-			if (NULL != player->track) {
-				result = player->track->pause() ? JNI_TRUE : JNI_FALSE;
+//			if (NULL != player->track) {
+//				result = player->track->pause() ? JNI_TRUE : JNI_FALSE;
+//			}
+
+			if (NULL != player->nplayer){
+				result = player->nplayer->pause()? JNI_TRUE : JNI_FALSE;
 			}
+
 			pthread_mutex_unlock(&(player->stat->mutex));
 		}
 	}
@@ -612,7 +871,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_connect(JNIEnv *env, jclass clazz,
 					(isPhone == JNI_TRUE) ? true : false, connectType,
 					is_play_directly, nVip, nTcp);
 		} else {
-			//2015.4.22 jy���������sdk淇���规�ゆ�ュ�� ���涔�宸插��锛�isAp杞绘��涓�瑕�涓�true
+			//2015.4.22 jy锟斤拷锟斤拷锟斤拷锟斤拷锟�sdk娣�锟斤拷锟借��锟姐��锟姐�ワ拷锟� 锟斤拷锟芥��锟藉�告��锟斤拷���锟�isAp���缁�锟斤拷娑�锟界��锟芥��锟�true
 			JVC_Connect(index + 1, 1, "10.10.0.1", 9101, user,
 					pwd, -1, "A", false, false, true, 5, true, 0, 0);
 		}
@@ -1764,7 +2023,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_setAudioVolume(JNIEnv *,
 	if (index >= 0) {
 		player_suit* player = g_player[index];
 		if (NULL != player) {
-			pthread_mutex_lock(&(player->stat->mutex));//涔����杩�������unlock锛�搴�璇ヤ��瀵瑰�с����规��lock
+			pthread_mutex_lock(&(player->stat->mutex));//娑�锟斤拷锟斤拷��╋拷锟斤拷锟斤拷锟斤拷unlock���锟芥�达拷�����わ拷锟界�电�帮拷��锟斤拷锟斤拷瑙�锟斤拷lock
 			if (NULL != player->track) {
 				result = player->track->set_volume(gain) ? JNI_TRUE : JNI_FALSE;
 			}
@@ -2293,8 +2552,8 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetMTU(JNIEnv *env,
 }
 
 /**
- * [IN] pGroup 编组号，编组号+nYSTNO可确定唯一设备
- * [IN] NYST 搜索具有某云视通号码的设备，>0有效
+ * [IN] pGroup 缂�缁���凤��缂�缁����+nYSTNO���纭�瀹����涓�璁惧��
+ * [IN] NYST ���绱㈠�锋�����浜�瑙������风�����璁惧��锛�>0������
  * [RETURN] no
  */
 JNIEXPORT void JNICALL Java_com_jovision_Jni_HelperRemove(JNIEnv *env,
@@ -2306,9 +2565,9 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_HelperRemove(JNIEnv *env,
 }
 
 /**
- * [IN] pGroup 编组号，编组号+nYSTNO可确定唯一设备
- * [IN] NYST 搜索具有某云视通号码的设备，>0有效
- * [RETURN] 助手的数量
+ * [IN] pGroup 缂�缁���凤��缂�缁����+nYSTNO���纭�瀹����涓�璁惧��
+ * [IN] NYST ���绱㈠�锋�����浜�瑙������风�����璁惧��锛�>0������
+ * [RETURN] ��╂�������伴��
  */
 
 JNIEXPORT jint  JNICALL Java_com_jovision_Jni_HelpQuery(JNIEnv *env,
@@ -2428,23 +2687,23 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4State(JNIEnv *env,
     {
         if(run_flag)
         {
-            //播放线程正在退出，还没完全结束，应用曾需要等待结束后再开始播放
+            //�����剧嚎绋�姝ｅ�ㄩ����猴��杩�娌″����ㄧ�����锛�搴���ㄦ�鹃��瑕�绛�寰�缁����������寮�濮�������
             play_status = 2;
         }
         else
         {
-            play_status = 0;//播放线程已经推出，可以播放
+            play_status = 0;//�����剧嚎绋�宸茬����ㄥ�猴�����浠ユ�����
         }
     }
     else{
         if(run_flag)
         {
-            //播放线程正在运行,应用如果需要播放，需要先停止视频播放
+            //�����剧嚎绋�姝ｅ�ㄨ��琛�,搴���ㄥ��������瑕������撅�����瑕�������姝㈣��棰�������
             play_status = 1;
         }
         else
         {
-            //播放线程没有运行或者已经完全推出
+            //�����剧嚎绋�娌℃��杩�琛�������宸茬��瀹���ㄦ�ㄥ��
             play_status = 0;
         }
     }
