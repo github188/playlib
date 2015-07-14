@@ -92,7 +92,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 
 	handler = new EchoHandler();
 
-	dummyFile = fopen(DUMMY_FILE, "wb");
+//	dummyFile = fopen(DUMMY_FILE, "wb");
 
 	return JNI_VERSION_1_6;
 }
@@ -372,7 +372,7 @@ void *append_by_file(void *handle) {
 
 void initNPlayer() {
 	shutdown_audio();
-	dummyFile = fopen(DUMMY_FILE, "wb");
+//	dummyFile = fopen(DUMMY_FILE, "wb");
 
 	suit.enable_denoise = true;
 	new_nplayer = new nplayer::NPlayer(&suit, handler);
