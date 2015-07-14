@@ -682,7 +682,7 @@ JVCLIENT_API bool __stdcall JVC_MOLANSerchDevice(char chGroup[4], int nYSTNO, in
 #ifndef WIN32
 JVCLIENT_API bool JVC_ConnectRTMP(int nLocalChannel, char* strURL,
 		FUNC_CRTMP_CONNECT_CALLBACK rtmpConnectChange,
-		FUNC_CRTMP_NORMALDATA_CALLBACK rtmpNormalData);
+		FUNC_CRTMP_NORMALDATA_CALLBACK rtmpNormalData,unsigned int nTimeout);
 #else
 JVCLIENT_API bool __stdcall JVC_ConnectRTMP(int nLocalChannel,char* strURL,FUNC_CRTMP_CONNECT_CALLBACK rtmpConnectChange,FUNC_CRTMP_NORMALDATA_CALLBACK rtmpNormalData);
 #endif
@@ -711,6 +711,22 @@ JVCLIENT_API int JVC_SetMTU(int nMtu);
 JVCLIENT_API int __stdcall  JVC_SetMTU(int nMtu);
 #endif
 
+#ifndef WIN32
+JVCLIENT_API int JVC_MOStopLANSerchDevice();
+#else
+JVCLIENT_API int __stdcall  JVC_MOStopLANSerchDevice();
+#endif
+
+
+/**
+ * success:1
+ * failed:0
+ */
+#ifndef WIN32
+JVCLIENT_API int JVC_StopHelp();
+#else
+JVCLIENT_API int __stdcall  JVC_StopHelp();
+#endif
 
 #ifdef  __cplusplus
 }

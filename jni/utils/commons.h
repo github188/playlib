@@ -9,6 +9,7 @@
 
 #include <JVideoOut.h>
 #include <net_defs.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,6 +96,11 @@ jstring genString(JNIEnv* env, const char* buf, int offset, int length);
 
 jobjectArray genJObjectArray(JNIEnv* env, jint length);
 
+/**
+ * download file method
+ * in:file
+ */
+int downloadFile(FILE *fp,char* m_url);
 #ifdef __cplusplus
 }
 #endif

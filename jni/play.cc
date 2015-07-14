@@ -5,7 +5,7 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
-
+#include "string.h"
 #include "play.h"
 #include "defines.h"
 #include "utils/commons.h"
@@ -19,6 +19,7 @@
 #include <nplayer/handler.h>
 
 
+#include "utils/playhls.h"
 #include <alu/audio_record.h>
 
 #ifdef _USE_OPENAL_
@@ -902,12 +903,13 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_connect(JNIEnv *env, jclass clazz,
 	free(gid);
 
 	LOGV("connect X, result: %d", result);
+
 	return result;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_connectRTMP(JNIEnv *env,
 		jclass clazz, jint window, jstring url, jobject surface,
-		jboolean isTryOmx, jstring thumbName) {
+		jboolean isTryOmx, jstring thumbName,jint nTimeout) {
 	jboolean result = JNI_FALSE;
 	char* curl = getNativeChar(env, url);
 	int index = getValidArrayIndex(window);
@@ -930,7 +932,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_connectRTMP(JNIEnv *env,
 
 			result =
 					(JVC_ConnectRTMP(index + 1, curl, ConnectChangeRTMP,
-							NormalDataRTMP)) ? JNI_TRUE : JNI_FALSE;
+							NormalDataRTMP,nTimeout)) ? JNI_TRUE : JNI_FALSE;
 
 		} else {
 			LOGW( "connectRTMP[%d], attach failed", window);
@@ -1258,7 +1260,6 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_sendAudioData(JNIEnv *env,
 		jclass clazz, jint window, jbyte uchType, jbyteArray data, jint size) {
 	jboolean result = JNI_FALSE;
 	jbyte* cdata = getNativeByteByLength(env, data, 0, size);
-
 	int index = window2Array(window);
 	if (index >= 0) {
 		BYTE* converted = convertAudioData(cdata);
@@ -1704,9 +1705,9 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_searchLanServer(JNIEnv *env,
 
 JNIEXPORT void JNICALL Java_com_jovision_Jni_stopSearchLanServer(JNIEnv *env,
 		jclass clazz) {
-	LOGV( "stopSearchLanServer E");
+	LOGE( "stopSearchLanServer E");
 	JVC_StopLANSerchServer();
-	LOGV( "stopSearchLanServer X");
+	LOGE( "stopSearchLanServer X");
 }
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_searchLanDevice(JNIEnv *env,
@@ -1715,7 +1716,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_searchLanDevice(JNIEnv *env,
 	jint result = -1;
 	char* gid = getNativeChar(env, group);
 	char* name = getNativeChar(env, deviceName);
-	LOGV(
+	LOGE(
 			"searchLanDevice E: no: %s%d, cardType: %X, variety: %X, Name: %s, timeout: %dms, frequence: %d", gid, cloudSeeId, cardType, variety, name, timeout, frequence);
 
 	result = JVC_MOLANSerchDevice(gid, cloudSeeId, cardType, variety, name,
@@ -1723,7 +1724,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_searchLanDevice(JNIEnv *env,
 
 	free(gid);
 	free(name);
-	LOGV( "searchLanDevice X: %d", result);
+	LOGE( "searchLanDevice X: %d", result);
 	return result;
 }
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_getChannelCount(JNIEnv *env,
@@ -2581,6 +2582,20 @@ JNIEXPORT jint  JNICALL Java_com_jovision_Jni_HelpQuery(JNIEnv *env,
 	return 0;
 }
 
+/**
+ * STOP lansearch
+ */
+JNIEXPORT jint  JNICALL Java_com_jovision_Jni_StopMobLansearch(JNIEnv *env,
+		jclass clazz)
+{
+	return JVC_MOStopLANSerchDevice();
+}
+
+JNIEXPORT jint  JNICALL Java_com_jovision_Jni_StopHelp(JNIEnv *env,
+		jclass clazz)
+{
+	return JVC_StopHelp();
+}
 
 PlayMP4 *gPlayerMp4 = NULL;
 
@@ -2709,4 +2724,96 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4State(JNIEnv *env,
     }
     return play_status;
 }
+
+
+//PlayHLS *gPlayHLS = NULL;
+JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
+		jclass clazz, jint window, jstring filepath, jstring url, jstring filename, jobject surface,
+		jboolean isTryOmx, jstring thumbName, jstring authJson) {
+
+	jboolean result = JNI_FALSE;
+	char* file = getNativeChar(env, filepath);
+	char* curl = getNativeChar(env, url);
+	char* cfilename = getNativeChar(env, filename);
+	char* cauthJson = getNativeChar(env, authJson);
+#ifdef DEBUG
+	LOGI("filePath: %s, url: %s, filename: %s, cauthJson: %s", file, curl, cfilename, cauthJson);
+#endif
+	//获取窗口号
+	int index = getValidArrayIndex(window);
+	LOGI("jni cloud play window:%d", window);
+	LOGI("jni cloud play index:%d", index);
+	if (index >= 0) {
+		player_suit* player = genPlayer(index);
+
+		if (NULL != surface && glAttach(env, player, surface)) {
+			player->try_omx = false;
+			player->is_play_audio = true;
+
+			//启动播放视频线程
+			pthread_t pt;
+			pthread_create(&pt, NULL, onPlayVideo, (void*) 0);
+			//初始化hls播放器
+//			gPlayHLS = new PlayHLS();
+//			gPlayHLS->
+			playerInit(file, curl, cfilename,cauthJson);
+
+		} else {
+			LOGW( "glAttach[%d], attach failed", window);
+			deletePlayer(index);
+		}
+	}
+	LOGI("jni play hls over!!");
+	return JNI_TRUE;
+}
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_CloudStoreClose(JNIEnv *env,
+		jclass clazz)
+{
+	LOGE("CloudStoreClose ----start");
+	playerClose();
+	LOGE("CloudStoreClose ---end");
+	return 0;
+}
+
+
+
+static long Post_Response(void *data, int size, int nmemb, std::string &content)
+{
+	long sizes = size * nmemb;
+	std::string temp((char*)data,sizes);
+	content += temp;
+	LOGE("SIZE: %d",sizes);
+	return sizes;
+}
+
+
+
+FILE *fout = NULL;
+JNIEXPORT void JNICALL Java_com_jovision_Jni_NotifytoJni(JNIEnv *env,
+		jclass clazz,jstring filename) {
+//	FILE *fp = NULL;
+
+//		jboolean isCopy;
+//		char *pServerURLChar=0;
+//		pServerURLChar = (char *)env->GetStringUTFChars(filename,&isCopy);
+//		fout = fopen(pServerURLChar, "wb");
+//		if (fout == NULL) {
+//			LOGE("could not open %s\n", filename);
+//			if (isCopy==JNI_TRUE) {
+//						env->ReleaseStringUTFChars(filename,pServerURLChar);
+//			}
+//			return;
+//		}
+//
+//
+//
+//		downloadFile(fout,"http://jovetech.oss-cn-hangzhou.aliyuncs.com/B129109013/2015/6/25/M01235851.m3u8?Expires=1435661015&OSSAccessKeyId=4fZazqCFmQTbbmcw&Signature=nILTXUMQ%2FBVUzkjp1RnE069QL68%3D");
+//
+//		if (isCopy==JNI_TRUE) {
+//						env->ReleaseStringUTFChars(filename,pServerURLChar);
+//		}
+
+}
+
 #endif // CASTRATE

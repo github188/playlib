@@ -89,7 +89,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_connect
  * Signature: (ILjava/lang/String;Ljava/lang/Object;ZLjava/lang/String;)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_connectRTMP
-  (JNIEnv *, jclass, jint, jstring, jobject, jboolean, jstring);
+  (JNIEnv *, jclass, jint, jstring, jobject, jboolean, jstring,jint nTimeout);
 
 /*
  * Class:     com_jovision_Jni
@@ -615,6 +615,19 @@ JNIEXPORT jint  JNICALL Java_com_jovision_Jni_HelpQuery(JNIEnv *env,
 		jclass clazz,jstring pGroup,jint nYST,jint nCount);
 
 
+
+/**
+ * STOP lansearch
+ */
+JNIEXPORT jint  JNICALL Java_com_jovision_Jni_StopMobLansearch(JNIEnv *env,
+		jclass clazz);
+/**
+ * stop littlehelp
+ */
+
+JNIEXPORT jint  JNICALL Java_com_jovision_Jni_StopHelp(JNIEnv *env,
+		jclass clazz);
+
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_Mp4Init(JNIEnv *env,
 		jclass clazz);
 
@@ -682,6 +695,17 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_stopDenoisePlayer(JNIEnv* env,
  */
 JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_playOn(JNIEnv* env,
 		jclass clz);
+
+//cloudstore
+JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
+		jclass clazz, jint window, jstring filepath, jstring url, jstring filename, jobject surface,
+		jboolean isTryOmx, jstring thumbName, jstring authJson);
+
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_CloudStoreClose(JNIEnv *env,
+		jclass clazz);
+
+JNIEXPORT void JNICALL Java_com_jovision_Jni_NotifytoJni(JNIEnv *env,
+		jclass clazz,jstring filename);
 
 #endif // CASTRATE
 

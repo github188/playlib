@@ -17,6 +17,9 @@ JavaVM* g_jvm;
 jobject g_handle;
 jmethodID g_notifyid;
 
+bool is_audio_end;
+bool is_video_end;
+
 bool g_is_record_mode;
 
 FILE* g_download_file;
@@ -29,7 +32,7 @@ void ConnectChangeRTMP(int index, BYTE type, char* msg, int data) {
 	int window = array2Window(index);
 	type |= 0xA0;
 
-	LOGW( "%s [%p]: E, window = %d, type = 0x%02X", LOCATE_PT, window, type);
+//	LOGE( "%s [%p]: E, window = %d, type = 0x%02X, msg: %s", LOCATE_PT, window, type,msg);
 
 	if (window >= 0) {
 
@@ -49,6 +52,7 @@ void ConnectChangeRTMP(int index, BYTE type, char* msg, int data) {
 			jstring jmsg = NULL;
 			env->CallVoidMethod(g_handle, g_notifyid, CALL_CONNECT_CHANGE,
 					(jint) window, (jint) type, jmsg);
+			LOGE( "%s [%p]: E, window = %d, type = 0x%02X, msg: %s", LOCATE_PT, window, type,msg);
 //			env->DeleteLocalRef(jmsg);
 
 			if (JNI_TRUE == needDetach) {
@@ -62,7 +66,7 @@ void ConnectChangeRTMP(int index, BYTE type, char* msg, int data) {
 		player_suit* player = g_player[index];
 
 		if (RTMP_CONN_FAILED == type || RTMP_DISCONNECTED == type
-				|| RTMP_EDISCONNECT == type) {
+				|| RTMP_EDISCONNECT == type || RTMP_LOGNNODATA == type) {
 			if (NULL != player) {
 				player->is_connected = false;
 			}
@@ -71,7 +75,6 @@ void ConnectChangeRTMP(int index, BYTE type, char* msg, int data) {
 				player->is_connected = true;
 			}
 		} else {
-
 			LOGX("> other: %d(%d) = %02X", window, index, type);
 
 		}
@@ -288,8 +291,8 @@ void ConnectChange(int index, BYTE type, char* msg, int data) {
 	char* umsg = msg;
 
 	if (window >= 0) {
-		LOGW(
-				"%s [%p]: E, window = %d, type = 0x%x, msg = %s", LOCATE_PT, window, type, umsg);
+		LOGE(
+				"RRRRR%s [%p]: E, window = %d, type = 0x%x, msg = %s", LOCATE_PT, window, type, umsg);
 
 		player_suit* player = g_player[index];
 
@@ -1619,6 +1622,7 @@ int onOmxInfo(OMX_INFO * info) {
 	}
 
 	LOGV( "%s [%p]: X", LOCATE_PT);
+
 
 	return result;
 }

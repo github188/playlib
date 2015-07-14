@@ -22,6 +22,11 @@ LOCAL_SRC_FILES := libs/$(APP_ABI)/libjsoncpp.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := auth_base64
+LOCAL_SRC_FILES := libs/$(APP_ABI)/libauth_base64.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
 LOCAL_MODULE := aenc
 LOCAL_SRC_FILES := libs/$(APP_ABI)/libJAENC.a
 include $(PREBUILT_STATIC_LIBRARY)
@@ -63,6 +68,16 @@ LOCAL_SRC_FILES := libs/$(APP_ABI)/libmp4.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := curl
+LOCAL_SRC_FILES := libs/$(APP_ABI)/libcurl.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := cloudstore
+LOCAL_SRC_FILES := libs/$(APP_ABI)/libcloudstores.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
 LOCAL_MODULE := iconv
 LOCAL_SRC_FILES := libs/$(APP_ABI)/libiconv.a
 include $(PREBUILT_STATIC_LIBRARY)
@@ -71,6 +86,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := alu
 LOCAL_SRC_FILES := libs/$(APP_ABI)/libalu.so
 include $(PREBUILT_SHARED_LIBRARY)
+
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := nplayer
@@ -82,10 +98,11 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := play
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 LOCAL_SRC_FILES := utils/commons.cc utils/voiceenc.c utils/char_conv.cc \
-	utils/threads.cc utils/callbacks.cc utils/playmp4.cc play.cc 
+	utils/threads.cc utils/callbacks.cc utils/playmp4.cc utils/playhls.cc play.cc 
 LOCAL_CFLAGS := -Wall -Wno-write-strings
 LOCAL_LDLIBS := -llog -lGLESv2 -lEGL -landroid
+
 LOCAL_SHARED_LIBRARIES := alu nplayer
-LOCAL_STATIC_LIBRARIES := jsoncpp iconv network screenshot opengl mp4 aenc adec legacy hdec dec avcodec avutil
+LOCAL_STATIC_LIBRARIES := auth_base64 curl cloudstore jsoncpp iconv network screenshot opengl mp4 aenc adec legacy hdec dec avcodec avutil
 
 include $(BUILD_SHARED_LIBRARY)

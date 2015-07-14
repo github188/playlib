@@ -97,6 +97,13 @@ extern "C" {
 #define CALL_MP4_PLAY_FIN   0xB5
 #define CALL_MP4_PLAY_ERROR 0xB6
 
+
+//HLS
+#define CALL_HLS_PLAY_QUIT  0xC2    //主动退出
+#define CALL_HLS_PLAY_OVER  0xC3
+#define CALL_HLS_DOWNLOAD_CALLBACK  0xC4
+
+
 #define BUFFER_START		-1
 #define BUFFER_FINISH		-2
 
@@ -158,10 +165,11 @@ extern "C" {
 #define BAD_ARRAY_OVERFLOW	-4
 #define BAD_CONN_UNKOWN		-5
 
-#define RTMP_CONN_SCCUESS	(0x01 | 0xA0)
-#define RTMP_CONN_FAILED	(0x02 | 0xA0)
-#define RTMP_DISCONNECTED	(0x03 | 0xA0)
-#define RTMP_EDISCONNECT	(0x04 | 0xA0)
+#define RTMP_CONN_SCCUESS	(0x01 | 0xA0) //链接成功
+#define RTMP_CONN_FAILED	(0x02 | 0xA0)//链接失败
+#define RTMP_DISCONNECTED	(0x03 | 0xA0)//断开链接成功
+#define RTMP_EDISCONNECT	(0x04 | 0xA0)//异常断开
+#define RTMP_LOGNNODATA		(0x05 | 0xA0)//长时间没有数据主控断开
 
 #define RTMP_TYPE_META		0x00
 #define RTMP_TYPE_H264_I	0x01
@@ -191,6 +199,8 @@ extern "C" {
 #define DUMMY_FRAME_THUMB	0x03
 #define DUMMY_FRAME_COLOR	0x10
 #define DUMMY_FRAME_SIZE	0x11
+
+#define DUMMY_FRAME_HLS_END	0xFF
 
 // [Neo] decode type
 #define TYPE_FFMPEG			0x00
@@ -240,6 +250,7 @@ struct video_meta {
 
 	bool is_wait_by_ts;
 	uint64_t delta_ts;
+	bool is_hls_player_over;
 
 	int audio_type;
 	int audio_enc_type;
@@ -374,6 +385,9 @@ typedef enum _OPENGL_STATUS {
 extern JavaVM* g_jvm;
 extern jobject g_handle;
 extern jmethodID g_notifyid;
+
+extern bool is_audio_end;
+extern bool is_video_end;
 
 extern bool g_enable_log;
 
