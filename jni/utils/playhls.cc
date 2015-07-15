@@ -172,7 +172,7 @@ int get_file_size(const char *filename)
 	size=ftell(fp);
 	fclose(fp);
 	LOGI("file size:%d", size);
-	return size*1024;
+	return size;
 }
 
 //下载线程
