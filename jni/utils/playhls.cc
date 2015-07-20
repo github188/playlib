@@ -15,6 +15,7 @@
 #include <json.h>
 #include <net_defs.h>
 #include <sys/select.h>
+#include <fcntl.h>
 
 struct downObj
 {
@@ -217,48 +218,52 @@ public:
 			strcat(path, "1.m3u8");
 			realUri = fname;
 		}
-		char sign[1024] = {0};
-		authurl(sign, realUri);
-		LOGI("sign :%s", sign);
-		FILE *fp = fopen(path, "wb");
-		if (fp == NULL) {
-			LOGE("could not open %s\n", path);
-			return -1;
-		}
-		//加密M3u8下载连接
-		//int i =  downloadFile(fp, sign);
-		downloadFlag = false;
-		struct downObj obj;
-		obj.fp=fp;
-		obj.psign=sign;
-		int ret = 0;
-		pthread_t	thread_id;
-		ret = pthread_create(&thread_id, NULL, downloadThread, (void *)&obj);
-		//pthread_join(thread_id, NULL);
-		while(!is_hls_palying_over){
-			if(downloadFlag)
-				break;
-			LOGI("下载睡眠500");
-			hls_msleep(500);
-		}
-		fclose(fp);
-
-		if(downloadRet != 200){
-			LOGE("下载失败\n");
-			char json[1024] = {0};
-			sprintf(json, "{\"download_msg\":%d}", ret);
-			int window = array2Window(0);
-			callBackToJava(CALL_CONNECT_CHANGE, window, 0x04, json);
-			return -1;
+		//如果是ts文件并且存在，则不下载
+		if((access(path,F_OK))!=-1){
+			LOGI("文件存在，不下载，直接打开");
 		}else{
-			LOGE("下载成功\n");
-			int size = get_file_size(path);
-			char json[1024] = {0};
-			sprintf(json, "{\"file_len\":%d}", size);
-			LOGE("json :%s", json);
-			int window = array2Window(0);
-			callBackToJava(CALL_HLS_DOWNLOAD_CALLBACK, window, 0x00, json);
+			char sign[1024] = {0};
+			authurl(sign, realUri);
+			LOGI("sign :%s", sign);
+			FILE *fp = fopen(path, "wb");
+			if (fp == NULL) {
+				LOGE("could not open %s\n", path);
+				return -1;
+			}
+			downloadFlag = false;
+			struct downObj obj;
+			obj.fp=fp;
+			obj.psign=sign;
+			int ret = 0;
+			pthread_t	thread_id;
+			ret = pthread_create(&thread_id, NULL, downloadThread, (void *)&obj);
+			//pthread_join(thread_id, NULL);
+			while(!is_hls_palying_over){
+				if(downloadFlag)
+					break;
+				LOGI("下载睡眠500");
+				hls_msleep(500);
+			}
+			fclose(fp);
+
+			if(downloadRet != 200){
+				LOGE("下载失败\n");
+				char json[1024] = {0};
+				sprintf(json, "{\"download_msg\":%d}", ret);
+				int window = array2Window(0);
+				callBackToJava(CALL_CONNECT_CHANGE, window, 0x04, json);
+				return -1;
+			}else{
+				LOGE("下载成功\n");
+				int size = get_file_size(path);
+				char json[1024] = {0};
+				sprintf(json, "{\"file_len\":%d}", size);
+				LOGE("json :%s", json);
+				int window = array2Window(0);
+				callBackToJava(CALL_HLS_DOWNLOAD_CALLBACK, window, 0x00, json);
+			}
 		}
+
 		if(is_hls_palying_over)
 			return -1;
 
