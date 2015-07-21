@@ -18,7 +18,6 @@
 #include <nplayer/nplayer.h>
 #include <nplayer/handler.h>
 
-
 #include "utils/playhls.h"
 #include <alu/audio_record.h>
 
@@ -699,13 +698,13 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_resumeAudio(JNIEnv *, jclass,
 		if (NULL != player) {
 			pthread_mutex_lock(&(player->stat->mutex));
 
-//			if (NULL != player->track) {
-//				result = player->track->resume() ? JNI_TRUE : JNI_FALSE;
-//			}
-
-			if(NULL != player->nplayer){
-				result = player->nplayer->resume()? JNI_TRUE : JNI_FALSE ;
+			if (NULL != player->track) {
+				result = player->track->resume() ? JNI_TRUE : JNI_FALSE;
 			}
+
+//			if(NULL != player->nplayer){
+//				result = player->nplayer->resume()? JNI_TRUE : JNI_FALSE ;
+//			}
 
 			pthread_mutex_unlock(&(player->stat->mutex));
 		}
@@ -725,13 +724,14 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_pauseAudio(JNIEnv *, jclass,
 		player_suit* player = g_player[index];
 		if (NULL != player) {
 			pthread_mutex_lock(&(player->stat->mutex));
-//			if (NULL != player->track) {
-//				result = player->track->pause() ? JNI_TRUE : JNI_FALSE;
-//			}
 
-			if (NULL != player->nplayer){
-				result = player->nplayer->pause()? JNI_TRUE : JNI_FALSE;
+			if (NULL != player->track) {
+				result = player->track->pause() ? JNI_TRUE : JNI_FALSE;
 			}
+
+//			if (NULL != player->nplayer){
+//				result = player->nplayer->pause()? JNI_TRUE : JNI_FALSE;
+//			}
 
 			pthread_mutex_unlock(&(player->stat->mutex));
 		}
