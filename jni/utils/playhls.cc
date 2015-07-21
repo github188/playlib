@@ -219,7 +219,7 @@ public:
 			realUri = fname;
 		}
 		//如果是ts文件并且存在，则不下载
-		if(strstr(fname,".ts")) &&(access(path,F_OK))!=-1){
+		if(strstr(fname,".ts") &&(access(path,F_OK))!=-1){
 			LOGI("文件存在，不下载，直接打开");
 		}else{
 			char sign[1024] = {0};
@@ -248,7 +248,7 @@ public:
 
 			if(downloadRet != 200){
 				LOGE("下载失败\n");
-				remve(path);
+				remove(path);
 				char json[1024] = {0};
 				sprintf(json, "{\"download_msg\":%d}", ret);
 				int window = array2Window(0);

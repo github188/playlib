@@ -1047,7 +1047,7 @@ public class MainActivity extends BaseActivity implements
 			Device device = channel.getParent();
 
 			String path = Environment.getExternalStorageDirectory().getPath();
-			String url = "/jovetech/B129109013/2015/7/10";
+			String url = "/jovetech/B128894258/2015/7/20";
 			JSONObject obj = new JSONObject();
 			try {
 				obj.put("cshost", "oss-cn-hangzhou.aliyuncs.com");
@@ -1056,7 +1056,7 @@ public class MainActivity extends BaseActivity implements
 				obj.put("csspace", "jovetech");
 				System.out.println("get index = "+channel.getIndex());
 				System.out.println("Jni.CloudStorePlay");
-				Jni.CloudStorePlay(channel.getIndex(), path,url, "M12345678",channel.getSurface(), false, "xxxxx", obj.toString());
+				Jni.CloudStorePlay(channel.getIndex(), path,url, "M01112807",channel.getSurface(), false, "xxxxx", obj.toString());
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
