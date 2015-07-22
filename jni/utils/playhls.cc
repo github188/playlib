@@ -21,6 +21,7 @@ struct downObj
 {
     FILE *fp;
     char *psign;
+    char *ppath;
 };
 
 #define file_json_len_key  "file_len"
@@ -183,6 +184,8 @@ void* downloadThread(void *param)
 	LOGI("启动线程");
 	downloadRet = downloadFile(down_obj->fp, down_obj->psign);
 	LOGI("下载结束");
+	if(is_hls_palying_over)
+		remove(down_obj->ppath);
 	downloadFlag = true;
 	pthread_exit(NULL);
 	//return NULL;
@@ -234,6 +237,7 @@ public:
 			struct downObj obj;
 			obj.fp=fp;
 			obj.psign=sign;
+			obj.ppath = path;
 			int ret = 0;
 			pthread_t	thread_id;
 			ret = pthread_create(&thread_id, NULL, downloadThread, (void *)&obj);
@@ -316,6 +320,7 @@ public:
 				offer_video_frame(player, (BYTE*)frame, len, JVN_DATA_P, false, timeStamp);
 
 			}
+			hls_msleep(10);
 		}
 	}
 
@@ -426,7 +431,7 @@ void  playerClose()
 	}
 	//offer_video_frame(player, NULL, 0, -1);
 	while(true){
-		if(!is_decoder_init && is_current_client_parsing_over){
+		if(!is_decoder_init && is_current_client_parsing_over && is_video_end){
 			LOGE("decoder 没有初始化");
 			break;
 		}

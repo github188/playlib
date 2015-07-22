@@ -2740,9 +2740,10 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
 	LOGI("filePath: %s, url: %s, filename: %s, cauthJson: %s", file, curl, cfilename, cauthJson);
 #endif
 	//获取窗口号
-	int index = getValidArrayIndex(window);
+	int index_tmp = getValidArrayIndex(window);
 	LOGI("jni cloud play window:%d", window);
-	LOGI("jni cloud play index:%d", index);
+	LOGI("jni cloud play index_tmp:%d", index_tmp);
+	int index = 0;
 	if (index >= 0) {
 		player_suit* player = genPlayer(index);
 
@@ -2757,14 +2758,14 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
 //			gPlayHLS = new PlayHLS();
 //			gPlayHLS->
 			playerInit(file, curl, cfilename,cauthJson);
+			return JNI_TRUE;
 
 		} else {
 			LOGW( "glAttach[%d], attach failed", window);
 			deletePlayer(index);
 		}
 	}
-	LOGI("jni play hls over!!");
-	return JNI_TRUE;
+	return JNI_FALSE;
 }
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_CloudStoreClose(JNIEnv *env,
