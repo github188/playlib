@@ -184,8 +184,6 @@ void* downloadThread(void *param)
 	LOGI("启动线程");
 	downloadRet = downloadFile(down_obj->fp, down_obj->psign);
 	LOGI("下载结束");
-//	if(is_hls_palying_over)
-//		remove(down_obj->ppath);
 	downloadFlag = true;
 	pthread_exit(NULL);
 	//return NULL;
@@ -252,7 +250,6 @@ public:
 
 			if(downloadRet != 200){
 				LOGE("下载失败\n");
-				remove(path);
 				char json[1024] = {0};
 				sprintf(json, "{\"download_msg\":%d}", ret);
 				int window = array2Window(0);
@@ -269,8 +266,10 @@ public:
 			}
 		}
 
-		if(is_hls_palying_over)
+		if(is_hls_palying_over){
+			remove(path);
 			return -1;
+		}
 
 		m_fp = fopen(path, "rb");
 		if (!m_fp)
