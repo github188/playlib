@@ -184,8 +184,8 @@ void* downloadThread(void *param)
 	LOGI("启动线程");
 	downloadRet = downloadFile(down_obj->fp, down_obj->psign);
 	LOGI("下载结束");
-	if(is_hls_palying_over)
-		remove(down_obj->ppath);
+//	if(is_hls_palying_over)
+//		remove(down_obj->ppath);
 	downloadFlag = true;
 	pthread_exit(NULL);
 	//return NULL;
