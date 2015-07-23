@@ -21,7 +21,6 @@ struct downObj
 {
     FILE *fp;
     char *psign;
-    char *ppath;
 };
 
 #define file_json_len_key  "file_len"
@@ -235,7 +234,6 @@ public:
 			struct downObj obj;
 			obj.fp=fp;
 			obj.psign=sign;
-			obj.ppath = path;
 			int ret = 0;
 			pthread_t	thread_id;
 			ret = pthread_create(&thread_id, NULL, downloadThread, (void *)&obj);
@@ -319,7 +317,6 @@ public:
 				offer_video_frame(player, (BYTE*)frame, len, JVN_DATA_P, false, timeStamp);
 
 			}
-			hls_msleep(10);
 		}
 	}
 
