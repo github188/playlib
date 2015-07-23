@@ -248,6 +248,7 @@ public:
 
 			if(downloadRet != 200){
 				LOGE("下载失败\n");
+				remove(path);
 				char json[1024] = {0};
 				sprintf(json, "{\"download_msg\":%d}", ret);
 				int window = array2Window(0);
@@ -307,8 +308,10 @@ public:
 			//LOGI("data received type: %d, len: %d, timeStamp: %lld\n", type, len, timeStamp);
 			player_suit* player = g_player[0];
 			if(type == JHLS_FRAME_TYPE_AUDIO){
-				if(player->is_play_audio)
-					offer_audio_frame(player, (BYTE*)frame, len, false, false, timeStamp);
+				if(player->is_play_audio){
+					if(NULL != frame)
+						offer_audio_frame(player, (BYTE*)frame, len, false, false, timeStamp);
+				}
 			}
 			else if(type == JHLS_FRAME_TYPE_VIDEO_I){
 				offer_video_frame(player, (BYTE*)frame, len, JVN_DATA_I, false, timeStamp);
