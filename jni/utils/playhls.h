@@ -14,7 +14,7 @@
 	 * aythJson 是账号从服务器获取的信息
 	 */
     void playerInit(char *m3u8Path, char* url, char* filename,char* authJson);
-    void playerClose();
+    void playerClose(int index);
 //private:
 
 //};

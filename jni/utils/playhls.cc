@@ -412,12 +412,12 @@ void playerInit(char* m3u8Path, char*url, char* filename, char* authJson)
 
 
 
-void  playerClose()
+void  playerClose(int index)
 {
 	LOGI("播放结束");
 	//播放结束
 	is_hls_palying_over = true;
-	player_suit* player = g_player[0];
+	player_suit* player = g_player[index];
 	if(NULL != player){
 		video_meta* meta = player->vm_normal;
 		meta->is_hls_player_over = true;

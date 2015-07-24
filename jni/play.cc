@@ -2752,7 +2752,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
 
 			//启动播放视频线程
 			pthread_t pt;
-			pthread_create(&pt, NULL, onPlayVideo, (void*) 0);
+			pthread_create(&pt, NULL, onPlayVideo, (void*) index);
 			//初始化hls播放器
 //			gPlayHLS = new PlayHLS();
 //			gPlayHLS->
@@ -2783,9 +2783,8 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_CloudStoreClose(JNIEnv *env,
 		jclass clazz)
 {
-	LOGE("CloudStoreClose ----start");
-	playerClose();
-	LOGE("CloudStoreClose ---end");
+	int index = 0;
+	playerClose(index);
 	return 0;
 }
 
