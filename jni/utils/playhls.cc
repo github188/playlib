@@ -360,7 +360,6 @@ void* clientParingThread(void *param){
 
 void playerInit(char* m3u8Path, char*url, char* filename, char* authJson)
 {
-	hls_msleep(500);
 	Reader reader;
 	Value root;
 	//string s(authJson);
@@ -441,7 +440,6 @@ void  playerClose(int index)
 		delete client;
 		client = NULL;
 	}
-	hls_msleep(1000);
 	return;
 }
 

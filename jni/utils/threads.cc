@@ -1336,7 +1336,21 @@ void* onPlayAudio(void* _index) {
 						"audio: delta = %llu, ts = %u, delay = %d, size = %d, is_chat = %d", meta->delta_ts, f->ts, need_delay, f->size, f->is_chat_data);
 #endif
 //				LOGI("while audio run here--->6 need_delay:%d", need_delay);
-				msleep(need_delay);
+				if(need_delay < 3000)
+					msleep(need_delay);
+				else{
+					while(true){
+						if(!player->is_connected)
+							break;
+						if(need_delay > 1000){
+							need_delay = need_delay -1000;
+							msleep(1000);
+						}else if(0 < need_delay < 1000){
+							msleep(need_delay);
+							break;
+						}
+					}
+				}
 			}
 
 //			static int aaa = 0;

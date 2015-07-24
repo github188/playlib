@@ -451,7 +451,7 @@ player_suit* genPlayer(int index) {
  */
 void deletePlayer(int index) {
 	player_suit* player = g_player[index];
-	invalidArray(index);
+
 	if (NULL != player) {
 		clean_all_queue(player);
 
@@ -484,6 +484,8 @@ void deletePlayer(int index) {
 
 		free(player);
 	}
+
+	invalidArray(index);
 }
 
 bool openOmx(player_suit* player, int window) {
