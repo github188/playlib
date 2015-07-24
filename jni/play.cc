@@ -2740,10 +2740,9 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
 	LOGI("filePath: %s, url: %s, filename: %s, cauthJson: %s", file, curl, cfilename, cauthJson);
 #endif
 	//获取窗口号
-	int index_tmp = getValidArrayIndex(window);
+	int index = getValidArrayIndex(window);
 	LOGI("jni cloud play window:%d", window);
-	LOGI("jni cloud play index_tmp:%d", index_tmp);
-	int index = 0;
+	LOGI("jni cloud play index:%d", index);
 	if (index >= 0) {
 		player_suit* player = genPlayer(index);
 
@@ -2763,6 +2762,19 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_CloudStorePlay(JNIEnv *env,
 		} else {
 			LOGW( "glAttach[%d], attach failed", window);
 			deletePlayer(index);
+		}
+	}
+	jboolean needDetach = JNI_FALSE;
+	JNIEnv* g_env = genAttachedEnv(g_jvm, JNI_VERSION_1_6,
+			&needDetach);
+	if (NULL != g_env) {
+		if (NULL != g_handle && NULL != g_notifyid) {
+			g_env->CallVoidMethod(g_handle, g_notifyid,
+					CALL_HLS_PLAY_OVER, (jint) window,
+					(jint) 0, NULL);
+		}
+		if (JNI_TRUE == needDetach) {
+			g_jvm->DetachCurrentThread();
 		}
 	}
 	return JNI_FALSE;

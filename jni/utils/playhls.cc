@@ -180,12 +180,9 @@ int get_file_size(const char *filename)
 void* downloadThread(void *param)
 {
 	struct downObj *down_obj=(struct downObj*)param;
-	LOGI("启动线程");
 	downloadRet = downloadFile(down_obj->fp, down_obj->psign);
-	LOGI("下载结束");
 	downloadFlag = true;
 	pthread_exit(NULL);
-	//return NULL;
 }
 
 class MyDownload : public CDownload
@@ -241,7 +238,6 @@ public:
 			while(!is_hls_palying_over){
 				if(downloadFlag)
 					break;
-				LOGI("下载睡眠500");
 				hls_msleep(500);
 			}
 			fclose(fp);
@@ -344,6 +340,7 @@ void* clientParingThread(void *param){
 
 	if(client == NULL)
 		return NULL;
+
 	while(true){
 		is_current_client_parsing_over = false;
 		bool result = client->parsing() ;
@@ -437,7 +434,6 @@ void  playerClose()
 		if(is_current_client_parsing_over && is_audio_end && is_video_end){
 			break;
 		}
-		LOGI("睡眠");
 		hls_msleep(1000);
 	}
 	if(NULL != client){

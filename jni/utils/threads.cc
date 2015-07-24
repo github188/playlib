@@ -1041,10 +1041,18 @@ void* onPlayVideo(void* _index) {
 		core->legacy_handle = NULL;
 	}
 
-	for (int i = 0; i < 10 && player->is_audio_working; i++) {
+//	for (int i = 0; i < 10 && player->is_audio_working; i++) {
+//		offer_audio_frame(player, NULL, 0);
+//		LOGXX("%s [%p]: window = %d, wait audio", LOCATE_PT, window);
+//		msleep(500);
+//	}
+	while(true) {
 		offer_audio_frame(player, NULL, 0);
 		LOGXX("%s [%p]: window = %d, wait audio", LOCATE_PT, window);
 		msleep(500);
+		LOGI("wait audio stop---->");
+		if(!player->is_audio_working)
+			break;
 	}
 
 	deletePlayer(index);
@@ -1405,12 +1413,13 @@ void* onPlayAudio(void* _index) {
 #endif
 		}
 
-		pthread_mutex_lock(&(stat->mutex));
-		stat->audio_decoder_count++;
-		stat->audio_decoder_delayed += delayed;
-		stat->audio_play_delayed += delayed2;
-		pthread_mutex_unlock(&(stat->mutex));
-
+		if(player->is_connected&& BAD_STATUS_NOOP == bad_status){
+			pthread_mutex_lock(&(stat->mutex));
+			stat->audio_decoder_count++;
+			stat->audio_decoder_delayed += delayed;
+			stat->audio_play_delayed += delayed2;
+			pthread_mutex_unlock(&(stat->mutex));
+		}
 		destroy(f);
 //		LOGI("while audio end------> bad_status:%d, BAD_STATUS_NOOP:%d",bad_status, BAD_STATUS_NOOP);
 	}
