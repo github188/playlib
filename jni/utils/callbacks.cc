@@ -1506,6 +1506,9 @@ int onQueryDevice(STLANSRESULT* result) {
 		values["timeout"] = result->bTimoOut;
 		values["netmod"] = (result->nNetMod & 0x01);
 		values["curmod"] = result->nCurMod;
+		values["privatesize"] = result->nPrivateSize;
+		values["privateinfo"] = result->chPrivateInfo;
+
 		jstring jmsg = env->NewStringUTF(writer.write(values).c_str());
 
 		env->CallVoidMethod(g_handle, g_notifyid, CALL_QUERY_DEVICE, (jint) 0,
