@@ -1041,19 +1041,19 @@ void* onPlayVideo(void* _index) {
 		core->legacy_handle = NULL;
 	}
 
-//	for (int i = 0; i < 10 && player->is_audio_working; i++) {
-//		offer_audio_frame(player, NULL, 0);
-//		LOGXX("%s [%p]: window = %d, wait audio", LOCATE_PT, window);
-//		msleep(500);
-//	}
-	while(true) {
+	for (int i = 0; i < 10 && player->is_audio_working; i++) {
 		offer_audio_frame(player, NULL, 0);
 		LOGXX("%s [%p]: window = %d, wait audio", LOCATE_PT, window);
 		msleep(500);
-		LOGI("wait audio stop---->");
-		if(!player->is_audio_working)
-			break;
 	}
+//	while(true) {
+//		offer_audio_frame(player, NULL, 0);
+//		LOGXX("%s [%p]: window = %d, wait audio", LOCATE_PT, window);
+//		msleep(500);
+//		LOGI("wait audio stop---->");
+//		if(!player->is_audio_working)
+//			break;
+//	}
 
 	deletePlayer(index);
 
