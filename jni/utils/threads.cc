@@ -603,6 +603,7 @@ void* onPlayVideo(void* _index) {
 
 		if (!meta->is_hls_player_over && is_buffer_for_rtmp
 				&& queue_left >= meta->video_frame_buffer_count) {
+			LOGI("video buffer finish queue left :%d, video_frame_min_count :%d", queue_left, meta->video_frame_min_count);
 			jboolean needDetach = JNI_FALSE;
 			JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6, &needDetach);
 			if (NULL != env) {
@@ -623,6 +624,7 @@ void* onPlayVideo(void* _index) {
 		}
 
 		if (!meta->is_hls_player_over && meta->is_wait_by_ts && queue_left < meta->video_frame_min_count) {
+			LOGI("video buffer start queue left :%d, video_frame_min_count :%d", queue_left, meta->video_frame_min_count);
 			jboolean needDetach = JNI_FALSE;
 			JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6, &needDetach);
 			if (NULL != env) {

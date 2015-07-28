@@ -17,7 +17,7 @@
 #include <sys/select.h>
 #include <fcntl.h>
 
-#define HLS_QUEUE_LEFT_FLAG 30
+#define HLS_QUEUE_LEFT_FLAG 15
 
 struct downObj
 {
@@ -146,7 +146,7 @@ void offerHlsPlayOver()
 		memset(o, 0, DUMMY_FRAME_SIZE);
 		o[0] = DUMMY_FRAME_HLS_END;
 		int i = 0;
-		for(i;i<5;i++){
+		for(i;i<8;i++){
 			offer_video_frame(player, o, DUMMY_FRAME_SIZE, 0x08);
 		}
 	}
@@ -234,7 +234,7 @@ public:
 					LOGI("queue_left = %d", queue_left);
 					if(queue_left > HLS_QUEUE_LEFT_FLAG){
 						LOGI("queue left 大于30 sleep 500");
-						hls_msleep(500);
+						hls_msleep(200);
 					}else
 						break;
 				}
@@ -304,7 +304,6 @@ public:
 	}
 	virtual int close()
 	{
-		LOGE("playhls  close\n");
 		fclose(m_fp);
 		return 0;
 	}
@@ -373,7 +372,7 @@ void* clientParingThread(void *param){
 			break;
 		}
 	}
-
+	LOGI("parsing out---->");
 	offerHlsPlayOver();
 	return	 NULL;
 }
