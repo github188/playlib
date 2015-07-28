@@ -376,7 +376,7 @@ void initNPlayer() {
 	suit.enable_denoise = true;
 	new_nplayer = new nplayer::NPlayer(&suit, handler);
 	new_nplayer->resume();
-	new_nplayer->enable_audio(true);
+//	new_nplayer->enable_audio(true);
 	new_nplayer->adjust_track_volume(adjust_volume);
 }
 
