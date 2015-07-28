@@ -17,6 +17,8 @@
 #include <sys/select.h>
 #include <fcntl.h>
 
+#define HLS_QUEUE_LEFT_FLAG 30
+
 struct downObj
 {
     FILE *fp;
@@ -48,6 +50,7 @@ bool is_hls_palying_over = false;
 bool is_current_client_parsing_over = false;
 
 bool downloadFlag = false;
+int M3U8Flag = 0;
 int downloadRet = 0;
 
 /**
@@ -212,6 +215,7 @@ public:
 			realUri = headerUri;
 		}else if(strstr(fname,".m3u8")){
 			LOGE("是m3u8文件");
+			M3U8Flag++;
 			strcat(path, "1.m3u8");
 			realUri = fname;
 		}
@@ -219,6 +223,22 @@ public:
 		if(strstr(fname,".ts") &&(access(path,F_OK))!=-1){
 			LOGI("文件存在，不下载，直接打开");
 		}else{
+			//第二次M3U8需要等播放线程队列剩余15帧后。
+			if(M3U8Flag == 2){
+				player_suit* player = g_player[0];
+				int queue_left = 0;
+				while(true){
+					if(is_hls_palying_over)
+						return -1;
+					queue_left = get_video_left(player);
+					LOGI("queue_left = %d", queue_left);
+					if(queue_left > HLS_QUEUE_LEFT_FLAG){
+						LOGI("queue left 大于30 sleep 500");
+						hls_msleep(500);
+					}else
+						break;
+				}
+			}
 			char sign[1024] = {0};
 			authurl(sign, realUri);
 			LOGI("sign :%s", sign);
@@ -393,6 +413,7 @@ void playerInit(char* m3u8Path, char*url, char* filename, char* authJson)
 
 	is_hls_palying_over = false;
 	is_decoder_init = false;
+	M3U8Flag = 0;
 	memset(g_headPathStr,0,1024);
 	memset(g_headUriStr,0,1024);
 	memset(g_fileName,0,1024);
@@ -425,7 +446,7 @@ void  playerClose(int index)
 		player->is_connected = false;
 
 	}
-	//offer_video_frame(player, NULL, 0, -1);
+	offer_video_frame(player, NULL, 0, -1);
 	while(true){
 		if(!is_decoder_init && is_current_client_parsing_over && is_video_end){
 			LOGE("decoder 没有初始化");
