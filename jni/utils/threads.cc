@@ -402,8 +402,9 @@ void* onPlayVideo(void* _index) {
 			meta = player->vm_normal;
 		}
 
-		if (meta->is_wait_by_ts && is_buffer_for_rtmp) {
+		if (!is_hls_offer_end && meta->is_wait_by_ts && is_buffer_for_rtmp) {
 			queue_left = get_video_left(player);
+			LOGI("queue_left-------> %d", queue_left);
 			if (queue_left < meta->video_frame_buffer_count) {
 				buffer_percent = queue_left / meta->video_frame_buffer_count
 						* 100.0f;
@@ -429,7 +430,7 @@ void* onPlayVideo(void* _index) {
 
 		frame* f = poll_video_frame(player);
 		queue_left = get_video_left(player);
-//		LOGI("video queue left %d:",queue_left);
+		LOGI("video queue left :%d, meta->video_frame_buffer_count :%d",queue_left, meta->video_frame_buffer_count);
 		if (OPENGL_TRY_CLOSE == core->opengl_status) {
 			glClose(player);
 		}
@@ -623,7 +624,7 @@ void* onPlayVideo(void* _index) {
 			is_buffer_for_rtmp = false;
 		}
 
-		if (!meta->is_hls_player_over && meta->is_wait_by_ts && queue_left < meta->video_frame_min_count) {
+		if (!is_hls_offer_end && !meta->is_hls_player_over && meta->is_wait_by_ts && queue_left < meta->video_frame_min_count) {
 			LOGI("video buffer start queue left :%d, video_frame_min_count :%d", queue_left, meta->video_frame_min_count);
 			jboolean needDetach = JNI_FALSE;
 			JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6, &needDetach);

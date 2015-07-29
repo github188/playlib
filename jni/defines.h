@@ -388,6 +388,7 @@ extern jmethodID g_notifyid;
 
 extern bool is_audio_end;
 extern bool is_video_end;
+extern bool is_hls_offer_end;
 
 extern bool g_enable_log;
 

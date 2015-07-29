@@ -19,6 +19,7 @@ jmethodID g_notifyid;
 
 bool is_audio_end;
 bool is_video_end;
+bool is_hls_offer_end;
 
 bool g_is_record_mode;
 

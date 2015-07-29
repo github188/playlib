@@ -392,7 +392,7 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_setAdjustVolume(JNIEnv* env,
 }
 
 JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
-		jclass clz,jint channelindex) {
+		jclass clz,jint window) {
 
 //	initNPlayer();
 
@@ -408,9 +408,8 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
 //		adec = JAD_DecodeOpenEx(2);
 	}
 
-	int index = channelindex+1;
-	if(index > 1)
-		channel_index = index;
+	int index = window2Array(window);
+	channel_index = index;
 
 	new_nplayer->start_record_audio(fetchd);
 

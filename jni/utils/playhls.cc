@@ -17,7 +17,9 @@
 #include <sys/select.h>
 #include <fcntl.h>
 
-#define HLS_QUEUE_LEFT_FLAG 15
+#define HLS_QUEUE_LEFT_FLAG_ONE 15
+#define HLS_QUEUE_LEFT_FLAG_TWO 20
+#define HLS_QUEUE_LEFT_FLAG_THREE 30
 
 struct downObj
 {
@@ -104,6 +106,7 @@ void hlsPlayerInit(JHLSVideoStreamType_e vtype, JHLSAudioStreamType_e atype)
 			meta->is_hls_player_over = false;
 			meta->video_width = 1280;
 			meta->video_height = 720;
+			meta->video_frame_buffer_count = 10;
 //			meta->video_frame_min_count=10;
 //			meta->video_frame_rate = 10;
 //			meta->video_frame_period = 100;
@@ -138,6 +141,8 @@ void hlsPlayerInit(JHLSVideoStreamType_e vtype, JHLSAudioStreamType_e atype)
 void offerHlsPlayOver()
 {
 	//传入结束帧
+	is_hls_offer_end = true;
+	LOGI("is_hls_offer_end ==== true");
 	player_suit* player = g_player[0];
 	if(NULL != player){
 		video_meta* meta = player->vm_normal;
@@ -224,7 +229,7 @@ public:
 			LOGI("文件存在，不下载，直接打开");
 		}else{
 			//第二次M3U8需要等播放线程队列剩余15帧后。
-			if(M3U8Flag == 2){
+			if(M3U8Flag >= 2){
 				player_suit* player = g_player[0];
 				int queue_left = 0;
 				while(true){
@@ -232,11 +237,26 @@ public:
 						return -1;
 					queue_left = get_video_left(player);
 					LOGI("queue_left = %d", queue_left);
-					if(queue_left > HLS_QUEUE_LEFT_FLAG){
-						LOGI("queue left 大于30 sleep 500");
-						hls_msleep(200);
-					}else
-						break;
+					if(M3U8Flag == 2){
+						if(queue_left > HLS_QUEUE_LEFT_FLAG_ONE){
+							LOGI("queue left 大于%d sleep 200", HLS_QUEUE_LEFT_FLAG_ONE);
+							hls_msleep(200);
+						}else
+							break;
+					}else if(M3U8Flag == 3){
+						if(queue_left > HLS_QUEUE_LEFT_FLAG_TWO){
+							LOGI("queue left 大于%d sleep 200", HLS_QUEUE_LEFT_FLAG_TWO);
+							hls_msleep(200);
+						}else
+							break;
+					}else if(M3U8Flag >= 4){
+						if(queue_left > HLS_QUEUE_LEFT_FLAG_THREE){
+							LOGI("queue left 大于%d sleep 200", HLS_QUEUE_LEFT_FLAG_THREE);
+							hls_msleep(200);
+						}else
+							break;
+					}
+
 				}
 			}
 			char sign[1024] = {0};
@@ -412,6 +432,7 @@ void playerInit(char* m3u8Path, char*url, char* filename, char* authJson)
 
 	is_hls_palying_over = false;
 	is_decoder_init = false;
+	is_hls_offer_end = false;
 	M3U8Flag = 0;
 	memset(g_headPathStr,0,1024);
 	memset(g_headUriStr,0,1024);
