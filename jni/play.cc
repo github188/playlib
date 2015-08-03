@@ -115,7 +115,7 @@ void fetchd(const nplayer::byte *data, size_t size, uint64_t ts) {
 	    	fwrite(data,size,1,dummyFile);
 	    }
 
-//	    LOGI("encode size %d index %d",result,channel_index);
+	    LOGI("encode size %d index %d",result,channel_index);
 //	    if(320 == result)
 	        JVC_SendData(channel_index, JVN_RSP_CHATDATA, enc_data, result);
 	}
@@ -408,11 +408,11 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
 //		adec = JAD_DecodeOpenEx(2);
 	}
 
+	LOGX( "resumeAudio E: window = %d", window);
 	int index = window2Array(window);
-	channel_index = index;
+	channel_index = index+1;
 
 	new_nplayer->start_record_audio(fetchd);
-
 	LOGI("rec on");
 }
 
