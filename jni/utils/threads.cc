@@ -1345,7 +1345,7 @@ void* onPlayAudio(void* _index) {
 					while(true){
 						if(!player->is_connected)
 							break;
-						if(need_delay > 1000){
+						if(need_delay >= 1000){
 							need_delay = need_delay -1000;
 							msleep(1000);
 						}else if(0 < need_delay < 1000){
