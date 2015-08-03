@@ -1351,6 +1351,8 @@ void* onPlayAudio(void* _index) {
 						}else if(0 < need_delay < 1000){
 							msleep(need_delay);
 							break;
+						}else if(need_delay<=0){
+							break;
 						}
 					}
 				}
