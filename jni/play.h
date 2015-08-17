@@ -707,6 +707,28 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_CloudStoreClose(JNIEnv *env,
 JNIEXPORT void JNICALL Java_com_jovision_Jni_NotifytoJni(JNIEnv *env,
 		jclass clazz,jstring filename);
 
+
+ /*
+ 设置本地的服务器
+ */
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetSelfServer(JNIEnv *env,
+		jclass clazz,jstring pGroup,jstring pServer);
+
+
+ /*
+ 向主控发送设置服务器命令
+ */
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_SendSetServer(JNIEnv *env,
+		jclass clazz,jstring pGroup,jint nYst,jstring pServer,jint nLen,jint nTimeOut);
+
+
+ /*
+ 向主控发送删除服务器命令
+ */
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_SendRemoveServer(JNIEnv *env,
+		jclass clazz,jstring pGroup,jint nYst,jstring pServer,jint nLen,jint nTimeOut);
+
+
 #endif // CASTRATE
 
 #ifdef __cplusplus

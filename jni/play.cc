@@ -2827,4 +2827,75 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_NotifytoJni(JNIEnv *env,
 
 }
 
+
+
+
+/*
+设置本地的服务器
+*/
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetSelfServer(JNIEnv *env,
+		jclass clazz,jstring pGroup,jstring pServer)
+{
+
+    	char *group = getNativeChar(env, pGroup);
+    	char *server = getNativeChar(env, pServer);
+        int result = JVC_SetSelfServer(group,server);
+        if(NULL !=group){
+        	free(group);
+        }
+
+        if(NULL !=server){
+            free(server);
+        }
+        return result;
+
+}
+
+
+/*
+向主控发送设置服务器命令
+*/
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_SendSetServer(JNIEnv *env,
+		jclass clazz,jstring pGroup,jint nYst,jstring pServer,jint nLen,jint nTimeOut)
+{
+
+    	char *group = getNativeChar(env, pGroup);
+    	char *server = getNativeChar(env, pServer);
+    	int len = nLen;
+    	int result =  JVC_SendSetServer(group,nYst,server,&len,nTimeOut);
+    	 if(NULL !=group){
+			free(group);
+		 }
+
+		 if(NULL !=server){
+			free(server);
+		 }
+		return result;
+
+}
+
+
+/*
+向主控发送删除服务器命令
+*/
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_SendRemoveServer(JNIEnv *env,
+		jclass clazz,jstring pGroup,jint nYst,jstring pServer,jint nLen,jint nTimeOut)
+{
+
+    	char *group = getNativeChar(env, pGroup);
+    	char *server = getNativeChar(env, pServer);
+    	int len = nLen;
+    	int result =  JVC_SendRemoveServer(group,nYst,server,&len,nTimeOut);
+    	 if(NULL !=group){
+			free(group);
+		 }
+
+		 if(NULL !=server){
+			free(server);
+		 }
+		return result;
+
+
+}
+
 #endif // CASTRATE

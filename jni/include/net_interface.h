@@ -728,6 +728,40 @@ JVCLIENT_API int JVC_StopHelp();
 JVCLIENT_API int __stdcall  JVC_StopHelp();
 #endif
 
+
+/*
+ 设置本地的服务器
+ */
+#ifndef WIN32
+JVCLIENT_API int JVC_SetSelfServer(char* pGroup,char* pServer);
+#else
+JVCLIENT_API int __stdcall JVC_SetSelfServer(char* pGroup,char* pServer);
+#endif
+
+/*
+ 向主控发送设置服务器命令
+ */
+
+#ifndef WIN32
+JVCLIENT_API int JVC_SendSetServer(char* pGroup,int nYst,char* pServer,int *nLen,int nTimeOut);
+#else
+JVCLIENT_API int __stdcall JVC_SendSetServer(char* pGroup,int nYst,char* pServer,int *nLen,int nTimeOut);
+#endif
+
+
+
+/*
+ 向主控发送删除服务器命令
+ */
+
+#ifndef WIN32
+JVCLIENT_API int JVC_SendRemoveServer(char* pGroup,int nYst,char* pServer,int *nLen,int nTimeOut);
+#else
+JVCLIENT_API int __stdcall JVC_SendRemoveServer(char* pGroup,int nYst,char* pServer,int *nLen,int nTimeOut);
+#endif
+
+
+
 #ifdef  __cplusplus
 }
 #endif
