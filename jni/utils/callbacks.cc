@@ -1526,6 +1526,16 @@ int onQueryDevice(STLANSRESULT* result) {
 	return dummy;
 }
 
+// 检测下载的mp4文件是否正常 pData为文件的绝对位置 // 返回0, 表示不正常，返回1, 表示正常
+int CheckDownFile(unsigned char * pMp4Data)
+{
+	if (pMp4Data[0x24] + pMp4Data[0x25] + pMp4Data[0x26] + pMp4Data[0x27] < 8)
+	{
+		return 0;
+	}
+	return 1;
+}
+
 void Download(int index, BYTE type, BYTE* buf, int size, int length) {
 	index = index - 1;
 	int window = array2Window(index);
@@ -1541,12 +1551,35 @@ void Download(int index, BYTE type, BYTE* buf, int size, int length) {
 			pthread_mutex_lock(&g_mutex);
 			if (NULL != g_download_file_name) {
 				if (NULL == g_download_file) {
-					g_download_file = fopen(g_download_file_name, "wb");
+
+					if(CheckDownFile(buf) == 0){
+						jboolean needDetach = JNI_FALSE;
+						JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6, &needDetach);
+						if (NULL != env && NULL != g_handle && NULL != g_notifyid) {
+							Value values;
+							FastWriter writer;
+							values["err"] = true;
+
+							jstring jmsg = env->NewStringUTF(writer.write(values).c_str());
+							env->CallVoidMethod(g_handle, g_notifyid, CALL_DOWNLOAD,
+									(jint) window, (jint) type, jmsg);
+
+							if (JNI_TRUE == needDetach) {
+								g_jvm->DetachCurrentThread();
+							}
+						} else {
+							LOGE("%s [%p]: cannot callback to java", LOCATE_PT);
+						}
+
+					}else
+						g_download_file = fopen(g_download_file_name, "wb");
+
 					LOGW(
 							"%s [%p]: E, window = %d, open for wirte file", LOCATE_PT, window);
 				}
 
-				fwrite(buf, 1, size, g_download_file);
+				if(g_download_file != NULL)
+					fwrite(buf, 1, size, g_download_file);
 			}
 			pthread_mutex_unlock(&g_mutex);
 			break;
