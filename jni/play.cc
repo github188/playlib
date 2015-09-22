@@ -2116,6 +2116,9 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_fastForward(JNIEnv* env,
 	LOGV( "fastForward X: %d", result);
 	return result;
 }
+extern bool isCancelDown;
+extern bool isNormalData;
+extern bool isDownload;
 
 JNIEXPORT void JNICALL Java_com_jovision_Jni_cancelDownload(JNIEnv* env,
 		jclass clazz) {
@@ -2123,6 +2126,13 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_cancelDownload(JNIEnv* env,
 	if (NULL != g_download_file_name) {
 		char* name = g_download_file_name;
 		g_download_file_name = NULL;
+
+		if(isDownload){
+			isCancelDown = true;
+			isNormalData = false;
+		}else{
+			isCancelDown = false;
+		}
 
 		if (NULL != g_download_file) {
 			fclose(g_download_file);
@@ -2140,6 +2150,7 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_setDownloadFileName(JNIEnv* env,
 		jclass clazz, jstring fileName) {
 	pthread_mutex_lock(&g_mutex);
 	g_download_file_name = getNativeChar(env, fileName);
+
 	pthread_mutex_unlock(&g_mutex);
 }
 
@@ -2361,6 +2372,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_jovision_Jni_encodeAudio(JNIEnv* env,
 	jsize size = env->GetArrayLength(data);
 	jbyte* in = getNativeByteByLength(env, data, 0, size);
 	jbyte* out = NULL;
+
+	if(NULL == audio_encoder){
+		LOGE("audio_encoder is null");
+	}
 
 	if (NULL != audio_encoder && NULL != in) {
 		int result = JAE_EncodeOneFrameEx(audio_encoder, (BYTE*) in,

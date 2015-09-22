@@ -28,6 +28,9 @@ char* g_download_file_name;
 
 struct recorder_suit* g_recorder;
 
+//值用来判断取消下载的情况，同时为true时取消下载成功
+bool isCancelDown = false ,isNormalData = false ,isDownload=false ;
+
 void ConnectChangeRTMP(int index, BYTE type, char* msg, int data) {
 	index = index - 1;
 	int window = array2Window(index);
@@ -646,6 +649,10 @@ void NormalData(int index, BYTE type, BYTE* buf, int size, int width,
 
 	bool is05 = true;
 	bool needCallBack = false;
+
+	if(isCancelDown){
+		isNormalData = true;
+	}
 
 	// [Neo] default for soft card board
 	float fps = 25.0f;
@@ -1536,10 +1543,15 @@ int CheckDownFile(unsigned char * pMp4Data)
 	return 1;
 }
 
+bool isNewData(){
+	return (isCancelDown&&isNormalData);
+}
+
+bool isErr = false;
 void Download(int index, BYTE type, BYTE* buf, int size, int length) {
 	index = index - 1;
 	int window = array2Window(index);
-
+	isErr = false;
 	if (window >= 0) {
 		LOGV(
 				"%s [%p]: E, window = %d, type = 0x%X, size = %d, length = %d", LOCATE_PT, window, type, size, length);
@@ -1550,7 +1562,8 @@ void Download(int index, BYTE type, BYTE* buf, int size, int length) {
 
 			pthread_mutex_lock(&g_mutex);
 			if (NULL != g_download_file_name) {
-				if (NULL == g_download_file) {
+
+				if(!isCancelDown){
 
 					if(CheckDownFile(buf) == 0){
 						jboolean needDetach = JNI_FALSE;
@@ -1559,7 +1572,7 @@ void Download(int index, BYTE type, BYTE* buf, int size, int length) {
 							Value values;
 							FastWriter writer;
 							values["err"] = true;
-
+							isErr = true;
 							jstring jmsg = env->NewStringUTF(writer.write(values).c_str());
 							env->CallVoidMethod(g_handle, g_notifyid, CALL_DOWNLOAD,
 									(jint) window, (jint) type, jmsg);
@@ -1570,16 +1583,68 @@ void Download(int index, BYTE type, BYTE* buf, int size, int length) {
 						} else {
 							LOGE("%s [%p]: cannot callback to java", LOCATE_PT);
 						}
+					}else{
+						if(NULL == g_download_file){
+							g_download_file = fopen(g_download_file_name, "wb");
+						}
+						fwrite(buf, 1, size, g_download_file);
 
-					}else
-						g_download_file = fopen(g_download_file_name, "wb");
+					}
+				}else{
 
-					LOGW(
-							"%s [%p]: E, window = %d, open for wirte file", LOCATE_PT, window);
+					bool  result = isNewData();
+					if(result){
+						if(CheckDownFile(buf) == 0){
+							jboolean needDetach = JNI_FALSE;
+							JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6, &needDetach);
+							if (NULL != env && NULL != g_handle && NULL != g_notifyid) {
+								Value values;
+								FastWriter writer;
+								values["err"] = true;
+								isErr = true;
+								jstring jmsg = env->NewStringUTF(writer.write(values).c_str());
+								env->CallVoidMethod(g_handle, g_notifyid, CALL_DOWNLOAD,
+										(jint) window, (jint) type, jmsg);
+
+								if (JNI_TRUE == needDetach) {
+									g_jvm->DetachCurrentThread();
+								}
+							} else {
+								LOGE("%s [%p]: cannot callback to java", LOCATE_PT);
+							}
+						}else{
+
+							isCancelDown = false;
+							isNormalData = false;
+							if(NULL == g_download_file){
+								g_download_file = fopen(g_download_file_name, "wb");
+							}
+
+							fwrite(buf, 1, size, g_download_file);
+
+						}
+
+					}else{
+						jboolean needDetach = JNI_FALSE;
+						JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6, &needDetach);
+						if (NULL != env && NULL != g_handle && NULL != g_notifyid) {
+							Value values;
+							FastWriter writer;
+							values["err"] = true;
+							isErr = true;
+							jstring jmsg = env->NewStringUTF(writer.write(values).c_str());
+							env->CallVoidMethod(g_handle, g_notifyid, CALL_DOWNLOAD,
+									(jint) window, (jint) type, jmsg);
+
+							if (JNI_TRUE == needDetach) {
+								g_jvm->DetachCurrentThread();
+							}
+						} else {
+							LOGE("%s [%p]: cannot callback to java", LOCATE_PT);
+						}
+					}
 				}
 
-				if(g_download_file != NULL)
-					fwrite(buf, 1, size, g_download_file);
 			}
 			pthread_mutex_unlock(&g_mutex);
 			break;
@@ -1589,6 +1654,10 @@ void Download(int index, BYTE type, BYTE* buf, int size, int length) {
 		case JVN_RSP_DOWNLOADE:
 		case JVN_RSP_DLTIMEOUT:
 			LOGV( "%s [%p]: E, index = %d, abort", LOCATE_PT, index);
+
+			isDownload   = false;
+			isCancelDown = false;
+			isNormalData = false;
 
 			pthread_mutex_lock(&g_mutex);
 			if (NULL != g_download_file_name) {

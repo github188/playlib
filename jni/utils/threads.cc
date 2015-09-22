@@ -430,7 +430,7 @@ void* onPlayVideo(void* _index) {
 
 		frame* f = poll_video_frame(player);
 		queue_left = get_video_left(player);
-		LOGI("video queue left :%d, meta->video_frame_buffer_count :%d",queue_left, meta->video_frame_buffer_count);
+//		LOGI("video queue left :%d, meta->video_frame_buffer_count :%d",queue_left, meta->video_frame_buffer_count);
 		if (OPENGL_TRY_CLOSE == core->opengl_status) {
 			glClose(player);
 		}
