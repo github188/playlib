@@ -762,6 +762,67 @@ JVCLIENT_API int __stdcall JVC_SendRemoveServer(char* pGroup,int nYst,char* pSer
 
 
 
+/****************************************************************************
+*名称  : JVC_StartBroadcastSelfServer
+*功能  : 开启自定义广播服务
+*参数  : [IN] nLPort      本地服务端口，<0时为默认9700
+			[IN] nServerPort 设备端服务端口，<=0时为默认9108,建议统一用默认值与服务端匹配
+			[IN] BCSelfData  自定义广播结果回调函数
+*返回值: TRUE/FALSE
+*其他  :
+*****************************************************************************/
+#ifndef WIN32
+	JVCLIENT_API bool JVC_StartBroadcastSelfServer(int nLPort, int nServerPort, FUNC_CBCSELFDATA_CALLBACK BCSelfData);
+#else
+	JVCLIENT_API bool __stdcall	JVC_StartBroadcastSelfServer(int nLPort, int nServerPort, FUNC_CBCSELFDATA_CALLBACK BCSelfData);
+#endif
+
+/****************************************************************************
+*名称  : JVC_StopBroadcastSelfServer
+*功能  : 停止自定义广播服务
+*参数  : 无
+*返回值: 无
+*其他  : 无
+*****************************************************************************/
+#ifndef WIN32
+	JVCLIENT_API void JVC_StopBroadcastSelfServer();
+#else
+	JVCLIENT_API void __stdcall	JVC_StopBroadcastSelfServer();
+#endif
+
+/****************************************************************************
+*名称  : JVC_BroadcastSelfOnce
+*功能  : 发送一次广播消息
+*参数  :
+		 [IN] pBuffer     广播净载数据
+		 [IN] nSize        广播净载数据长度
+		 [IN] nTimeOut  此参数目前可置为0
+*返回值: TRUE/FALSE
+*其他  :
+*****************************************************************************/
+#ifndef WIN32
+	JVCLIENT_API BOOL JVC_BroadcastSelfOnce(BYTE *pBuffer, int nSize, int nTimeOut);
+#else
+	JVCLIENT_API BOOL __stdcall JVC_BroadcastSelfOnce(BYTE *pBuffer, int nSize, int nTimeOut);
+#endif
+
+/****************************************************************************
+*名称  : JVC_SendSelfDataOnceFromBC
+*功能  : 从自定义广播套接字发送一次UDP消息
+*参数  :
+		 [IN] pBuffer     净载数据
+		 [IN] nSize       净载数据长度
+		 [IN] pchDeviceIP 目的IP地址
+		 [IN] nLocalPort	  目的端口
+*返回值: 无
+*其他  :
+*****************************************************************************/
+#ifndef WIN32
+	JVCLIENT_API BOOL JVC_SendSelfDataOnceFromBC(BYTE *pBuffer, int nSize, char *pchDeviceIP, int nDestPort);
+#else
+	JVCLIENT_API BOOL __stdcall JVC_SendSelfDataOnceFromBC(BYTE *pBuffer, int nSize, char *pchDeviceIP, int nDestPort);
+#endif
+
 #ifdef  __cplusplus
 }
 #endif

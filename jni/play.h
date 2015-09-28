@@ -728,6 +728,41 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_SendSetServer(JNIEnv *env,
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_SendRemoveServer(JNIEnv *env,
 		jclass clazz,jstring pGroup,jint nYst,jstring pServer,jint nLen,jint nTimeOut);
 
+/****************************************************************************
+*名称  : JVC_StartBroadcastSelfServer
+*功能  : 开启自定义广播服务
+*参数  : [IN] nLPort      本地服务端口，<0时为默认9700
+			[IN] nServerPort 设备端服务端口，<=0时为默认9108,建议统一用默认值与服务端匹配
+			[IN] BCSelfData  自定义广播结果回调函数
+*返回值: TRUE/FALSE
+*其他  :
+*****************************************************************************/
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_startBCSelfServer(JNIEnv *env,
+		jclass clazz, jint localPort, jint serverPort);
+
+/****************************************************************************
+*名称  : JVC_StopBroadcastSelfServer
+*功能  : 停止自定义广播服务
+*参数  : 无
+*返回值: 无
+*其他  : 无
+*****************************************************************************/
+JNIEXPORT void JNICALL Java_com_jovision_Jni_stopBCSelfServer(JNIEnv *env,
+		jclass clazz);
+
+/****************************************************************************
+*名称  : JVC_SendSelfDataOnceFromBC
+*功能  : 从自定义广播套接字发送一次UDP消息
+*参数  :
+		 [IN] pBuffer     净载数据
+		 [IN] nSize       净载数据长度
+		 [IN] pchDeviceIP 目的IP地址
+		 [IN] nLocalPort	  目的端口
+*返回值: 无
+*其他  :
+*****************************************************************************/
+JNIEXPORT void JNICALL Java_com_jovision_Jni_sendSelfDataOnceFromBC(JNIEnv *env,
+		jclass clazz,jstring buffer,jint size,jstring ip,jint port);
 
 #endif // CASTRATE
 

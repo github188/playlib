@@ -1495,6 +1495,32 @@ void onSearchLanServer(STLANSRESULT result) {
 	}
 }
 
+void onBCSelfServer(unsigned char *pBuffer, int nSize, char chIP[16], int nPort) {
+	jboolean needDetach = JNI_FALSE;
+	JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6, &needDetach);
+	if (NULL != env && NULL != g_handle && NULL != g_notifyid) {
+		Value values;
+		FastWriter writer;
+
+		values["buffer"] = pBuffer;
+		values["size"] = nSize;
+		values["ip"] = chIP;
+		values["port"] = nPort;
+
+		jstring jmsg = env->NewStringUTF(writer.write(values).c_str());
+
+		env->CallVoidMethod(g_handle, g_notifyid, CALL_BCSELFSERVER, (jint) 0,
+				(jint) 0, jmsg);
+		env->DeleteLocalRef(jmsg);
+
+		if (JNI_TRUE == needDetach) {
+			g_jvm->DetachCurrentThread();
+		}
+	} else {
+		LOGE("%s [%p]: cannot callback to java", LOCATE_PT);
+	}
+}
+
 int onQueryDevice(STLANSRESULT* result) {
 	int dummy = -1;
 

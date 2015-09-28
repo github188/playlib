@@ -1709,6 +1709,32 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_stopSearchLanServer(JNIEnv *env,
 	LOGE( "stopSearchLanServer X");
 }
 
+JNIEXPORT jint JNICALL Java_com_jovision_Jni_startBCSelfServer(JNIEnv *env,
+		jclass clazz, jint localPort, jint serverPort) {
+	jint result = -1;
+	LOGV( "searchLanServer E: local: %d, server: %d", localPort, serverPort);
+	result = JVC_StartBroadcastSelfServer(localPort, serverPort, onBCSelfServer);
+	LOGV( "searchLanServer X: %d", result);
+	return result;
+}
+
+JNIEXPORT void JNICALL Java_com_jovision_Jni_stopBCSelfServer(JNIEnv *env,
+		jclass clazz) {
+	LOGE( "stopSearchLanServer E");
+	JVC_StopBroadcastSelfServer();
+	LOGE( "stopSearchLanServer X");
+}
+
+//BYTE *pBuffer, int nSize, char *pchDeviceIP, int nDestPort
+JNIEXPORT void JNICALL Java_com_jovision_Jni_sendSelfDataOnceFromBC(JNIEnv *env,
+		jclass clazz,jstring buffer,jint size,jstring ip,jint port) {
+	LOGE( "stopSearchLanServer E");
+	char *cbuf = getNativeChar(env, buffer);
+	char *cip  = getNativeChar(env, ip);
+	JVC_SendSelfDataOnceFromBC((BYTE *)cbuf,size,cip,port);
+	LOGE( "stopSearchLanServer X");
+}
+
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_searchLanDevice(JNIEnv *env,
 		jclass clazz, jstring group, jint cloudSeeId, jint cardType,
 		jint variety, jstring deviceName, jint timeout, jint frequence) {

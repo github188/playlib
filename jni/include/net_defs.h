@@ -206,6 +206,7 @@ typedef void (*FUNC_CRTMP_CONNECT_CALLBACK)(int nLocalChannel,
 typedef void (*FUNC_CRTMP_NORMALDATA_CALLBACK)(int nLocalChannel,
 		unsigned char uchType, unsigned char *pBuffer, int nSize,
 		int nTimestamp);
+typedef void (*FUNC_CBCSELFDATA_CALLBACK)(unsigned char *pBuffer, int nSize, char chIP[16], int nPort);
 
 //////////////////////////////////////////////////////////////////////////
 /*实时监控数据类型*/

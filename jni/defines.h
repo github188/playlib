@@ -97,6 +97,8 @@ extern "C" {
 #define CALL_MP4_PLAY_FIN   0xB5
 #define CALL_MP4_PLAY_ERROR 0xB6
 
+#define CALL_BCSELFSERVER   0xB7
+
 
 //HLS
 #define CALL_HLS_PLAY_QUIT  0xC2    //主动退出
