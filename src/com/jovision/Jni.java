@@ -933,5 +933,39 @@ public class Jni {
 			Object surface, boolean isTryOmx, String thumbName, String authJson);
 	
 	public static native boolean CloudStoreClose();
+	
+	/****************************************************************************
+	*名称  : JVC_StartBroadcastSelfServer
+	*功能  : 开启自定义广播服务 回调使用之前方式 类型是0xB7
+	*参数  : [IN] nLPort      本地服务端口，<0时为默认9700
+	            [IN] nServerPort 设备端服务端口，<=0时为默认9108,建议统一用默认值与服务端匹配
+	            [IN] BCSelfData  自定义广播结果回调函数
+	*返回值: TRUE/FALSE
+	*其他  :
+	*****************************************************************************/
+	public static native int startBCSelfServer(int localPort, int serverPort);
 
+	
+	/****************************************************************************
+	*名称  : JVC_StopBroadcastSelfServer
+	*功能  : 停止自定义广播服务
+	*参数  : 无
+	*返回值: 无
+	*其他  : 无
+	*****************************************************************************/
+	public static native void stopBCSelfServer();
+	
+	/****************************************************************************
+	*名称  : JVC_SendSelfDataOnceFromBC
+	*功能  : 此方法要在StartBroadcastSelfServer回调返回时调用 从自定义广播套接字发送一次UDP消息
+	*参数  :
+	         [IN] pBuffer     净载数据  类型（4字节）+云视通号码（4字节）
+	         [IN] nSize       净载数据长度
+	         [IN] pchDeviceIP 目的IP地址
+	         [IN] nLocalPort  目的端口
+	*返回值: 无
+	*其他  :
+	*****************************************************************************/
+	public static native void sendSelfDataOnceFromBC(String buffer,int size,String ip,int port);
+	
 }
