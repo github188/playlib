@@ -573,7 +573,15 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_setThumb
 JNIEXPORT void JNICALL Java_com_jovision_Jni_genVoice
   (JNIEnv *, jclass, jstring, jint);
 
+
 /*
+ * gen_sound_config 声波配置新的接口
+ */
+JNIEXPORT void JNICALL Java_com_jovision_Jni_gen_sound_config(JNIEnv* env, jclass clazz,
+		jstring data, jint times);
+
+/*
+ *
  * Class:     com_jovision_Jni
  * Method:    tcpConnect
  * Signature: (IILjava/lang/String;ILjava/lang/String;Ljava/lang/String;ILjava/lang/String;ZII)Z
@@ -720,7 +728,6 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_SetSelfServer(JNIEnv *env,
  */
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_SendSetServer(JNIEnv *env,
 		jclass clazz,jstring pGroup,jint nYst,jstring pServer,jint nLen,jint nTimeOut);
-
 
  /*
  向主控发送删除服务器命令

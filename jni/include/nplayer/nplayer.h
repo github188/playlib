@@ -3,19 +3,26 @@
 #ifndef _NPLAYER_H_
 #define _NPLAYER_H_
 
-#include <nplayer/handler.h>
-#include <nplayer/nplayer_types.h>
-#include <nplayer/nplayer_defines.h>
+#include <nplayer/types.h>
+#include <nplayer/defines.h>
+
+namespace utils {
+class Handler;
+}
 
 namespace nplayer {
-class NPlayerBody;
+class Body;
+class PlaySuit;
 
 class NPlayer {
    public:
     static const char* version();
 
-    static bool init();
+    static bool init(const char* debug_path = NULL);
     static bool deinit();
+
+    // blocked
+    static void gen_sound_config(const char* config, int times);
 
     NPlayer(const PlaySuit* suit, utils::Handler* handler);
     virtual ~NPlayer();
@@ -30,9 +37,10 @@ class NPlayer {
     size_t video_left();
 
     bool add_mute_delay_blocked(unsigned int ms = 500);
-    bool append_audio_data(const byte* data, size_t size, uint64_t ts = 0ULL);
-    bool append_video_data(const byte* data, size_t size, VideoFrameType type,
-                           uint64_t ts = 0ULL);
+    bool append_audio_data(const byte* data, size_t size,
+                           const TSSuit* ts = NULL);
+    bool append_video_data(const byte* data, size_t size, FrameType type,
+                           const TSSuit* ts = NULL);
 
     bool pause();
     bool resume();
@@ -46,14 +54,16 @@ class NPlayer {
     bool adjust_track_volume(float gain);
     bool adjust_capture_volume(float gain);
 
+    const audio::AecStatus* get_aec_status();
+
     void clean_buffer();
     bool try_fast_forward();
 
-    bool request_pure_color(const Color* color);
+    bool request_pure_color(const video::Color* color);
     bool screenshot(const char* path, bool thumb = false);
 
    private:
-    NPlayerBody* body_;
+    Body* body_;
     ONLY_CUSTOM_CONSTRUCTION(NPlayer);
 };
 } /* namespace: nplayer */

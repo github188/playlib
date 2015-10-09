@@ -17,6 +17,7 @@
 
 #include <nplayer/nplayer.h>
 #include <nplayer/handler.h>
+#include <nplayer/play_suit.h>
 
 #include "utils/playhls.h"
 #include <alu/audio_record.h>
@@ -60,8 +61,12 @@ private:
 EchoHandler* handler = NULL;
 
 FILE *dummyFile = NULL;
+
+nplayer::audio::Suit suit;
+
+nplayer::PlaySuit *ps = NULL;
 nplayer::NPlayer *new_nplayer = NULL;
-nplayer::PlaySuit suit;
+
 int channel_index = 1; //记录设备的通道号，发送音频数据时使用
 float adjust_volume = 1.0;//
 using namespace Json;
@@ -77,17 +82,32 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 
 	nplayer::NPlayer::init();
 
-	memset(&suit, 0, sizeof(nplayer::PlaySuit));
-	suit.window = 1;
-	suit.audio_sample_rate = 8000;
-	suit.audio_frame_block = FRAMESIZE;
-	suit.audio_channel_per_frame = 1;
-	suit.audio_bit_per_channel = 16;
-	suit.audio_type = nplayer::kATypeRawPCM;
+//	memset(&suit, 0, sizeof(nplayer::PlaySuit));
+//	suit.window = 1;
+//	suit.audio_sample_rate = 8000;
+//	suit.audio_frame_block = FRAMESIZE;
+//	suit.audio_channel_per_frame = 1;
+//	suit.audio_bit_per_channel = 16;
+//	suit.audio_type = nplayer::kATypeRawPCM;
+//
+//	suit.enable_denoise = true;
+//	suit.enable_vad = false;
+//	suit.noise_suppress = -24;
 
-	suit.enable_denoise = true;
-	suit.enable_vad = false;
-	suit.noise_suppress = -24;
+	memset(&suit, 0, sizeof(nplayer::audio::Suit));
+	suit.type = nplayer::audio::kTypeRawPCM;
+	suit.sample_rate = 8000;
+	suit.channel_per_frame = 1;
+	suit.bit_per_channel = 16;
+	suit.block = FRAMESIZE;
+
+	// 开启降噪
+	suit.enable_ns = true;
+	// 开启回声抑制
+	suit.enable_aec = true;
+
+	ps = new nplayer::PlaySuit(1, nplayer::kPTypeByFPS, &suit, NULL);
+	ps->set_audio(&suit);
 
 	handler = new EchoHandler();
 
@@ -373,8 +393,7 @@ void initNPlayer() {
 	shutdown_audio();
 //	dummyFile = fopen(DUMMY_FILE, "wb");
 
-	suit.enable_denoise = true;
-	new_nplayer = new nplayer::NPlayer(&suit, handler);
+	new_nplayer = new nplayer::NPlayer(ps, handler);
 	new_nplayer->resume();
 //	new_nplayer->enable_audio(true);
 	new_nplayer->adjust_track_volume(adjust_volume);
@@ -474,8 +493,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_playOn(JNIEnv* env,
 		jclass clz) {
 	shutdown_audio();
 
-	suit.enable_denoise = true;
-	new_nplayer = new nplayer::NPlayer(&suit, handler);
+	new_nplayer = new nplayer::NPlayer(ps, handler);
 	new_nplayer->resume();
 	new_nplayer->enable_audio(true);
 //	new_nplayer->adjust_track_volume(10.0f);
@@ -2437,6 +2455,14 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_setThumb(JNIEnv *env, jclass clazz,
 		jint width, jint quality) {
 	g_thumb_width = width >> 1 << 1;
 	g_thumb_quality = quality;
+}
+
+JNIEXPORT void JNICALL Java_com_jovision_Jni_gen_sound_config(JNIEnv* env, jclass clazz,
+		jstring data, jint times) {
+
+	char* cdata = getNativeChar(env, data);
+	nplayer::NPlayer::gen_sound_config(cdata, times);
+
 }
 
 JNIEXPORT void JNICALL Java_com_jovision_Jni_genVoice(JNIEnv* env, jclass clazz,

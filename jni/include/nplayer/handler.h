@@ -3,7 +3,7 @@
 #ifndef _UTILS_HANDLER_H_
 #define _UTILS_HANDLER_H_
 
-#include <nplayer/nplayer_defines.h>
+#include <nplayer/defines.h>
 
 namespace utils {
 class HandlerBody;
