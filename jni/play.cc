@@ -2457,7 +2457,7 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_setThumb(JNIEnv *env, jclass clazz,
 	g_thumb_quality = quality;
 }
 
-JNIEXPORT void JNICALL Java_com_jovision_Jni_gen_sound_config(JNIEnv* env, jclass clazz,
+JNIEXPORT void JNICALL Java_com_jovision_Jni_genSoundConfig(JNIEnv* env, jclass clazz,
 		jstring data, jint times) {
 
 	char* cdata = getNativeChar(env, data);

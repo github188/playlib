@@ -577,7 +577,7 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_genVoice
 /*
  * gen_sound_config 声波配置新的接口
  */
-JNIEXPORT void JNICALL Java_com_jovision_Jni_gen_sound_config(JNIEnv* env, jclass clazz,
+JNIEXPORT void JNICALL Java_com_jovision_Jni_genSoundConfig(JNIEnv* env, jclass clazz,
 		jstring data, jint times);
 
 /*
