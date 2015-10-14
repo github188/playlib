@@ -1498,11 +1498,24 @@ void onSearchLanServer(STLANSRESULT result) {
 void onBCSelfServer(unsigned char *pBuffer, int nSize, char chIP[16], int nPort) {
 	jboolean needDetach = JNI_FALSE;
 	JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6, &needDetach);
+
+//	unsigned char buf[20];
+//	memcpy(buf,pBuffer,nSize);
+//	LOGE("onbcselfserver buffer  %x %x %x %x %x %x %x %x",buf[0],buf[1],buf[2],buf[3],
+//			buf[4],buf[5],buf[6],buf[7]);
+
+	LOGE("onbcselfserver buffer %s",(char *)pBuffer);
+
 	if (NULL != env && NULL != g_handle && NULL != g_notifyid) {
 		Value values;
 		FastWriter writer;
+		Reader reader;
 
-		values["buffer"] = pBuffer;
+//		for(int i = 0;i < nSize;i++){
+//			values["buffer"].append(pBuffer[i]);
+//		}
+		reader.parse((char *)pBuffer,values);
+//		values["buffer"] = pBuffer;
 		values["size"] = nSize;
 		values["ip"] = chIP;
 		values["port"] = nPort;
