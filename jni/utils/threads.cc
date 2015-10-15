@@ -13,6 +13,7 @@
 
 #include <nplayer/nplayer.h>
 #include <nplayer/handler.h>
+#include <nplayer/play_suit.h>
 
 #ifdef _USE_OPENAL_
 #include <alu/openal_utils.h>
@@ -1201,59 +1202,66 @@ void* onPlayAudio(void* _index) {
 			}
 		}
 #else
-		if (NULL == player->track) {
-			player->track = new AudioTrack();
-			if (8 == meta->audio_bit) {
-				player->track->start(kRateDefault, kChannelMono, kPCM8bit, rcb,
-						true);
-			} else {
-				player->track->start(kRateDefault, kChannelMono, kPCM16bit, rcb,
-						true);
-			}
-		}
+//		if (NULL == player->track) {
+//			player->track = new AudioTrack();
+//			if (8 == meta->audio_bit) {
+//				player->track->start(kRateDefault, kChannelMono, kPCM8bit, rcb,
+//						true);
+//			} else {
+//				player->track->start(kRateDefault, kChannelMono, kPCM16bit, rcb,
+//						true);
+//			}
+//		}
 #endif
 
-//		if(NULL == player->nplayer){
-//			nplayer::NPlayer *new_nplayer = NULL;
-//			nplayer::PlaySuit suit;
-//			JAE_HANDLE audio_encoder = NULL;
-//
-//			EchoHandler* handler = new EchoHandler();
-//
-//			memset(&suit, 0, sizeof(nplayer::PlaySuit));
-//			suit.window = 1;
-//			suit.audio_sample_rate = 8000;
-//			suit.audio_frame_block = FRAMESIZE;
-//			suit.audio_channel_per_frame = 1;
-//			suit.audio_bit_per_channel = 16;
-//			suit.audio_type = nplayer::kATypeRawPCM;
-//
-//			suit.enable_denoise = true;
-//			suit.enable_vad = false;
-//			suit.noise_suppress = -24;
-//
-//			suit.enable_denoise = true;
-//			new_nplayer = new nplayer::NPlayer(&suit, handler);
-//			new_nplayer->resume();
-//			new_nplayer->enable_audio(true);
-//			new_nplayer->adjust_track_volume(adjust_volume);
-//			LOGI("adjust_track_volume %f",adjust_volume);
-//
-//			if (NULL == audio_encoder) {
-//				JAE_PARAM param = { 0 };
-//				param.iCodecID = 2;
-//				param.sample_rate = 8000;
-//				param.channels = 1;
-//				param.bits_per_sample = 16;
-//				param.bytes_per_block = 640;
-//
-//				audio_encoder = JAE_EncodeOpenEx(&param);
-//		//		adec = JAD_DecodeOpenEx(2);
-//
-//			}
-//
-//			player->nplayer = new_nplayer;
-//		}
+
+
+		if(NULL == player->nplayer){
+
+			nplayer::audio::Suit suit;
+			nplayer::PlaySuit *ps = NULL;
+			nplayer::NPlayer *new_nplayer = NULL;
+
+			JAE_HANDLE audio_encoder = NULL;
+
+			EchoHandler* handler = new EchoHandler();
+
+			memset(&suit, 0, sizeof(nplayer::audio::Suit));
+			suit.type = nplayer::audio::kTypeRawPCM;
+			suit.sample_rate = 8000;
+			suit.channel_per_frame = 1;
+			suit.bit_per_channel = 16;
+			suit.block = FRAMESIZE;
+
+			// 开启降噪
+			suit.enable_ns = true;
+			// 开启回声抑制
+			suit.enable_aec = true;
+
+			ps = new nplayer::PlaySuit(1, nplayer::kPTypeByFPS, &suit, NULL);
+			ps->set_audio(&suit);
+
+			new_nplayer = new nplayer::NPlayer(ps, handler);
+			new_nplayer->enable_audio(true);
+			new_nplayer->resume();
+			new_nplayer->adjust_track_volume(adjust_volume);
+			LOGI("adjust_track_volume %f",adjust_volume);
+
+			if (NULL == audio_encoder) {
+				JAE_PARAM param = { 0 };
+				param.iCodecID = 2;
+				param.sample_rate = 8000;
+				param.channels = 1;
+				param.bits_per_sample = 16;
+				param.bytes_per_block = 640;
+
+				audio_encoder = JAE_EncodeOpenEx(&param);
+		//		adec = JAD_DecodeOpenEx(2);
+
+			}
+
+			player->nplayer = new_nplayer;
+		}
 
 		if (f->is_chat_data) {
 			dec_type = meta->audio_enc_type;
@@ -1385,28 +1393,36 @@ void* onPlayAudio(void* _index) {
 //				append_result = player->track->append((unsigned char*) audio_out,
 //					result);
 
-				if(NULL == audio_out)
-					LOGE("audio_out == NULL");
-				else{
-					if(NULL == player->track){
-						LOGE("player->track == null");
-					}else{
-						if(player->is_connecting || player->is_connected)
-							append_result = player->track->append((unsigned char*) audio_out,
-											result);
-					}
-				}
+//				if(NULL == audio_out)
+//					LOGE("audio_out == NULL");
+//				else{
+//					if(NULL == player->track){
+//						LOGE("player->track == null");
+//					}else{
+//						if(player->is_connecting || player->is_connected)
+//							append_result = player->track->append((unsigned char*) audio_out,
+//											result);
+//					}
+//				}
 			}
 
-//			player->nplayer->append_audio_data((unsigned char*) audio_out,result);
-
+			if(NULL == audio_out){
+				LOGE("audio_out == NULL");
+			}else{
+				if(NULL == player->nplayer){
+					LOGE("player->nplayer is null ");
+				}else{
+//					LOGI("nplayer %p data %p size %d ",player->nplayer,audio_out,result);
+					player->nplayer->append_audio_data((unsigned char*) audio_out,result);
+				}
+			}
 
 //		    if(NULL != dummyFile)
 //		    	fwrite((unsigned char*) audio_out,result,1,dummyFile);
 
 //			while(player->is_connected && BAD_STATUS_NOOP == bad_status
 //					&& false == player->nplayer->append_audio_data((unsigned char*) audio_out,result)) {
-////				LOGI("nplayer %p audio left %d data %p size %d ",player->nplayer,player->nplayer->audio_left() ,audio_out,result);
+//				LOGI("nplayer %p audio left %d data %p size %d ",player->nplayer,player->nplayer->audio_left() ,audio_out,result);
 //				msleep(40);
 //			}
 
@@ -1462,16 +1478,16 @@ void* onPlayAudio(void* _index) {
 	}
 #endif
 
-//	if (NULL != player->nplayer){
-//		player->nplayer->stop_record_audio();
-//		player->nplayer->enable_audio(false);
-//
-//		msleep(150);
-//
-//		delete player->nplayer;
-//		player->nplayer = NULL;
-////		LOGI("nplayer[%d] is null",index);
-//	}
+	if (NULL != player->nplayer){
+		player->nplayer->stop_record_audio();
+		player->nplayer->enable_audio(false);
+
+		msleep(150);
+
+		delete player->nplayer;
+		player->nplayer = NULL;
+//		LOGI("nplayer[%d] is null",index);
+	}
 
 	pthread_mutex_unlock(&(stat->mutex));
 

@@ -1,4 +1,4 @@
 //#define CASTRATE
 #define MY_VERSION    "0.9.1b"
-#define REVISION      "[ebe750c]"
-#define RELEASE_DATE  "[2015-10-14]"
+#define REVISION      "[62f8668]"
+#define RELEASE_DATE  "[2015-10-15]"

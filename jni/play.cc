@@ -395,7 +395,7 @@ void initNPlayer() {
 
 	new_nplayer = new nplayer::NPlayer(ps, handler);
 	new_nplayer->resume();
-//	new_nplayer->enable_audio(true);
+	new_nplayer->enable_audio(true);
 	new_nplayer->adjust_track_volume(adjust_volume);
 }
 
@@ -447,7 +447,8 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_stopDenoisePlayer(JNIEnv* env,
 
 JNIEXPORT void JNICALL Java_com_jovision_Jni_resumeRecordAudio(JNIEnv* env,
 		jclass clz){
-	if(NULL == new_nplayer){
+	if(NULL != new_nplayer){
+		new_nplayer->enable_audio(true);
 		new_nplayer->resume();
 	}
 
@@ -456,7 +457,7 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_resumeRecordAudio(JNIEnv* env,
 
 JNIEXPORT void JNICALL Java_com_jovision_Jni_pauseRecordAudio(JNIEnv* env,
 		jclass clz) {
-	if(NULL == new_nplayer){
+	if(NULL != new_nplayer){
 		new_nplayer->pause();
 	}
 
@@ -715,13 +716,17 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_resumeAudio(JNIEnv *, jclass,
 		if (NULL != player) {
 			pthread_mutex_lock(&(player->stat->mutex));
 
-			if (NULL != player->track) {
-				result = player->track->resume() ? JNI_TRUE : JNI_FALSE;
-			}
-
-//			if(NULL != player->nplayer){
-//				result = player->nplayer->resume()? JNI_TRUE : JNI_FALSE ;
+//			if (NULL != player->track) {
+//				result = player->track->resume() ? JNI_TRUE : JNI_FALSE;
 //			}
+
+			if(NULL != player->nplayer){
+
+				player->nplayer->enable_audio(true);
+				result = player->nplayer->resume()? JNI_TRUE : JNI_FALSE ;
+				LOGI("%p enable_audio true resume %d",player->nplayer,result);
+
+			}
 
 			pthread_mutex_unlock(&(player->stat->mutex));
 		}
@@ -742,13 +747,16 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_pauseAudio(JNIEnv *, jclass,
 		if (NULL != player) {
 			pthread_mutex_lock(&(player->stat->mutex));
 
-			if (NULL != player->track) {
-				result = player->track->pause() ? JNI_TRUE : JNI_FALSE;
-			}
-
-//			if (NULL != player->nplayer){
-//				result = player->nplayer->pause()? JNI_TRUE : JNI_FALSE;
+//			if (NULL != player->track) {
+//				result = player->track->pause() ? JNI_TRUE : JNI_FALSE;
 //			}
+
+			if (NULL != player->nplayer){
+				player->nplayer->enable_audio(false);
+				result = player->nplayer->pause()? JNI_TRUE : JNI_FALSE;
+				LOGI("%p enable_audio pause %d",player->nplayer,result);
+
+			}
 
 			pthread_mutex_unlock(&(player->stat->mutex));
 		}
