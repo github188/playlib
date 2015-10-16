@@ -678,8 +678,10 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_initDenoisePlayer(JNIEnv* env,
  *
  */
 JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
-		jclass clz,jint index);
+		jclass clz,jint window);
 
+JNIEXPORT void JNICALL Java_com_jovision_Jni_stopRecordAudioData(JNIEnv* env,
+		jclass clz,jint window) ;
 /*
  *
  */

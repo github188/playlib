@@ -130,10 +130,10 @@ void fetchd(const nplayer::byte *data, size_t size, uint64_t ts) {
 	    int result = JAE_EncodeOneFrameEx(audio_encoder,(unsigned char*)data,
 	    		&enc_data);
 
-	    if(NULL != dummyFile){
-//	    	LOGV("fetched: %p, %d, %llu", data, size, ts);
-	    	fwrite(data,size,1,dummyFile);
-	    }
+//	    if(NULL != dummyFile){
+////	    	LOGV("fetched: %p, %d, %llu", data, size, ts);
+//	    	fwrite(data,size,1,dummyFile);
+//	    }
 
 	    LOGI("encode size %d index %d",result,channel_index);
 //	    if(320 == result)
@@ -410,28 +410,61 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_setAdjustVolume(JNIEnv* env,
 		adjust_volume = f;
 }
 
+JNIEXPORT void JNICALL Java_com_jovision_Jni_stopRecordAudioData(JNIEnv* env,
+		jclass clz,jint window) {
+
+	LOGX( "stopRecordAudioData E: window = %d", window);
+	int index = window2Array(window);
+	channel_index = index+1;
+	if (index >= 0) {
+		player_suit* player = g_player[index];
+		if (NULL != player) {
+			player->nplayer->stop_record_audio();
+		}else{
+			LOGX("player is null");
+		}
+	}
+}
+
 JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
 		jclass clz,jint window) {
 
-//	initNPlayer();
+	LOGX( "recordAndsendAudioData E: window = %d", window);
+//	int index = window2Array(window);
+//	channel_index = index+1;
+//
+//	new_nplayer->start_record_audio(fetchd);
 
-	if (NULL == audio_encoder) {
-		JAE_PARAM param = { 0 };
-		param.iCodecID = 2;
-		param.sample_rate = 8000;
-		param.channels = 1;
-		param.bits_per_sample = 16;
-		param.bytes_per_block = 640;
-
-		audio_encoder = JAE_EncodeOpenEx(&param);
-//		adec = JAD_DecodeOpenEx(2);
-	}
-
-	LOGX( "resumeAudio E: window = %d", window);
 	int index = window2Array(window);
 	channel_index = index+1;
+	if (index >= 0) {
+		player_suit* player = g_player[index];
+		if (NULL != player) {
+			if (NULL == audio_encoder) {
+				JAE_PARAM param = { 0 };
 
-	new_nplayer->start_record_audio(fetchd);
+				video_meta* meta = player->vm_normal;
+
+				if(JAE_ENCODER_ALAW == meta->audio_enc_type)
+					param.iCodecID = 1;
+				else
+					param.iCodecID = 2;
+
+				param.sample_rate = 8000;
+				param.channels = 1;
+				param.bits_per_sample = 16;
+				param.bytes_per_block = 640;
+
+				audio_encoder = JAE_EncodeOpenEx(&param);
+		//		adec = JAD_DecodeOpenEx(2);
+			}
+			player->nplayer->start_record_audio(fetchd);
+		}else{
+			LOGX("player is null");
+		}
+	}else{
+		LOGI("recordAndsendAudioData index %d",channel_index);
+	}
 	LOGI("rec on");
 }
 
@@ -724,7 +757,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_resumeAudio(JNIEnv *, jclass,
 
 				player->nplayer->enable_audio(true);
 				result = player->nplayer->resume()? JNI_TRUE : JNI_FALSE ;
-				LOGI("%p enable_audio true resume %d",player->nplayer,result);
+//				LOGI("%p enable_audio true resume %d",player->nplayer,result);
 
 			}
 
@@ -752,7 +785,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_pauseAudio(JNIEnv *, jclass,
 //			}
 
 			if (NULL != player->nplayer){
-				player->nplayer->enable_audio(false);
+//				player->nplayer->enable_audio(false);
 				result = player->nplayer->pause()? JNI_TRUE : JNI_FALSE;
 				LOGI("%p enable_audio pause %d",player->nplayer,result);
 

@@ -1220,7 +1220,7 @@ void* onPlayAudio(void* _index) {
 
 			nplayer::audio::Suit suit;
 			nplayer::PlaySuit *ps = NULL;
-			nplayer::NPlayer *new_nplayer = NULL;
+			nplayer::NPlayer *jvc_audio_nplayer = NULL;
 
 			JAE_HANDLE audio_encoder = NULL;
 
@@ -1241,15 +1241,20 @@ void* onPlayAudio(void* _index) {
 			ps = new nplayer::PlaySuit(1, nplayer::kPTypeByFPS, &suit, NULL);
 			ps->set_audio(&suit);
 
-			new_nplayer = new nplayer::NPlayer(ps, handler);
-			new_nplayer->enable_audio(true);
-			new_nplayer->resume();
-			new_nplayer->adjust_track_volume(adjust_volume);
+			jvc_audio_nplayer = new nplayer::NPlayer(ps, handler);
+			jvc_audio_nplayer->resume();
+			jvc_audio_nplayer->enable_audio(true);
+			jvc_audio_nplayer->adjust_track_volume(adjust_volume);
 			LOGI("adjust_track_volume %f",adjust_volume);
 
 			if (NULL == audio_encoder) {
 				JAE_PARAM param = { 0 };
-				param.iCodecID = 2;
+
+				if(JAE_ENCODER_ALAW == meta->audio_enc_type)
+					param.iCodecID = 1;
+				else
+					param.iCodecID = 2;
+
 				param.sample_rate = 8000;
 				param.channels = 1;
 				param.bits_per_sample = 16;
@@ -1260,7 +1265,7 @@ void* onPlayAudio(void* _index) {
 
 			}
 
-			player->nplayer = new_nplayer;
+			player->nplayer = jvc_audio_nplayer;
 		}
 
 		if (f->is_chat_data) {
