@@ -1123,6 +1123,8 @@ void *append_by_data(void* stu_audio){
 	return NULL;
 }
 extern FILE *dummyFile ;
+extern JAE_HANDLE audio_encoder;
+
 void* onPlayAudio(void* _index) {
 	int index = (int) _index;
 	LOGI("onPlayAudio start---> index: %d", index);
@@ -1176,12 +1178,14 @@ void* onPlayAudio(void* _index) {
 		// [Neo] fresh body
 		frame* f = poll_audio_frame(player);
 
+		LOGI("frame %p buf %s player->is_playback_mode %d f->is_play_back %d",f,f->buf,player->is_playback_mode,f->is_play_back);
 		// [Neo] bad boy
 		if (NULL == f || NULL == f->buf
 				|| (player->is_playback_mode != f->is_play_back)) {
 			destroy(f);
 			continue;
 		}
+		LOGI("while if 1");
 
 		result = -1;
 		can_decode = false;
@@ -1213,16 +1217,13 @@ void* onPlayAudio(void* _index) {
 //			}
 //		}
 #endif
-
-
+		LOGI("while if 2");
 
 		if(NULL == player->nplayer){
 
 			nplayer::audio::Suit suit;
 			nplayer::PlaySuit *ps = NULL;
 			nplayer::NPlayer *jvc_audio_nplayer = NULL;
-
-			JAE_HANDLE audio_encoder = NULL;
 
 			EchoHandler* handler = new EchoHandler();
 
@@ -1247,25 +1248,10 @@ void* onPlayAudio(void* _index) {
 			jvc_audio_nplayer->adjust_track_volume(adjust_volume);
 			LOGI("adjust_track_volume %f",adjust_volume);
 
-			if (NULL == audio_encoder) {
-				JAE_PARAM param = { 0 };
-
-				if(JAE_ENCODER_ALAW == meta->audio_enc_type)
-					param.iCodecID = 1;
-				else
-					param.iCodecID = 2;
-
-				param.sample_rate = 8000;
-				param.channels = 1;
-				param.bits_per_sample = 16;
-				param.bytes_per_block = 640;
-
-				audio_encoder = JAE_EncodeOpenEx(&param);
-		//		adec = JAD_DecodeOpenEx(2);
-
-			}
 
 			player->nplayer = jvc_audio_nplayer;
+
+			player->is_play_audio = false;
 		}
 
 		if (f->is_chat_data) {
@@ -1484,6 +1470,13 @@ void* onPlayAudio(void* _index) {
 #endif
 
 	if (NULL != player->nplayer){
+
+		if (NULL != audio_encoder) {
+			JAE_EncodeCloseEx(audio_encoder);
+			LOGX("JAE_EncodeCloseEx");
+			audio_encoder = NULL;
+		}
+
 		player->nplayer->stop_record_audio();
 		player->nplayer->enable_audio(false);
 

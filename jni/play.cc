@@ -123,7 +123,7 @@ unsigned char *	pszPcm			= {0};
 
 unsigned char		szPcmBuf[640]	= {0};
 void fetchd(const nplayer::byte *data, size_t size, uint64_t ts) {
-//	LOGV("fetched: %p, %d, %llu", data, size, ts);
+	LOGV("fetched: %p, %d, %llu", data, size, ts);
 	unsigned char* enc_data ;
 
 	if(NULL != audio_encoder){
@@ -204,6 +204,7 @@ void* send_wav(void* msg) {
 
 	if (NULL != audio_encoder) {
 		JAE_EncodeCloseEx(audio_encoder);
+		LOGX("JAE_EncodeCloseEx");
 		audio_encoder = NULL;
 	}
 
@@ -342,6 +343,7 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_setStat(JNIEnv *env, jclass clazz,
 void shutdown_audio() {
 	if (NULL != audio_encoder) {
 		JAE_EncodeCloseEx(audio_encoder);
+		LOGX("JAE_EncodeCloseEx");
 		audio_encoder = NULL;
 	}
 
@@ -410,6 +412,8 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_setAdjustVolume(JNIEnv* env,
 		adjust_volume = f;
 }
 
+
+
 JNIEXPORT void JNICALL Java_com_jovision_Jni_stopRecordAudioData(JNIEnv* env,
 		jclass clz,jint window) {
 
@@ -419,7 +423,19 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_stopRecordAudioData(JNIEnv* env,
 	if (index >= 0) {
 		player_suit* player = g_player[index];
 		if (NULL != player) {
-			player->nplayer->stop_record_audio();
+
+			if(NULL == player->nplayer){
+				LOGX("nplayer is null");
+			}else{
+				LOGX("nplayer stop_record_audio %p",audio_encoder);
+
+				if (NULL != audio_encoder) {
+					JAE_EncodeCloseEx(audio_encoder);
+					LOGX("JAE_EncodeCloseEx");
+					audio_encoder = NULL;
+				}
+				player->nplayer->stop_record_audio();
+			}
 		}else{
 			LOGX("player is null");
 		}
@@ -440,6 +456,7 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
 	if (index >= 0) {
 		player_suit* player = g_player[index];
 		if (NULL != player) {
+			player->is_play_audio = true;
 			if (NULL == audio_encoder) {
 				JAE_PARAM param = { 0 };
 
@@ -458,7 +475,45 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
 				audio_encoder = JAE_EncodeOpenEx(&param);
 		//		adec = JAD_DecodeOpenEx(2);
 			}
-			player->nplayer->start_record_audio(fetchd);
+
+			if(NULL == player->nplayer){
+				LOGX("nplayer is null");
+
+//				nplayer::audio::Suit suit;
+//				nplayer::PlaySuit *ps = NULL;
+//				nplayer::NPlayer *jvc_audio_nplayer = NULL;
+//
+//				JAE_HANDLE audio_encoder = NULL;
+//
+//				EchoHandler* handler = new EchoHandler();
+//
+//				memset(&suit, 0, sizeof(nplayer::audio::Suit));
+//				suit.type = nplayer::audio::kTypeRawPCM;
+//				suit.sample_rate = 8000;
+//				suit.channel_per_frame = 1;
+//				suit.bit_per_channel = 16;
+//				suit.block = FRAMESIZE;
+//
+//				// 开启降噪
+//				suit.enable_ns = true;
+//				// 开启回声抑制
+//				suit.enable_aec = true;
+//
+//				ps = new nplayer::PlaySuit(1, nplayer::kPTypeByFPS, &suit, NULL);
+//				ps->set_audio(&suit);
+//
+//				jvc_audio_nplayer = new nplayer::NPlayer(ps, handler);
+//				jvc_audio_nplayer->resume();
+//				jvc_audio_nplayer->enable_audio(true);
+//				jvc_audio_nplayer->adjust_track_volume(adjust_volume);
+//				LOGI("%p adjust_track_volume %f",_function__,adjust_volume);
+//
+//				player->nplayer = jvc_audio_nplayer;
+
+			}else{
+				LOGX("nplayer start_record_audio ");
+				player->nplayer->start_record_audio(fetchd);
+			}
 		}else{
 			LOGX("player is null");
 		}
@@ -574,6 +629,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_stopAudioRecord(JNIEnv* env,
 	if (NULL != AudioRecord::getInstance(g_jvm)) {
 		if (NULL != audio_encoder) {
 			JAE_EncodeCloseEx(audio_encoder);
+			LOGX("JAE_EncodeCloseEx");
 			audio_encoder = NULL;
 		}
 
@@ -755,8 +811,9 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_resumeAudio(JNIEnv *, jclass,
 
 			if(NULL != player->nplayer){
 
-				player->nplayer->enable_audio(true);
 				result = player->nplayer->resume()? JNI_TRUE : JNI_FALSE ;
+				player->nplayer->enable_audio(true);
+
 //				LOGI("%p enable_audio true resume %d",player->nplayer,result);
 
 			}
@@ -914,6 +971,7 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_connect(JNIEnv *env, jclass clazz,
 		}
 
 		player->try_omx = false;
+		player->is_play_audio = true;
 
 		if (JNI_TRUE == isTryOmx) {
 			player->try_omx = g_has_omx_inited;
@@ -2484,6 +2542,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_deinitAudioEncoder(JNIEnv* env,
 
 	if (NULL != audio_encoder) {
 		JAE_EncodeCloseEx(audio_encoder);
+		LOGX("JAE_EncodeCloseEx");
 		audio_encoder = NULL;
 		result = JNI_TRUE;
 	}
@@ -2895,8 +2954,6 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_CloudStoreClose(JNIEnv *env,
 	return 0;
 }
 
-
-
 static long Post_Response(void *data, int size, int nmemb, std::string &content)
 {
 	long sizes = size * nmemb;
@@ -2905,8 +2962,6 @@ static long Post_Response(void *data, int size, int nmemb, std::string &content)
 	LOGE("SIZE: %d",sizes);
 	return sizes;
 }
-
-
 
 FILE *fout = NULL;
 JNIEXPORT void JNICALL Java_com_jovision_Jni_NotifytoJni(JNIEnv *env,

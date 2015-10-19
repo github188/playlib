@@ -921,6 +921,8 @@ frame* poll_video_frame(player_suit* player) {
  */
 void offer_audio_frame(player_suit* player, BYTE* buf, int size,
 		bool is_chat_data, bool is_play_back, unsigned int ts) {
+
+	LOGI("offer_audio_frame");
 	if (NULL == player || NULL == player->core
 			|| NULL == player->core->audio_queue_handle) {
 		return;
@@ -929,6 +931,8 @@ void offer_audio_frame(player_suit* player, BYTE* buf, int size,
 	size_t s = sizeof(frame);
 	frame* f = (frame*) malloc(s);
 	memset(f, 0, s);
+
+
 
 	if (size > 0) {
 		f->size = size;
@@ -939,10 +943,15 @@ void offer_audio_frame(player_suit* player, BYTE* buf, int size,
 		player->stat->audio_network_count++;
 		player->stat->audio_network_bytes += size;
 		pthread_mutex_unlock(&(player->stat->mutex));
+		LOGI("offer_audio_frame %p buf %s",f,f->buf);
+
 	} else {
 		f->size = 0;
 		f->buf = NULL;
+		LOGI("offer_audio_frame %p buf is null size %d",f,f->size);
+
 	}
+
 
 	f->ts = ts;
 	f->is_chat_data = is_chat_data;
