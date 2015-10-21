@@ -868,6 +868,7 @@ void NormalData(int index, BYTE type, BYTE* buf, int size, int width,
 			memset(o, 0, DUMMY_FRAME_SIZE);
 			o[0] = DUMMY_FRAME_0_O;
 
+
 			offer_video_frame(player, o, DUMMY_FRAME_SIZE, type);
 
 			json = writer.write(values);
@@ -966,6 +967,9 @@ void NormalData(int index, BYTE type, BYTE* buf, int size, int width,
 				buf += 8;
 				size -= 8;
 			}
+
+//			long long  time = currentMillisSec();
+//			LOGI("%s  offer_audio_frame time %lld ",__FUNCTION__, time);
 
 			offer_audio_frame(player, buf, size);
 
@@ -1072,6 +1076,9 @@ void ChatData(int index, BYTE type, BYTE* buf, int size) {
 				LOGX(
 						"%s [%p]: window = %d, audio.size = %d", LOCATE_PT, window, size);
 #endif
+
+//				long long time = currentMillisSec();
+//				LOGI("%s offer_audio_frame time %lld ", __FUNCTION__,time);
 
 				offer_audio_frame(player, buf, size, true);
 			}

@@ -434,6 +434,7 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_stopRecordAudioData(JNIEnv* env,
 					LOGX("JAE_EncodeCloseEx");
 					audio_encoder = NULL;
 				}
+				player->is_play_audio = false;
 				player->nplayer->stop_record_audio();
 			}
 		}else{
@@ -1837,19 +1838,23 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_startBCSelfServer(JNIEnv *env,
 
 JNIEXPORT void JNICALL Java_com_jovision_Jni_stopBCSelfServer(JNIEnv *env,
 		jclass clazz) {
-	LOGE( "stopSearchLanServer E");
+	LOGI( "stopSearchLanServer E");
 	JVC_StopBroadcastSelfServer();
-	LOGE( "stopSearchLanServer X");
+	LOGI( "stopSearchLanServer X");
 }
 
 //BYTE *pBuffer, int nSize, char *pchDeviceIP, int nDestPort
 JNIEXPORT void JNICALL Java_com_jovision_Jni_sendSelfDataOnceFromBC(JNIEnv *env,
-		jclass clazz,jstring buffer,jint size,jstring ip,jint port) {
-	LOGE( "stopSearchLanServer E");
-	char *cbuf = getNativeChar(env, buffer);
+		jclass clazz,jbyteArray buffer,jint size,jstring ip,jint port) {
+//	LOGI( "%s bytearray %x%x%x%x",__FUNCTION__,buffer[0],buffer[1],buffer[2],buffer[3]);
+
+	jbyte * buf = env->GetByteArrayElements(buffer,0);
+//	jbyte * buf = getNativeByteByLength(env,buffer,0,size);
+
 	char *cip  = getNativeChar(env, ip);
-	JVC_SendSelfDataOnceFromBC((BYTE *)cbuf,size,cip,port);
-	LOGE( "stopSearchLanServer X");
+	BYTE *byte = (BYTE *)buf;
+	LOGI("%s jbyte size %x",__FUNCTION__,byte[0]);
+	JVC_SendSelfDataOnceFromBC(byte,size,cip,port);
 }
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_searchLanDevice(JNIEnv *env,

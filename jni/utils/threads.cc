@@ -1178,14 +1178,15 @@ void* onPlayAudio(void* _index) {
 		// [Neo] fresh body
 		frame* f = poll_audio_frame(player);
 
-		LOGI("frame %p buf %s player->is_playback_mode %d f->is_play_back %d",f,f->buf,player->is_playback_mode,f->is_play_back);
+		long long time = currentMillisSec();
+		LOGI("frame %p buf %c player->is_playback_mode %d f->is_play_back %d time %lld",f,f->buf,player->is_playback_mode,f->is_play_back,time);
 		// [Neo] bad boy
 		if (NULL == f || NULL == f->buf
 				|| (player->is_playback_mode != f->is_play_back)) {
 			destroy(f);
 			continue;
 		}
-		LOGI("while if 1");
+//		LOGI("while if 1");
 
 		result = -1;
 		can_decode = false;
@@ -1217,7 +1218,7 @@ void* onPlayAudio(void* _index) {
 //			}
 //		}
 #endif
-		LOGI("while if 2");
+//		LOGI("while if 2");
 
 		if(NULL == player->nplayer){
 
@@ -1248,9 +1249,7 @@ void* onPlayAudio(void* _index) {
 			jvc_audio_nplayer->adjust_track_volume(adjust_volume);
 			LOGI("adjust_track_volume %f",adjust_volume);
 
-
 			player->nplayer = jvc_audio_nplayer;
-
 			player->is_play_audio = false;
 		}
 
@@ -1338,16 +1337,20 @@ void* onPlayAudio(void* _index) {
 						"audio: delta = %llu, ts = %u, delay = %d, size = %d, is_chat = %d", meta->delta_ts, f->ts, need_delay, f->size, f->is_chat_data);
 #endif
 //				LOGI("while audio run here--->6 need_delay:%d", need_delay);
-				if(need_delay < 3000)
+				if(need_delay < 3000){
+					LOGI("onPlayaudio sleep %d",need_delay);
 					msleep(need_delay);
+				}
 				else{
 					while(true){
 						if(!player->is_connected)
 							break;
 						if(need_delay >= 1000){
 							need_delay = need_delay -1000;
+							LOGI("onPlayaudio sleep %d",1000);
 							msleep(1000);
 						}else if(0 < need_delay < 1000){
+							LOGI("onPlayaudio sleep %d",need_delay);
 							msleep(need_delay);
 							break;
 						}else if(need_delay<=0){
@@ -1404,7 +1407,18 @@ void* onPlayAudio(void* _index) {
 					LOGE("player->nplayer is null ");
 				}else{
 //					LOGI("nplayer %p data %p size %d ",player->nplayer,audio_out,result);
-					player->nplayer->append_audio_data((unsigned char*) audio_out,result);
+
+					if(player->is_play_audio){
+						long long append_time = currentMillisSec();
+//						LOGI("append audio data time delay %lld %d %d",append_time-time,player->nplayer->audio_left(),get_audio_left(player));
+
+						while(player->is_play_audio&&player->nplayer->audio_working()&&(false == player->nplayer->append_audio_data((unsigned char*) audio_out,result))){
+							LOGI("append audio data sleep");
+							msleep(50);
+						}
+					}else{
+//						LOGE("player->is_play_audio is false");
+					}
 				}
 			}
 
@@ -1480,6 +1494,7 @@ void* onPlayAudio(void* _index) {
 		player->nplayer->stop_record_audio();
 		player->nplayer->enable_audio(false);
 
+		LOGI("onPlayaudio sleep %d",150);
 		msleep(150);
 
 		delete player->nplayer;
@@ -1504,6 +1519,7 @@ void* onPlayAudio(void* _index) {
 			}
 		}
 	}
+
 //	LOGI("跳出while audio---->444");
 	LOGX("%s [%p]: X, window = %d", LOCATE_PT, window);
 	player->is_audio_working = false;

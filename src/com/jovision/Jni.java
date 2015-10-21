@@ -966,6 +966,6 @@ public class Jni {
 	*返回值: 无
 	*其他  :
 	*****************************************************************************/
-	public static native void sendSelfDataOnceFromBC(String buffer,int size,String ip,int port);
+	public static native void sendSelfDataOnceFromBC(byte[] buffer,int size,String ip,int port);
 	
 }

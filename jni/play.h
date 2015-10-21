@@ -771,7 +771,7 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_stopBCSelfServer(JNIEnv *env,
 *其他  :
 *****************************************************************************/
 JNIEXPORT void JNICALL Java_com_jovision_Jni_sendSelfDataOnceFromBC(JNIEnv *env,
-		jclass clazz,jstring buffer,jint size,jstring ip,jint port);
+		jclass clazz,jbyteArray buffer,jint size,jstring ip,jint port) ;
 
 #endif // CASTRATE
 
