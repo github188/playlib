@@ -1170,6 +1170,39 @@ void* onPlayAudio(void* _index) {
 		}
 	}
 
+	if(NULL == player->nplayer){
+
+		nplayer::audio::Suit suit;
+		nplayer::PlaySuit *ps = NULL;
+		nplayer::NPlayer *jvc_audio_nplayer = NULL;
+
+		EchoHandler* handler = new EchoHandler();
+
+		memset(&suit, 0, sizeof(nplayer::audio::Suit));
+		suit.type = nplayer::audio::kTypeRawPCM;
+		suit.sample_rate = 8000;
+		suit.channel_per_frame = 1;
+		suit.bit_per_channel = 16;
+		suit.block = FRAMESIZE;
+
+		// 开启降噪
+		suit.enable_ns = true;
+		// 开启回声抑制
+		suit.enable_aec = true;
+
+		ps = new nplayer::PlaySuit(1, nplayer::kPTypeByFPS, &suit, NULL);
+		ps->set_audio(&suit);
+
+		jvc_audio_nplayer = new nplayer::NPlayer(ps, handler);
+		jvc_audio_nplayer->resume();
+		jvc_audio_nplayer->enable_audio(true);
+		jvc_audio_nplayer->adjust_track_volume(adjust_volume);
+		LOGI("adjust_track_volume %f",adjust_volume);
+
+		player->nplayer = jvc_audio_nplayer;
+	}
+
+
 //	dummyFile = fopen(DUMMY_FILE, "wb");
 
 	while (player->is_connected && BAD_STATUS_NOOP == bad_status) {
@@ -1179,7 +1212,7 @@ void* onPlayAudio(void* _index) {
 		frame* f = poll_audio_frame(player);
 
 		long long time = currentMillisSec();
-		LOGI("frame %p buf %c player->is_playback_mode %d f->is_play_back %d time %lld",f,f->buf,player->is_playback_mode,f->is_play_back,time);
+//		LOGI("frame %p buf %c player->is_playback_mode %d f->is_play_back %d time %lld",f,f->buf,player->is_playback_mode,f->is_play_back,time);
 		// [Neo] bad boy
 		if (NULL == f || NULL == f->buf
 				|| (player->is_playback_mode != f->is_play_back)) {
@@ -1220,38 +1253,7 @@ void* onPlayAudio(void* _index) {
 #endif
 //		LOGI("while if 2");
 
-		if(NULL == player->nplayer){
 
-			nplayer::audio::Suit suit;
-			nplayer::PlaySuit *ps = NULL;
-			nplayer::NPlayer *jvc_audio_nplayer = NULL;
-
-			EchoHandler* handler = new EchoHandler();
-
-			memset(&suit, 0, sizeof(nplayer::audio::Suit));
-			suit.type = nplayer::audio::kTypeRawPCM;
-			suit.sample_rate = 8000;
-			suit.channel_per_frame = 1;
-			suit.bit_per_channel = 16;
-			suit.block = FRAMESIZE;
-
-			// 开启降噪
-			suit.enable_ns = true;
-			// 开启回声抑制
-			suit.enable_aec = true;
-
-			ps = new nplayer::PlaySuit(1, nplayer::kPTypeByFPS, &suit, NULL);
-			ps->set_audio(&suit);
-
-			jvc_audio_nplayer = new nplayer::NPlayer(ps, handler);
-			jvc_audio_nplayer->resume();
-			jvc_audio_nplayer->enable_audio(true);
-			jvc_audio_nplayer->adjust_track_volume(adjust_volume);
-			LOGI("adjust_track_volume %f",adjust_volume);
-
-			player->nplayer = jvc_audio_nplayer;
-			player->is_play_audio = false;
-		}
 
 		if (f->is_chat_data) {
 			dec_type = meta->audio_enc_type;
@@ -1408,17 +1410,15 @@ void* onPlayAudio(void* _index) {
 				}else{
 //					LOGI("nplayer %p data %p size %d ",player->nplayer,audio_out,result);
 
-					if(player->is_play_audio){
-						long long append_time = currentMillisSec();
-//						LOGI("append audio data time delay %lld %d %d",append_time-time,player->nplayer->audio_left(),get_audio_left(player));
 
-						while(player->is_play_audio&&player->nplayer->audio_working()&&(false == player->nplayer->append_audio_data((unsigned char*) audio_out,result))){
-							LOGI("append audio data sleep");
-							msleep(50);
-						}
-					}else{
-//						LOGE("player->is_play_audio is false");
+					long long append_time = currentMillisSec();
+					LOGI("append audio data time delay %lld %d %d",append_time-time,player->nplayer->audio_left(),get_audio_left(player));
+
+					while(player->nplayer->audio_working()&&(false == player->nplayer->append_audio_data((unsigned char*) audio_out,result))){
+//							LOGI("append audio data sleep");
+						msleep(50);
 					}
+
 				}
 			}
 

@@ -44,6 +44,7 @@ class NPlayer {
 
     bool pause();
     bool resume();
+    void flush();
 
     bool start_record_audio(fetch_cb callback);
     bool stop_record_audio();

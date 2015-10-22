@@ -763,10 +763,13 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_stopBCSelfServer(JNIEnv *env,
 *名称  : JVC_SendSelfDataOnceFromBC
 *功能  : 从自定义广播套接字发送一次UDP消息
 *参数  :
+
 		 [IN] pBuffer     净载数据
 		 [IN] nSize       净载数据长度
 		 [IN] pchDeviceIP 目的IP地址
 		 [IN] nLocalPort	  目的端口
+		 当调用此接口来唤醒时 参数：buffer传一个大小56的byte数组 buffer[0]传0x8c后面传0 size传56
+
 *返回值: 无
 *其他  :
 *****************************************************************************/

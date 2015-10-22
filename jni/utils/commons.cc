@@ -915,6 +915,8 @@ frame* poll_video_frame(player_suit* player) {
 	return f;
 }
 
+FILE *offerfile = NULL;
+FILE *pollfile = NULL;
 /**
  * 为缓冲队列提供新的音频数据
  *
@@ -922,7 +924,6 @@ frame* poll_video_frame(player_suit* player) {
 void offer_audio_frame(player_suit* player, BYTE* buf, int size,
 		bool is_chat_data, bool is_play_back, unsigned int ts) {
 
-	LOGI("offer_audio_frame");
 	if (NULL == player || NULL == player->core
 			|| NULL == player->core->audio_queue_handle) {
 		return;
@@ -943,7 +944,7 @@ void offer_audio_frame(player_suit* player, BYTE* buf, int size,
 		player->stat->audio_network_count++;
 		player->stat->audio_network_bytes += size;
 		pthread_mutex_unlock(&(player->stat->mutex));
-		LOGI("offer_audio_frame %p buf %s",f,f->buf);
+//		LOGI("offer_audio_frame %p buf %c",f,f->buf);
 
 	} else {
 		f->size = 0;
@@ -959,6 +960,14 @@ void offer_audio_frame(player_suit* player, BYTE* buf, int size,
 
 	pthread_mutex_lock(&(player->core->audio_queue_mt));
 	player->core->audio_queue_handle->push(f);
+	if(offerfile == NULL){
+		offerfile = fopen("/sdcard/offerfile.pcm","wb");
+	}
+	if(size > 0 && (NULL != offerfile))
+		fwrite(buf,size,1,offerfile);
+	else
+		LOGE("offer size or file is null");
+
 	pthread_mutex_unlock(&(player->core->audio_queue_mt));
 	sem_post(&(player->core->audio_queue_st));
 }
@@ -976,6 +985,11 @@ frame* poll_audio_frame(player_suit* player) {
 		if (player->core->audio_queue_handle->size() > 0) {
 			f = player->core->audio_queue_handle->front();
 			player->core->audio_queue_handle->pop();
+			if(pollfile == NULL){
+				pollfile = fopen("/sdcard/pollfile.pcm","wb");
+			}
+			if(f->size>0)
+				fwrite(f->buf,f->size,1,pollfile);
 		}
 		pthread_mutex_unlock(&(player->core->audio_queue_mt));
 	}

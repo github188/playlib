@@ -23,6 +23,7 @@ typedef enum _arg1 {
 
 typedef enum _arg2 {
     kArg2Success,
+    kArg2AutoStop,
     kArg2Fin,
     kArg2Mute,
     kArg2Failed,
@@ -34,6 +35,7 @@ typedef enum _play_type {
     kPTypeByFile,
     kPTypeByFPS,
     kPTypeByTS,
+    kPTypeAutoStop,
 } PlayType;
 
 typedef enum _frame_type {

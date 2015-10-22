@@ -325,7 +325,7 @@ struct player_suit {
 	bool is_JFH;
 	bool is_turn;
 
-	bool is_play_audio;
+	bool is_play_audio; //标志是否在对讲 来切换offeraudiodata的来源 true时使用normaldata的audio
 	bool is_playback_mode;
 
 	bool try_omx;

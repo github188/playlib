@@ -969,7 +969,7 @@ void NormalData(int index, BYTE type, BYTE* buf, int size, int width,
 			}
 
 //			long long  time = currentMillisSec();
-//			LOGI("%s  offer_audio_frame time %lld ",__FUNCTION__, time);
+//			LOGE("%s  offer_audio_frame time %lld ",__FUNCTION__, time);
 
 			offer_audio_frame(player, buf, size);
 
@@ -1077,9 +1077,7 @@ void ChatData(int index, BYTE type, BYTE* buf, int size) {
 						"%s [%p]: window = %d, audio.size = %d", LOCATE_PT, window, size);
 #endif
 
-//				long long time = currentMillisSec();
-//				LOGI("%s offer_audio_frame time %lld ", __FUNCTION__,time);
-
+				LOGI("%s offer_audio_frame time %lld ", __FUNCTION__);
 				offer_audio_frame(player, buf, size, true);
 			}
 		} else {
@@ -1502,7 +1500,7 @@ void onSearchLanServer(STLANSRESULT result) {
 	}
 }
 
-void onBCSelfServer(unsigned char *pBuffer, int nSize, char chIP[16], int nPort) {
+void onBCSelfServer(unsigned char *pBuffer, int nSize, char chIP[16], int nPort,int nType) {
 	jboolean needDetach = JNI_FALSE;
 	JNIEnv* env = genAttachedEnv(g_jvm, JNI_VERSION_1_6, &needDetach);
 
@@ -1526,6 +1524,7 @@ void onBCSelfServer(unsigned char *pBuffer, int nSize, char chIP[16], int nPort)
 		values["size"] = nSize;
 		values["ip"] = chIP;
 		values["port"] = nPort;
+		values["type"] = nType;
 
 		jstring jmsg = env->NewStringUTF(writer.write(values).c_str());
 

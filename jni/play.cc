@@ -73,7 +73,7 @@ using namespace Json;
 
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 
-	LOGV("player version = %s", nplayer::NPlayer::version());
+	LOGE("player version = %s", nplayer::NPlayer::version());
 
 	g_jvm = vm;
 	has_inited = false;
@@ -81,7 +81,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	has_link_enabled = false;
 
 	nplayer::NPlayer::init();
-
+//	LOGE("nplayer version %s",nplayer::NPlayer::version());
 //	memset(&suit, 0, sizeof(nplayer::PlaySuit));
 //	suit.window = 1;
 //	suit.audio_sample_rate = 8000;
@@ -94,22 +94,22 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 //	suit.enable_vad = false;
 //	suit.noise_suppress = -24;
 
-	memset(&suit, 0, sizeof(nplayer::audio::Suit));
-	suit.type = nplayer::audio::kTypeRawPCM;
-	suit.sample_rate = 8000;
-	suit.channel_per_frame = 1;
-	suit.bit_per_channel = 16;
-	suit.block = FRAMESIZE;
-
-	// 开启降噪
-	suit.enable_ns = true;
-	// 开启回声抑制
-	suit.enable_aec = true;
-
-	ps = new nplayer::PlaySuit(1, nplayer::kPTypeByFPS, &suit, NULL);
-	ps->set_audio(&suit);
-
-	handler = new EchoHandler();
+//	memset(&suit, 0, sizeof(nplayer::audio::Suit));
+//	suit.type = nplayer::audio::kTypeRawPCM;
+//	suit.sample_rate = 8000;
+//	suit.channel_per_frame = 1;
+//	suit.bit_per_channel = 16;
+//	suit.block = FRAMESIZE;
+//
+//	// 开启降噪
+//	suit.enable_ns = true;
+//	// 开启回声抑制
+//	suit.enable_aec = true;
+//
+//	ps = new nplayer::PlaySuit(1, nplayer::kPTypeByFPS, &suit, NULL);
+//	ps->set_audio(&suit);
+//
+//	handler = new EchoHandler();
 
 //	dummyFile = fopen(DUMMY_FILE, "wb");
 
@@ -434,7 +434,6 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_stopRecordAudioData(JNIEnv* env,
 					LOGX("JAE_EncodeCloseEx");
 					audio_encoder = NULL;
 				}
-				player->is_play_audio = false;
 				player->nplayer->stop_record_audio();
 			}
 		}else{
@@ -457,7 +456,6 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
 	if (index >= 0) {
 		player_suit* player = g_player[index];
 		if (NULL != player) {
-			player->is_play_audio = true;
 			if (NULL == audio_encoder) {
 				JAE_PARAM param = { 0 };
 
@@ -479,38 +477,6 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
 
 			if(NULL == player->nplayer){
 				LOGX("nplayer is null");
-
-//				nplayer::audio::Suit suit;
-//				nplayer::PlaySuit *ps = NULL;
-//				nplayer::NPlayer *jvc_audio_nplayer = NULL;
-//
-//				JAE_HANDLE audio_encoder = NULL;
-//
-//				EchoHandler* handler = new EchoHandler();
-//
-//				memset(&suit, 0, sizeof(nplayer::audio::Suit));
-//				suit.type = nplayer::audio::kTypeRawPCM;
-//				suit.sample_rate = 8000;
-//				suit.channel_per_frame = 1;
-//				suit.bit_per_channel = 16;
-//				suit.block = FRAMESIZE;
-//
-//				// 开启降噪
-//				suit.enable_ns = true;
-//				// 开启回声抑制
-//				suit.enable_aec = true;
-//
-//				ps = new nplayer::PlaySuit(1, nplayer::kPTypeByFPS, &suit, NULL);
-//				ps->set_audio(&suit);
-//
-//				jvc_audio_nplayer = new nplayer::NPlayer(ps, handler);
-//				jvc_audio_nplayer->resume();
-//				jvc_audio_nplayer->enable_audio(true);
-//				jvc_audio_nplayer->adjust_track_volume(adjust_volume);
-//				LOGI("%p adjust_track_volume %f",_function__,adjust_volume);
-//
-//				player->nplayer = jvc_audio_nplayer;
-
 			}else{
 				LOGX("nplayer start_record_audio ");
 				player->nplayer->start_record_audio(fetchd);
@@ -972,7 +938,6 @@ JNIEXPORT jint JNICALL Java_com_jovision_Jni_connect(JNIEnv *env, jclass clazz,
 		}
 
 		player->try_omx = false;
-		player->is_play_audio = true;
 
 		if (JNI_TRUE == isTryOmx) {
 			player->try_omx = g_has_omx_inited;
