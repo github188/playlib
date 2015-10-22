@@ -1524,7 +1524,10 @@ void onBCSelfServer(unsigned char *pBuffer, int nSize, char chIP[16], int nPort,
 		values["size"] = nSize;
 		values["ip"] = chIP;
 		values["port"] = nPort;
-		values["type"] = nType;
+		values["newtype"] = nType;
+
+
+		LOGI("new type is %d",nType);
 
 		jstring jmsg = env->NewStringUTF(writer.write(values).c_str());
 

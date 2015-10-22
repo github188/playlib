@@ -26,7 +26,7 @@ void PlayData(int index, BYTE type, BYTE* buf, int size, int width, int height,
 		int frame);
 
 void onSearchLanServer(STLANSRESULT stLSResult);
-int onQueryDevice(STLANSRESULT* stLSResult);
+int  onQueryDevice(STLANSRESULT* stLSResult);
 void onBCSelfServer(unsigned char *pBuffer, int nSize, char chIP[16], int nPort,int nType) ;
 int onOmxInfo(OMX_INFO * info);
 

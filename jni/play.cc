@@ -1818,7 +1818,7 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_sendSelfDataOnceFromBC(JNIEnv *env,
 
 	char *cip  = getNativeChar(env, ip);
 	BYTE *byte = (BYTE *)buf;
-	LOGI("%s jbyte size %x",__FUNCTION__,byte[0]);
+	LOGI("%s byte %x%x%x%x",__FUNCTION__,byte[0],byte[1],byte[2],byte[3]);
 	JVC_SendSelfDataOnceFromBC(byte,size,cip,port);
 }
 
