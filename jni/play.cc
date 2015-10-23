@@ -1812,14 +1812,15 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_stopBCSelfServer(JNIEnv *env,
 JNIEXPORT void JNICALL Java_com_jovision_Jni_sendSelfDataOnceFromBC(JNIEnv *env,
 		jclass clazz,jbyteArray buffer,jint size,jstring ip,jint port) {
 //	LOGI( "%s bytearray %x%x%x%x",__FUNCTION__,buffer[0],buffer[1],buffer[2],buffer[3]);
-
+	jboolean result = -1;
 	jbyte * buf = env->GetByteArrayElements(buffer,0);
 //	jbyte * buf = getNativeByteByLength(env,buffer,0,size);
 
 	char *cip  = getNativeChar(env, ip);
 	BYTE *byte = (BYTE *)buf;
 	LOGI("%s byte %x%x%x%x",__FUNCTION__,byte[0],byte[1],byte[2],byte[3]);
-	JVC_SendSelfDataOnceFromBC(byte,size,cip,port);
+	result = JVC_SendSelfDataOnceFromBC(byte,size,cip,port);
+	LOGE("%s result %d",__FUNCTION__,result);
 }
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_searchLanDevice(JNIEnv *env,
