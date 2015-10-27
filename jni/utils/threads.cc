@@ -1122,8 +1122,11 @@ void *append_by_data(void* stu_audio){
 
 	return NULL;
 }
+
 extern FILE *dummyFile ;
 extern JAE_HANDLE audio_encoder;
+extern int g_is_aec;
+extern int g_is_denoise;
 
 void* onPlayAudio(void* _index) {
 	int index = (int) _index;
@@ -1186,9 +1189,9 @@ void* onPlayAudio(void* _index) {
 		suit.block = FRAMESIZE;
 
 		// 开启降噪
-		suit.enable_ns = true;
+		suit.enable_ns = g_is_aec;
 		// 开启回声抑制
-		suit.enable_aec = true;
+		suit.enable_aec = g_is_denoise;
 
 		ps = new nplayer::PlaySuit(1, nplayer::kPTypeByFPS, &suit, NULL);
 		ps->set_audio(&suit);

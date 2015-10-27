@@ -67,6 +67,9 @@ nplayer::audio::Suit suit;
 nplayer::PlaySuit *ps = NULL;
 nplayer::NPlayer *new_nplayer = NULL;
 
+bool g_is_aec = true;
+bool g_is_denoise = true;
+
 int channel_index = 1; //记录设备的通道号，发送音频数据时使用
 float adjust_volume = 1.0;//
 using namespace Json;
@@ -902,6 +905,14 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_resume(JNIEnv* env,
 
 	LOGX( "resume X: %d", result);
 	return result;
+}
+
+JNIEXPORT void JNICALL Java_com_jovision_Jni_setAecDeniose
+  (JNIEnv *env, jclass cls, jboolean isAec,jboolean isDenoise){
+	int aec = (JNI_TRUE == isAec)?1:0;
+    int denoise = (JNI_TRUE == isDenoise)?1:0;
+    g_is_aec = aec;
+    g_is_denoise = denoise;
 }
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_connect(JNIEnv *env, jclass clazz,
