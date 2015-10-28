@@ -1077,7 +1077,7 @@ void ChatData(int index, BYTE type, BYTE* buf, int size) {
 						"%s [%p]: window = %d, audio.size = %d", LOCATE_PT, window, size);
 #endif
 
-				LOGI("%s offer_audio_frame time %lld ", __FUNCTION__);
+//				LOGI("%s offer_audio_frame time %lld ", __FUNCTION__);
 				offer_audio_frame(player, buf, size, true);
 			}
 		} else {

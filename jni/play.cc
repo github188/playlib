@@ -466,7 +466,6 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_stopRecordAudioData(JNIEnv* env,
 	}
 }
 
-bool test = false;
 JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
 		jclass clz,jint window) {
 
