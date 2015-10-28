@@ -1188,10 +1188,11 @@ void* onPlayAudio(void* _index) {
 		suit.bit_per_channel = 16;
 		suit.block = FRAMESIZE;
 
-		// 开启降噪
-		suit.enable_ns = g_is_aec;
 		// 开启回声抑制
-		suit.enable_aec = g_is_denoise;
+		suit.enable_aec = g_is_aec;
+		// 开启降噪
+		suit.enable_ns = g_is_denoise;
+
 
 		ps = new nplayer::PlaySuit(1, nplayer::kPTypeByFPS, &suit, NULL);
 		ps->set_audio(&suit);
@@ -1415,12 +1416,13 @@ void* onPlayAudio(void* _index) {
 
 
 					long long append_time = currentMillisSec();
-					LOGI("append audio data time delay %lld %d %d",append_time-time,player->nplayer->audio_left(),get_audio_left(player));
-
+//					LOGI("append audio data time delay %lld %d %d",append_time-time,player->nplayer->audio_left(),get_audio_left(player));
+					pthread_mutex_lock(&(player->stat->mutex));
 					while(player->nplayer->audio_working()&&(false == player->nplayer->append_audio_data((unsigned char*) audio_out,result))){
 //							LOGI("append audio data sleep");
 						msleep(50);
 					}
+					pthread_mutex_unlock(&(player->stat->mutex));
 
 				}
 			}
@@ -1525,7 +1527,6 @@ void* onPlayAudio(void* _index) {
 
 //	LOGI("跳出while audio---->444");
 	LOGX("%s [%p]: X, window = %d", LOCATE_PT, window);
-	player->is_audio_working = false;
 
 	is_audio_end = true;
 	return NULL;

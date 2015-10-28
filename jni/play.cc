@@ -394,19 +394,42 @@ void *append_by_file(void *handle) {
 	return NULL;
 }
 
-void initNPlayer() {
+void initNPlayer(int is_aec ,int is_denoise) {
 	shutdown_audio();
 //	dummyFile = fopen(DUMMY_FILE, "wb");
+
+	nplayer::audio::Suit suit;
+	nplayer::PlaySuit *ps = NULL;
+	nplayer::NPlayer *jvc_audio_nplayer = NULL;
+
+	EchoHandler* handler = new EchoHandler();
+
+	memset(&suit, 0, sizeof(nplayer::audio::Suit));
+	suit.type = nplayer::audio::kTypeRawPCM;
+	suit.sample_rate = 8000;
+	suit.channel_per_frame = 1;
+	suit.bit_per_channel = 16;
+	suit.block = FRAMESIZE;
+
+	// 开启降噪
+	suit.enable_ns = is_denoise;
+	// 开启回声抑制
+	suit.enable_aec = is_aec;
+
+	ps = new nplayer::PlaySuit(1, nplayer::kPTypeByFPS, &suit, NULL);
+	ps->set_audio(&suit);
 
 	new_nplayer = new nplayer::NPlayer(ps, handler);
 	new_nplayer->resume();
 	new_nplayer->enable_audio(true);
 	new_nplayer->adjust_track_volume(adjust_volume);
+	LOGI("adjust_track_volume %f",adjust_volume);
+
 }
 
 JNIEXPORT void JNICALL Java_com_jovision_Jni_initDenoisePlayer(JNIEnv* env,
 		jclass clz){
-	initNPlayer();
+	initNPlayer(true,true);
 }
 
 JNIEXPORT void JNICALL Java_com_jovision_Jni_setAdjustVolume(JNIEnv* env,
@@ -414,8 +437,6 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_setAdjustVolume(JNIEnv* env,
 	if(fabsf(f)>0.00001)
 		adjust_volume = f;
 }
-
-
 
 JNIEXPORT void JNICALL Java_com_jovision_Jni_stopRecordAudioData(JNIEnv* env,
 		jclass clz,jint window) {
@@ -445,6 +466,7 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_stopRecordAudioData(JNIEnv* env,
 	}
 }
 
+bool test = false;
 JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
 		jclass clz,jint window) {
 
@@ -477,13 +499,15 @@ JNIEXPORT void JNICALL Java_com_jovision_Jni_recordAndsendAudioData(JNIEnv* env,
 				audio_encoder = JAE_EncodeOpenEx(&param);
 		//		adec = JAD_DecodeOpenEx(2);
 			}
-
+			pthread_mutex_lock(&(player->stat->mutex));
 			if(NULL == player->nplayer){
 				LOGX("nplayer is null");
 			}else{
 				LOGX("nplayer start_record_audio ");
 				player->nplayer->start_record_audio(fetchd);
 			}
+			pthread_mutex_unlock(&(player->stat->mutex));
+
 		}else{
 			LOGX("player is null");
 		}
@@ -907,12 +931,63 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_resume(JNIEnv* env,
 	return result;
 }
 
-JNIEXPORT void JNICALL Java_com_jovision_Jni_setAecDeniose
-  (JNIEnv *env, jclass cls, jboolean isAec,jboolean isDenoise){
+JNIEXPORT void JNICALL Java_com_jovision_Jni_resetAecDenoise
+  (JNIEnv *env, jclass cls,jint window , jboolean isAec,jboolean isDenoise){
 	int aec = (JNI_TRUE == isAec)?1:0;
     int denoise = (JNI_TRUE == isDenoise)?1:0;
+
+    if((g_is_aec == aec)&&(g_is_denoise == denoise))
+    	return;
+    LOGI("setAec Denoise");
     g_is_aec = aec;
     g_is_denoise = denoise;
+
+	int index = window2Array(window);
+	if (index >= 0) {
+		player_suit* player = g_player[index];
+		if (NULL != player) {
+			pthread_mutex_lock(&(player->stat->mutex));
+
+			player->nplayer->stop_record_audio();
+			player->nplayer->enable_audio(false);
+			msleep(150);
+			if (NULL != player->nplayer) {
+				delete player->nplayer;
+				player->nplayer = NULL;
+			}
+
+			nplayer::audio::Suit suit;
+			nplayer::PlaySuit *ps = NULL;
+
+			EchoHandler* handler = new EchoHandler();
+
+			memset(&suit, 0, sizeof(nplayer::audio::Suit));
+			suit.type = nplayer::audio::kTypeRawPCM;
+			suit.sample_rate = 8000;
+			suit.channel_per_frame = 1;
+			suit.bit_per_channel = 16;
+			suit.block = FRAMESIZE;
+
+			// 开启回声抑制
+			suit.enable_aec = g_is_aec;
+			// 开启降噪
+			suit.enable_ns = g_is_denoise;
+
+
+			ps = new nplayer::PlaySuit(1, nplayer::kPTypeByFPS, &suit, NULL);
+			ps->set_audio(&suit);
+
+			player->nplayer = new nplayer::NPlayer(ps, handler);
+		//					player->nplayer->resume();
+		//					player->nplayer->enable_audio(true);
+			player->nplayer->adjust_track_volume(adjust_volume);
+			LOGI("renew player adjust_track_volume %f",adjust_volume);
+
+			pthread_mutex_unlock(&(player->stat->mutex));
+		}
+	}else{
+		LOGI("%p index < 0 ",__FUNCTION__);
+	}
 }
 
 JNIEXPORT jint JNICALL Java_com_jovision_Jni_connect(JNIEnv *env, jclass clazz,

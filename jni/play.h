@@ -64,8 +64,8 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_setRecordVolume
  * isAec 是否开启回声一致 默认是
  * isDenoise 是否开启降噪 默认是
  */
-JNIEXPORT void JNICALL Java_com_jovision_Jni_setAecDeniose
-  (JNIEnv *, jclass, jboolean,jboolean);
+JNIEXPORT void JNICALL Java_com_jovision_Jni_resetAecDenoise
+  (JNIEnv *env, jclass cls,jint window , jboolean isAec,jboolean isDenoise);
 
 /*
  * Class:     com_jovision_Jni
