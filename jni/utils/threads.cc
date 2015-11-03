@@ -1074,7 +1074,7 @@ void* onPlayVideo(void* _index) {
 			g_jvm->DetachCurrentThread();
 		}
 	}
-	LOGI("on play vide end ----> index: %d", index);
+	LOGI("on play video end ----> index: %d", index);
 	LOGX("%s [%p]: X, window = %d", LOCATE_PT, window);
 	is_video_end = true;
 	return NULL;
@@ -1198,8 +1198,8 @@ void* onPlayAudio(void* _index) {
 		ps->set_audio(&suit);
 
 		jvc_audio_nplayer = new nplayer::NPlayer(ps, handler);
-		jvc_audio_nplayer->resume();
-		jvc_audio_nplayer->enable_audio(true);
+//		jvc_audio_nplayer->resume();
+//		jvc_audio_nplayer->enable_audio(true);
 		jvc_audio_nplayer->adjust_track_volume(adjust_volume);
 		LOGI("adjust_track_volume %f",adjust_volume);
 
