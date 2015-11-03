@@ -1528,6 +1528,8 @@ void* onPlayAudio(void* _index) {
 //	LOGI("跳出while audio---->444");
 	LOGX("%s [%p]: X, window = %d", LOCATE_PT, window);
 
+	player->is_audio_working = false;
+
 	is_audio_end = true;
 	return NULL;
 }
