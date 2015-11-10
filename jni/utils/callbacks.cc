@@ -690,7 +690,7 @@ void NormalData(int index, BYTE type, BYTE* buf, int size, int width,
 			memcpy(&oHeight, buf + 10, 4);
 			memcpy(&reserved, buf + 26, 4);
 
-			LOGV(
+			LOGE(
 					"%s [%p]: window = %d, Frame O start: 0x%X, parse: %dx%d(%dx%d), reserved: 0x%X", LOCATE_PT, window, devStartCode, oWidth, oHeight, width, height, reserved);
 
 			switch (devStartCode) {
@@ -722,6 +722,8 @@ void NormalData(int index, BYTE type, BYTE* buf, int size, int width,
 				audioBit = 16;
 				audioType = JAE_ENCODER_ALAW;
 				audioEncType = JAE_ENCODER_ALAW;
+				LOGE("device type IPC %d",devType);
+
 				break;
 
 			case JVN_NVR_STARTCODE:
@@ -730,6 +732,7 @@ void NormalData(int index, BYTE type, BYTE* buf, int size, int width,
 				audioBit = 16;
 				audioType = JAE_ENCODER_ALAW;
 				audioEncType = JAE_ENCODER_ALAW;
+				LOGE("device type NVR %d",devType);
 				break;
 
 			case JVN_DSC_960CARD:
@@ -839,6 +842,8 @@ void NormalData(int index, BYTE type, BYTE* buf, int size, int width,
 			values["is05"] = is05;
 			values["fps"] = fps;
 			values["device_type"] = devType;
+			LOGE("device type %d",devType);
+
 			values["start_code"] = devStartCode;
 			values["reserved"] = reserved;
 			values["auto_stop_recorder"] = false;

@@ -2257,7 +2257,7 @@ JNIEXPORT jboolean JNICALL Java_com_jovision_Jni_enablePlayAudio(JNIEnv *env,
 	if (index >= 0) {
 		player_suit* player = g_player[index];
 		if (NULL != player && player->is_connected) {
-			player->is_play_audio = (JNI_TRUE == enable) ? true : false;
+			player->is_play_audio = (JNI_TRUE == enable) ? true : false;//是否监听
 			result = JNI_TRUE;
 		}
 	} else {
