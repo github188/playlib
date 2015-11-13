@@ -1242,6 +1242,68 @@ void TextData(int index, BYTE type, BYTE* buf, int size) {
 						break;
 					}
 
+					case RC_EX_DISPLAY:{
+
+						LOGE("RC_EX_DISPLAY ");
+						matched = true;
+						if(EX_DISPLAY_BELLLIGHT == _extends->nType){
+
+						}else if(EX_DISPLAY_SUSPENDTIME == _extends->nType){
+
+						}else if(EX_DISPLAY_STARTGUIDE == _extends->nType){
+
+						}else if(EX_DISPLAY_REFRESH == _extends->nType ){
+							flag = RC_EX_DISPLAY;
+							pmsg = byte2char((BYTE*) (_extends->acData),
+									0, _extends->nParam1);
+							LOGE("RC_EX_DISPLAY %d %s",RC_EX_DISPLAY,pmsg);
+
+						}
+
+						break;
+					}
+
+					case RC_EX_INTELLIGENCE:{
+						matched = true;
+						LOGI("RC_EX_INTELLIGENCE ");
+						if(EX_INTELLIGENCE_ALARMTYPE == _extends->nType){
+
+						}else if(EX_INTELLIGENCE_PIR == _extends->nType){
+
+						}else if(EX_INTELLIGENCE_GSENSOR == _extends->nType){
+
+						}else if(EX_INTELLIGENCE_REFRESH == _extends->nType){
+							flag = RC_EX_INTELLIGENCE;
+							pmsg = byte2char((BYTE*) (_extends->acData),
+									0, _extends->nParam1);
+							LOGE(" RC_EX_INTELLIGENCE %d %s",RC_EX_INTELLIGENCE,pmsg);
+
+						}
+						break;
+					}
+
+					case RC_EX_ABOUTEYE:{
+						matched = true;
+
+						LOGE("RC_EX_ABOUTEYE");
+						if(EX_ABOUT_REBOOT == _extends->nType){
+
+						}else if(EX_ABOUT_FORMAT == _extends->nType){
+
+						}else if(EX_ABOUT_SHUTDOWN == _extends->nType){
+
+						}else if(EX_ABOUT_REFRESH == _extends->nType){
+							flag = RC_EX_ABOUTEYE;
+							pmsg = byte2char((BYTE*) (_extends->acData),
+									0, _extends->nParam1);
+
+							LOGE("RC_EX_ABOUTEYE %d %s",RC_EX_ABOUTEYE,pmsg);
+						}
+
+						break;
+					}
+
+
 					case RC_EX_FlashJpeg: {
 						matched = true;
 						flag = FLAG_CAPTURE_FLASH;

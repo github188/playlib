@@ -165,6 +165,24 @@ typedef struct {
 #define EX_MD_UPDATE			0x03
 #define RC_EX_STORAGE		0x03
 #define RC_EX_MD		    0x06
+
+#define RC_EX_DISPLAY       0x30
+#define RC_EX_INTELLIGENCE  0x31
+#define RC_EX_ABOUTEYE      0x32
+
+#define EX_DISPLAY_BELLLIGHT      0x02
+#define EX_DISPLAY_SUSPENDTIME    0x03
+#define EX_DISPLAY_STARTGUIDE     0x04
+#define EX_DISPLAY_REFRESH        0x01
+#define EX_INTELLIGENCE_ALARMTYPE 0x02
+#define EX_INTELLIGENCE_PIR      0x03
+#define EX_INTELLIGENCE_GSENSOR 0x04
+#define EX_INTELLIGENCE_REFRESH 0x01
+#define EX_ABOUT_REBOOT         0x02
+#define EX_ABOUT_FORMAT         0x03
+#define EX_ABOUT_SHUTDOWN       0x04
+#define EX_ABOUT_REFRESH        0x01
+
 #define EX_NW_REFRESH		0x08
 #define EX_WIFI_AP_CONFIG 0x0B	//针对新AP配置方式，获取到手机端配置的AP信息，便立即返回
 #define RC_EX_FIRMUP      0x01  //检查到设备更新，更新设备命令

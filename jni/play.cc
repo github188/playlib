@@ -172,6 +172,8 @@ JNIEXPORT jstring JNICALL Java_com_jovision_Jni_getVersion(JNIEnv *env,
 	result += RELEASE_DATE;
 	result += "\",\"net\":\"";
 	result += JVC_GetVersion();
+	result += "\",\"nplayer\":\"";
+	result += nplayer::NPlayer::version();
 	result += "\"}";
 	return env->NewStringUTF(result.c_str());
 }
