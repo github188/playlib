@@ -1654,6 +1654,7 @@ int CheckDownFile(unsigned char * pMp4Data)
 }
 
 bool isNewData(){
+	LOGE("iscanceldown %d isNormalData %d",isCancelDown,isNormalData);
 	return (isCancelDown&&isNormalData);
 }
 
