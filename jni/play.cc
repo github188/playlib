@@ -106,7 +106,8 @@ void fetchd(const nplayer::byte *data, size_t size, uint64_t ts) {
 //	LOGV("fetched: %p, %d, %llu", data, size, ts);
 	unsigned char* enc_data ;
 
-	if(NULL != audio_encoder){
+	if(NULL != audio_encoder&& NULL != data){
+
 	    int result = JAE_EncodeOneFrameEx(audio_encoder,(unsigned char*)data,
 	    		&enc_data);
 
@@ -118,6 +119,8 @@ void fetchd(const nplayer::byte *data, size_t size, uint64_t ts) {
 	    LOGI("encode size %d index %d",result,channel_index);
 //	    if(320 == result)
 	        JVC_SendData(channel_index, JVN_RSP_CHATDATA, enc_data, result);
+	}else{
+		LOGE("audiohandler is null or fetcheddata is null");
 	}
 }
 
