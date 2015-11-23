@@ -1282,6 +1282,15 @@ void TextData(int index, BYTE type, BYTE* buf, int size) {
 						break;
 					}
 
+					case RC_EX_SENSOR:{
+						matched = true;
+						flag = RC_EX_SENSOR;
+						pmsg = byte2char((BYTE*) (_extends->acData),
+								0, strlen(_extends->acData));
+						LOGE(" RC_EX_SENSOR %d %s",RC_EX_SENSOR,pmsg);
+						break;
+					}
+
 					case RC_EX_ABOUTEYE:{
 						matched = true;
 
